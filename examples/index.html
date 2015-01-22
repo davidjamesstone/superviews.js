@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>mdls</title>
+
+</head>
+
+<body data-sm="app">
+  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="../dist/supermodels.js"></script>
+  <ul id="errors"></ul>
+  <form id="formy" data-sm="person">
+    <ul id="person-errors"></ul>
+    <input type="checkbox" data-bind="isActive">
+    <input type="hidden">
+    <input type="password">
+    <input type="radio" name="sex" value="M" data-bind="sex"> Male
+    <input type="radio" name="sex" value="F" data-bind="sex"> Female
+    <input type="text" placeholder="First Name" data-eval="firstName">
+    <input type="text" placeholder="Last Name" data-bind="lastName">
+    <select data-bind="age">
+      <option>Please choose</option>
+      <option value="1">1</option>
+      <option value="2">2</option>
+    </select>
+    <textarea placeholder="Description" data-bind="description"></textarea>
+
+    <fieldset data-sm="address">
+      <ul id="address-errors"></ul>
+      <input type="text" placeholder="Line 1" data-bind="line1">
+      <input type="text" placeholder="Line 2" data-bind="line2">
+      <input type="text" placeholder="Country" data-bind="country">
+    </fieldset>
+
+    <fieldset data-sm="scores">
+      <ul id="scores-errors"></ul>
+      <table id="scores">
+        <thead>
+          <tr>
+            <th>Value</th>
+            <th>
+              <th>
+                <input type="number" id="score">
+              </th>
+              <th>
+                <button id="add-score">Add score</button>
+              </th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Scores get appended here -->
+        </tbody>
+      </table>
+    </fieldset>
+
+    <pre id="model-json"></pre>
+  </form>
+  <script>
+    /**
+     * Simple Validators Example
+     * Validators are defined as objects with a 'test' (fn) property
+     * The function is invoked in the context of the model being validated.
+     * The 'test' function is called with the following:
+     * value - the value of the key or model to be validated
+     * key - the key name. This will be undefined for model level validators
+     *
+     * Any other data will be passed through and
+     * available in any subsequent validation errors.
+     */
+    var validators = {
+      required: {
+        name: 'required',
+        test: function(value, key) {
+          if (!value) {
+            return key + ' is required';
+          }
+        },
+        whatever: 42
+      },
+      number: {
+        name: 'isNumber',
+        test: function(value, key) {
+          if (Object.prototype.toString.call(value) !== '[object Number]') {
+            return key + ' should be a number';
+          }
+        }
+      }
+    };
+
+    var app = supermodels({
+      person: {
+        firstName: {
+          __value: 'Fred',
+          __validators: [validators.required]
+        },
+        lastName: {
+          __value: 'Bloggs',
+          __validators: [validators.required]
+        },
+        age: {
+          __type: Number,
+          __validators: [validators.number]
+        },
+        sex: {
+          __validators: [validators.required]
+        },
+        isActive: false,
+        description: '',
+        address: {
+          line1: {
+            __validators: [validators.required]
+          },
+          line2: {
+            __validators: [validators.required]
+          },
+          country: {
+            __validators: [function(value) {
+              var validCountries = ['UK', 'France', 'US', 'Iceland'];
+              if (validCountries.indexOf(value) === -1) {
+                return 'Country must be one of the following: ' + validCountries.join(', ');
+              }
+            }]
+          }
+        },
+        scores: [{
+          value: {
+            __type: Number,
+            __validators: [validators.required]
+          },
+          createdOn: {
+            __value: Date.now()
+          }
+        }],
+        __validators: [function() {
+          if (!this.scores.length) {
+            return 'Please supply at least one score';
+          }
+        }]
+      }
+    });
+
+  </script>
+  <script>
+
+    $(function() {
+
+      function registerContexts(element, parentContext) {
+
+        var $element = $(element);
+
+        // Search for top-level context within this element
+        var $contexts = $('[data-sm]', $element).filter(function() {
+          return $(this).parent('[data-sm]').get(0) === $element.get(0);
+        });
+
+        // Register each context in turn
+        $contexts.each(function() {
+
+          registerContext(this, parentContext);
+
+        });
+
+      }
+
+      function registerContext(element, parentContext) {
+
+        var $element = $(element);
+        var contextName = $element.data('sm');
+        var context = parentContext[contextName];
+
+        // Find binding elements that exist within this element context
+        var selector = '[data-bind]:input,[data-eval]:input';
+        var $inputs = $(selector, $element).filter(function() {
+          return $(this).parent('[data-sm]').get(0) === $element.get(0);
+        });
+
+        $inputs.each(function() {
+
+          var bindExpr = $(this).data('bind');
+          var evalExpr = $(this).data('eval');
+
+          var expr = bindExpr || evalExpr;
+
+          if (this.type === 'checkbox') {
+            this.checked = context[expr] || false;
+          } else if (this.type === 'radio') {
+            if (this.value === context[expr]) {
+              this.checked = true;
+            }
+          } else if (context[expr]) {
+            this.value = context[expr];
+          }
+
+          if (bindExpr) {
+            this.onchange = function() {
+              context[expr] = this.type === 'checkbox' ? this.checked : this.value;
+            }
+          }
+
+        });
+
+        registerContexts(element, context);
+      }
+
+      registerContexts(document.body, app);
+
+    });
+
+    $(function() {
+
+      var $errors = $('#errors');
+      var $personErrors = $('#person-errors');
+      var $addressErrors = $('#address-errors');
+      var $scoresErrors = $('#scores-errors');
+
+      var $modelJson = $('#model-json');
+      var $score = $('#score');
+      var $scoreValues = $('#scores tbody');
+
+      function renderJson() {
+        $modelJson.html(JSON.stringify(app, null, 2));
+      }
+
+      function renderErrors() {
+        $errors.empty();
+        $personErrors.empty();
+        $addressErrors.empty();
+        $scoresErrors.empty();
+
+        var i;
+        for (i = 0; i < app.errors.length; i++) {
+          $('<li>').text(app.errors[i].error).appendTo($errors);
+        }
+        for (i = 0; i < app.person.errors.length; i++) {
+          $('<li>').text(app.person.errors[i].error).appendTo($personErrors);
+        }
+        for (i = 0; i < app.person.address.errors.length; i++) {
+          $('<li>').text(app.person.address.errors[i].error).appendTo($addressErrors);
+        }
+        // for (i = 0; i < app.person.address.errors.length; i++) {
+        //   $('<li>').text(app.person.address.errors[i].error).appendTo($addressErrors);
+        // }
+      }
+
+      function renderScores() {
+        var scoreValues = app.person.scores.map(function(item) {
+          return item.value;
+        });
+
+        $scoreValues.html('<td>' + scoreValues.join('</td><td>') + '</td>');
+      }
+
+      function render() {
+        renderJson();
+        renderErrors();
+      }
+
+      render();
+
+      app.on('change', render);
+
+
+      /**
+       * View
+       */
+      app.person.scores.on('change', function() {
+        renderScores();
+      });
+
+      $('#add-score').click(function(e) {
+        e.preventDefault();
+        var value = $score.val();
+        
+        if (!value) {
+          return;
+        }
+  
+        var scores = app.person.scores;
+        var newScore = scores.create();
+        newScore.value = value;
+        scores.push(newScore);
+
+        return false;
+      });
+
+    });
+  </script>
+</body>
+
+</html>

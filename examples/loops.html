@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Superviews</title>
+  <style>
+    .active {
+      color: red;
+    }
+  </style>
+  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="../node_modules/supermodels.js/dist/supermodels.js"></script>
+  <script src="../dist/superviews.js"></script>
+</head>
+
+<body>
+
+  <h1>A look at loops</h1>
+  
+  <div ui-with="app" ui-title="name">
+
+    <p ui-text="name"></p>
+
+    <ul ui-for="items">
+      <li ui-hide="isLast" ui-class="{ active: isCurrent, first: isFirst, last: isLast }">
+        <span ui-text="name"></span>&nbsp;|&nbsp;<span ui-text="text"></span>
+        
+        <ul ui-for="subItems">
+          <li>
+            <span ui-text="foo"></span>
+            <ul ui-for="subItems">
+              <li>
+                <span ui-text="bar"></span>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        
+      </li>
+    </ul>
+
+    <div ui-with="something">
+      <p ui-text="whatever"></p>  
+    </div>
+    
+    <div ui-with="items">
+      <p ui-text="__parent.name"></p>  
+    </div>
+    
+    <input type="number" ui-value="currentItemId" onchange="currentItemId = this.value" 
+      placeholder="Set active item" min=0 ui-max="items.length - 1" style="width: 200px" />
+      
+    <pre id="json">
+    </pre>
+  </div>
+
+  <script>
+    var app = supermodels({
+      name: 'My App Name',
+      currentItemId: Number,
+      something: {
+        whatever: String
+      },
+      items: [{
+        name: '',
+        text: '',
+        quantity: Number,
+        index: {
+          __enumerable: false,
+          __get: function() {
+            var parent = this.__parent;
+            var index = parent.indexOf(this);
+            return index;
+          }
+        },
+        get isCurrent() {
+          return this.index === this.__parent.__parent.currentItemId;
+        },
+        get isFirst() {
+          return this.index === 0;
+        },
+        get isLast() {
+          return this.index === (this.__parent.length - 1);
+        },
+        subItems: [{
+          foo: String,
+          subItems: [{
+           bar: String 
+          }]
+        }]
+      }]
+    });
+
+    var newItem1 = app.items.create();
+    newItem1.name = 'item1';
+    newItem1.text = 'item1 text';
+    newItem1.quantity = 4;
+    app.items.push(newItem1);
+    
+    var newItem2 = app.items.create();
+    newItem2.name = 'item2';
+    newItem2.text = 'item2 text';
+    newItem2.quantity = 4;
+    app.items.push(newItem2);
+    
+    // add a few blank items
+    app.items.push(app.items.create());
+    app.items.push(app.items.create());
+    app.items.push(app.items.create());
+    app.items.push(app.items.create());
+    
+    var subItem = newItem1.subItems.create();
+    subItem.foo = 'foofoo';
+    newItem1.subItems.push(subItem);
+    
+    var subSubItem = subItem.subItems.create();
+    subSubItem.bar = 'barbar';
+    subItem.subItems.push(subSubItem);
+    
+    function renderJson() {
+      $('#json').html(JSON.stringify(app, null, 2));
+    }
+    renderJson()
+    
+    var $body = $(document.body);
+
+    $body.superviews();
+    
+    app.on('change', function() {
+      renderJson();
+      $body.superviews();
+    });
+    
+  </script>
+  
+</body>
+
+</html>

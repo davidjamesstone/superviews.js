@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>Superviews</title>
+
+  <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script src="../dist/supermodels.js"></script>
+</head>
+
+<body>
+
+  <div sm="app">
+
+    <div>
+      
+    </div>
+    <p text="name" color="color"></p>
+    
+    <h4>Change name (updates immediately)</h4>
+    <input type="text" value="name" onkeyup="name = this.value"/>
+    
+    <h4>Change name (updates on exit field)</h4>
+    <input type="text" value="name" onchange="name = this.value"/>
+    
+    <button onclick="changeName()">Change app name</button>
+    <button onclick="changeName('Brian')">Change app name to Brian</button>
+
+    <div sm="sidebar">
+      <button onclick="toggleSidebar()" text="buttonText"></button>
+      <button onclick="message(__parent.name)">Message app name</button>
+      <aside hide="hide">Sidebar</aside>
+    </div>
+
+    <button onclick="hideFooter = !hideFooter">Toggle Footer</button>
+    <footer hide="hideFooter">Footer</footer>
+
+    <pre id="json">
+      
+    </pre>
+  </div>
+
+  <script>
+    var ui = {
+      value: function(value) {
+        this.value = value;
+      },
+      text: function(value) {
+        this.innerText = value;
+      },
+      hide: function(value) {
+        this.style.display = value ? 'none' : '';
+      },
+      color: function(value) {
+        this.style.color = value;
+      }
+    };
+
+    var app = supermodels({
+      name: 'My App',
+      color: '',
+      changeName: function(name) {
+        this.name = name || prompt('Enter a new name', this.name);
+        this.color = this.name === 'red' ? 'red' : '';
+      },
+      hideFooter: false,
+      sidebar: {
+        hide: false,
+        buttonText: 'Hide',
+        toggleSidebar: function() {
+          this.hide = !this.hide;
+          this.buttonText = this.hide ? 'Show' : 'Hide';
+        },
+        message: function(msg) {
+          alert(msg)
+        }
+      }
+    });
+
+    function renderJson() {
+      $('#json').html(JSON.stringify(app, null, 2));
+    }
+    renderJson()
+    app.on('change', renderJson);
+
+
+
+
+
+    var keys = Object.keys(ui);
+
+    function scan(el) {
+      var $el = $(el || document.body);
+
+      keys.forEach(function(key) {
+        var $found = $('[' + key + ']', $el);
+
+        $found.each(function(index, item) {
+          var $this = $(this);
+          var expr = $this.attr(key);
+          var model = eval($this.sm());
+
+          ui[key].call(item, model[expr]);
+
+          model.on('change:' + expr, function(e) {
+            ui[key].call(item, e.detail.value);
+          });
+        });
+      });
+
+    }
+
+    (function($) {
+
+      $.fn.sm = function() {
+
+        return $(this).parents('[sm]').map(function() {
+          return $(this).attr('sm');
+        }).toArray().reverse().join('.');
+
+      };
+
+    }(jQuery));
+
+    $(function() {
+
+      
+      $('[onclick]').each(function(index, item) {
+        var ctx = $(this).sm();
+        var fn = new Function('e', 'with (' + ctx + ') {\n' + $(this).attr('onclick') + '\nconsole.log("onclick");\n}');
+        this.onclick = fn;
+      });
+      $('[onkeypress]').each(function(index, item) {
+        var ctx = $(this).sm();
+        var fn = new Function('e', 'with (' + ctx + ') {\n' + $(this).attr('onkeypress') + '\nconsole.log("onkeypress");\n}');
+        this.onkeypress = fn;
+      });
+      $('[onkeyup]').each(function(index, item) {
+        var ctx = $(this).sm();
+        var fn = new Function('e', 'with (' + ctx + ') {\n' + $(this).attr('onkeyup') + '\nconsole.log("onkeyup");\n}');
+        this.onkeyup = fn;
+      });
+      $('[onchange]').each(function(index, item) {
+        var ctx = $(this).sm();
+        var fn = new Function('e', 'with (' + ctx + ') {\n' + $(this).attr('onchange') + '\nconsole.log("onchange");\n}');
+        this.onchange = fn;
+      });
+
+      scan();
+
+    });
+  </script>
+</body>
+
+</html>

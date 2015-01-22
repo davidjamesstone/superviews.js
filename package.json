@@ -1,0 +1,36 @@
+{
+  "name": "superviews.js",
+  "version": "0.0.0",
+  "description": "HTML template bindings for supermodels.js",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha ./test",
+    "build": "npm run jshint && npm run build:js && npm run build:js-min",
+    "build:js": "cp index.js ./dist/superviews.js",
+    "build:js-min": "uglifyjs index.js > ./dist/superviews.min.js",
+    "jshint": "jshint index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/davidjamesstone/superviews.js.git"
+  },
+  "keywords": [
+    "views",
+    "html",
+    "supermodels.js",
+    "two-way",
+    "one-way",
+    "pubsub",
+    "event",
+    "emitter"
+  ],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/davidjamesstone/superviews.js/issues"
+  },
+  "homepage": "https://github.com/davidjamesstone/superviews.js",
+  "dependencies": {
+    "supermodels.js": "davidjamesstone/supermodels.js"
+  }
+}

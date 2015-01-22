@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="user-scalable=no">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="initial-scale=1.0, user-scalable=no" />
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="description" content="">
+  <meta name="author" content="">
+
+  <title>mdls</title>
+  <script src="dist/supermodels.js"></script>
+
+</head>
+
+<body>
+  <script src="dist/supermodels.js"></script>
+  <script>
+    Object.model = supermodels;
+
+    // var wizard, step1, step2, step3;
+
+    // var step1 = {
+    //   userName: {
+    //     _validators: function(value) {
+    //       if (!value || value.length < 6) {
+    //         return 'A username is required'
+    //       }
+    //     }
+    //   },
+    //   password: {
+    //     _validators: function(value) {
+    //       if (!value || value.length < 6) {
+    //         return 'A password of 6 or more characters is required'
+    //       }
+    //     }
+    //   }
+    // }
+    var validators = {
+      required: {
+        name: 'required',
+        test: function(value, key) {
+          if (!value) {
+            return key + ' is required';
+          }
+        },
+        whatever: 42
+      },
+      number: {
+        name: 'isNumber',
+        test: function(value, key) {
+          if (Object.prototype.toString.call(value) !== '[object Number]') {
+            return key + ' should be a number';
+          }
+        }
+      }
+    };
+
+    var orderSchema = {
+      name: {
+        __type: String,
+        __validators: [validators.required]
+      },
+      description: String,
+      items: [{
+        product: {
+          __type: String,
+          __validators: [validators.required]
+        },
+        quantity: {
+          __type: Number,
+          __validators: [validators.required]
+        },
+        notes: [{
+          text: {
+            __type: String,
+            __validators: [validators.required]
+          }
+        }],
+        __validators: [function() {
+          if (this.product === 'Sweets' && this.quantity > 5) {
+            return 'Don\'t be greedy!';
+          }
+        }]
+      }],
+      __validators: [function() {
+        if (!this.items.length) {
+          return 'An Order must contain at least one item.';
+        }
+      }]
+    };
+
+    var logEvent = function(e) {
+      console.log(e);
+    };
+
+    var sweetsOrder = Object.model(orderSchema);
+    sweetsOrder.on('change', logEvent);
+    sweetsOrder.name = "Sweeties"
+
+    var item1 = sweetsOrder.items.create();
+    item1.quantity = 5;
+    sweetsOrder.items.push(item1);
+    item1.product = 'Sweets';
+
+    var vegetablesOrder = Object.model(orderSchema)
+    var item2 = vegetablesOrder.items.create();
+    vegetablesOrder.items.push(item2);
+    item2.quantity = 5;
+    item2.product = 'Vegetable';
+  </script>
+  <!--<a class="jsbin-embed" href="http://jsbin.com/xacuce/1/edit?html,js,output">JS Bin</a><script src="http://static.jsbin.com/js/embed.js"></script>-->
+</body>
+
+</html>
