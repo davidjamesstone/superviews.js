@@ -15,28 +15,25 @@
 </head>
 
 <body>
-
   <h1>A look at loops</h1>
   
   <div ui-with="app" ui-title="name">
 
     <p ui-text="name"></p>
-
-    <ul ui-for="items">
-      <li ui-hide="isLast" ui-class="{ active: isCurrent, first: isFirst, last: isLast }">
+    <p ui-text="items.length"></p>  
+    <ul>
+      <li ui-for="items">
         <span ui-text="name"></span>&nbsp;|&nbsp;<span ui-text="text"></span>
-        
-        <ul ui-for="subItems">
-          <li>
+        <ul>
+          <li ui-for="subItems">
             <span ui-text="foo"></span>
-            <ul ui-for="subItems">
-              <li>
+            <ul>
+              <li ui-for="subItems">
                 <span ui-text="bar"></span>
               </li>
             </ul>
           </li>
         </ul>
-        
       </li>
     </ul>
 
@@ -47,10 +44,7 @@
     <div ui-with="items">
       <p ui-text="__parent.name"></p>  
     </div>
-    
-    <input type="number" ui-value="currentItemId" onchange="currentItemId = this.value" 
-      placeholder="Set active item" min=0 ui-max="items.length - 1" style="width: 200px" />
-      
+
     <pre id="json">
     </pre>
   </div>
@@ -99,17 +93,17 @@
     newItem1.quantity = 4;
     app.items.push(newItem1);
     
-    var newItem2 = app.items.create();
-    newItem2.name = 'item2';
-    newItem2.text = 'item2 text';
-    newItem2.quantity = 4;
-    app.items.push(newItem2);
+    // var newItem2 = app.items.create();
+    // newItem2.name = 'item2';
+    // newItem2.text = 'item2 text';
+    // newItem2.quantity = 4;
+    // app.items.push(newItem2);
     
     // add a few more blank items
     app.items.push(app.items.create());
-    app.items.push(app.items.create());
-    app.items.push(app.items.create());
-    app.items.push(app.items.create());
+    // app.items.push(app.items.create());
+    // app.items.push(app.items.create());
+    // app.items.push(app.items.create());
     
     // now for some subItems to test deep lists
     var subItem = newItem1.subItems.create();
@@ -129,15 +123,17 @@
     }
     renderJson();
     
+    app.something.whatever = 'dsfsdfs';
+    
     // now to make the call to superviews
     // to initialize the bindings etc.
-    $body.superviews();
+    superviews();
     
     // Brute force update the whole ui whenever 'app' changes.
     // You would probably want to be more granular than this.
     app.on('change', function() {
       renderJson();
-      $body.superviews();
+      superviews();
     });
     
   </script>

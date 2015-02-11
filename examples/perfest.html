@@ -11,7 +11,7 @@
   </style>
   <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
   <script src="../node_modules/supermodels.js/dist/supermodels.js"></script>
-  <script src="../dist/superviews.js"></script>
+  <script src="../dist/superviews1.js"></script>
 </head>
 
 <body>
@@ -44,12 +44,12 @@
       <p ui-text="whatever"></p>  
     </div>
     
-    <div ui-with="items">
-      <p ui-text="__parent.name"></p>  
-    </div>
+    <!--<div ui-with="items">-->
+    <!--  <p ui-text="__parent.name"></p>  -->
+    <!--</div>-->
     
-    <input type="number" ui-value="currentItemId" onchange="currentItemId = this.value" 
-      placeholder="Set active item" min=0 ui-max="items.length - 1" style="width: 200px" />
+    <!--<input type="number" ui-value="currentItemId" onchange="currentItemId = this.value" -->
+    <!--  placeholder="Set active item" min=0 ui-max="items.length - 1" style="width: 200px" />-->
       
     <pre id="json">
     </pre>

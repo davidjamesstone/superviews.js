@@ -11,12 +11,12 @@
   </style>
   <script src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
   <script src="../node_modules/supermodels.js/dist/supermodels.js"></script>
-  <script src="../dist/superviews.js"></script>
+  <script src="../dist/superviews2.js"></script>
 </head>
 
 <body>
 
-  <h1>A look at loops</h1>
+  <h1>A look at context</h1>
   
   <div ui-with="app" ui-title="name">
 
@@ -129,15 +129,18 @@
     }
     renderJson();
     
+    app.something.whatever = 'dsfsdfs';
+    
     // now to make the call to superviews
     // to initialize the bindings etc.
-    $body.superviews();
+    superviews();
     
     // Brute force update the whole ui whenever 'app' changes.
     // You would probably want to be more granular than this.
     app.on('change', function() {
       renderJson();
-      $body.superviews();
+    superviews();
+      //$body.superviews();
     });
     
   </script>

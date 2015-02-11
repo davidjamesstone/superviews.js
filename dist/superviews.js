@@ -1,167 +1,361 @@
+!function(e){if("object"==typeof exports&&"undefined"!=typeof module)module.exports=e();else if("function"==typeof define&&define.amd)define([],e);else{var f;"undefined"!=typeof window?f=window:"undefined"!=typeof global?f=global:"undefined"!=typeof self&&(f=self),f.superviews=e()}}(function(){var define,module,exports;return (function e(t,n,r){function s(o,u){if(!n[o]){if(!t[o]){var a=typeof require=="function"&&require;if(!u&&a)return a(o,!0);if(i)return i(o,!0);throw new Error("Cannot find module '"+o+"'")}var f=n[o]={exports:{}};t[o][0].call(f.exports,function(e){var n=t[o][1][e];return s(n?n:e)},f,f.exports,e,t,n,r)}return n[o].exports}var i=typeof require=="function"&&require;for(var o=0;o<r.length;o++)s(r[o]);return s})({1:[function(_dereq_,module,exports){
+/**
+ * Default Options
+ */
+var defaultOptions = {
+  prefix: 'ui',
+  dupeAttrName: 'dupe',
+  withAttrName: 'with',
+  forAttrName: 'for',
+  ifAttrName: 'if',
+  attrsAttrName: 'attrs',
+  textAttrName: 'text',
+  htmlAttrName: 'html',
+  valueAttrName: 'value',
+  bindAttrName: 'bind'
+};
 
-// Plugin definition.
-$.fn.superviews = function(options) {
+/**
+ * Convert a NodeList into an Array
+ * @method nodeListToArray
+ * @param NodeList nodeList
+ * @return nodeArray
+ */
+function nodeListToArray(nodeList) {
+  var nodeArray = [];
+  for (var i = 0; i < nodeList.length; i++) {
+    nodeArray.push(nodeList[i]);
+  }
+  return nodeArray;
+}
 
-  // Extend our default options with those provided.
-  // Note that the first argument to extend is an empty
-  // object – this is to keep from overriding our "defaults" object.
-  var opts = $.extend({}, $.fn.superviews.defaults, options);
+/**
+ * Scope Constructor
+ * @method Scope
+ * @param Element el
+ * @param Object ctx
+ * @return Scope instance
+ */
+function Scope(el, ctx) {
+  this.el = el;
+  this.ctx = ctx;
+}
 
-  // Our plugin implementation code goes here.
-  var $el = $(this);
-  var keys = Object.keys(opts.attributes);
+/**
+ * Evaluate
+ * @method evaluate
+ * @param Object ctx
+ * @param string statement
+ * @return
+ */
+function evaluate(ctx, statement) {
+  return (new Function('ctx', 'with (ctx) {\n return ' + statement + '\n}'))(ctx);
+}
 
-  keys.forEach(function(key) {
-    var attrName = opts.genAttrName(key);
-    var selector = '[' + attrName + ']';
-    var $found = $(selector, $el);
+/**
+ * Simple mixin
+ * @method mixin
+ * @param Object target
+ * @param Object source
+ * @return target
+ */
+function mixin(target, source) {
+  for (var key in source) {
+    target[key] = source[key];
+  }
+  return target;
+}
 
-    $found.each(function(index, item) {
-      var $this = $(this);
+/**
+ * Get the attribute name with any prefix
+ * @method getAttrName
+ * @param string prefix
+ * @param string name
+ * @return attributeName
+ */
+function getAttrName(prefix, name) {
+  return prefix ? (prefix + '-' + name) : name;
+}
 
-      if ($(this).closest(document.documentElement).length === 0) {
-        // selection has been removed
+/**
+ * Find the Scope of an element
+ * @method findScope
+ * @param Element el
+ * @param [Scopes] scopes
+ * @return Scope
+ */
+function findScope(el, scopes) {
+
+  var scopeElements = scopes.map(function(item) {
+    return item.el;
+  });
+
+  var idx, check = el;
+  while (check) {
+    if (check.__ctx) {
+      return {
+        el: check,
+        ctx: check.__ctx
+      };
+    }
+
+    idx = scopeElements.lastIndexOf(check);
+    if (idx !== -1) {
+      return scopes[idx];
+    }
+    check = check.parentNode;
+  }
+
+  throw new Error('Unable to resolve scope');
+}
+
+/**
+ * Insert into DOM after the specified element
+ * @method insertAfter
+ * @param Element newNode
+ * @param Element referenceNode
+ */
+function insertAfter(newNode, referenceNode) {
+  referenceNode.parentNode.insertBefore(newNode, referenceNode.nextSibling);
+}
+
+/**
+ * Superviews
+ * @method superviews
+ * @param Element rootEl
+ * @param Object rootCtx
+ * @param Object options
+ * @return
+ */
+function superviews(rootEl, rootCtx, options) {
+
+  rootEl = rootEl || document.body;
+  rootCtx = rootCtx || window;
+
+  var opts = Object.create(defaultOptions);
+
+  if (options) {
+    mixin(opts, options);
+  }
+
+  var prefix = opts.prefix;
+  var dupeAttrName = getAttrName(prefix, opts.dupeAttrName);
+  var withAttrName = getAttrName(prefix, opts.withAttrName);
+  var forAttrName = getAttrName(prefix, opts.forAttrName);
+  var ifAttrName = getAttrName(prefix, opts.ifAttrName);
+  var attrsAttrName = getAttrName(prefix, opts.attrsAttrName);
+  var textAttrName = getAttrName(prefix, opts.textAttrName);
+  var htmlAttrName = getAttrName(prefix, opts.valueAttrName);
+  var valueAttrName = getAttrName(prefix, opts.valueAttrName);
+  var bindAttrName = getAttrName(prefix, opts.bindAttrName);
+  var clickAttrName = getAttrName(prefix, 'click');
+  
+  var selectors = [withAttrName, forAttrName, textAttrName, ifAttrName,
+    attrsAttrName, htmlAttrName, valueAttrName, bindAttrName, clickAttrName
+  ];
+
+  // de-duplicate
+  Array.prototype.forEach.call(rootEl.querySelectorAll('[' + dupeAttrName + ']'), function(node) {
+    node.parentNode.removeChild(node);
+  });
+
+  var selector = '[' + selectors.join('],[') + ']';
+
+  scopes = [new Scope(rootEl, rootCtx)];
+
+  function registerIgnoreNode(el) {
+    // Push a new Scope object with a special
+    // identifier to indicate to child nodes
+    // that they need not be processed
+    scopes.push(new Scope(el, '__IGNORE__'));
+  }
+  /**
+   * Process an individual element
+   * @method processNode
+   * @param Element el
+   * @return
+   */
+  function processNode(el) {
+
+    var ctx, attrs, withAttr, forAttr, ifAttr, attrsAttr, textAttr, htmlAttr, valueAttr, bindAttr, clickAttr, forItems;
+
+    attrs = el.attributes;
+    ctx = findScope(el, scopes).ctx;//el.__ctx || 
+
+    // This element could be a child
+    // of a node we have already
+    // discounted. If so, do no work.
+    if (ctx === '__IGNORE__') {
+      return;
+    }
+
+
+    withAttr = attrs[withAttrName];
+    if (withAttr) {
+      ctx = evaluate(ctx, withAttr.value);
+      scopes.push(new Scope(el, ctx));
+    }
+
+    ifAttr = attrs[ifAttrName];
+    if (ifAttr) {
+      var ifTest = !!evaluate(ctx, ifAttr.value);
+
+      if (ifTest) {
+        el.style.display = '';
+      } else {
+        el.style.display = 'none';
+        registerIgnoreNode(el);
         return;
       }
+    }
 
-      if (key === 'for') {
-        // only take upper most 'for' elements.
-        // i.e. '[for]' is ok, '[for] [for]' is not
-        if ($this.parentsUntil($el, selector).length > 0) {
-          return;
+    forAttr = attrs[forAttrName];
+    if (forAttr) {
+      forItems = evaluate(ctx, forAttr.value);
+
+      if (forItems.length) {
+
+        var firstItem = forItems[0];
+        scopes.push(new Scope(el, firstItem));
+        ctx = firstItem;
+
+        if (forItems.length > 1) {
+
+          var ctnr = document.createElement('div');
+          var clone;
+          for (var j = 1; j < forItems.length; j++) {
+            clone = el.cloneNode(true);
+            clone.removeAttribute(forAttrName);
+            clone.setAttribute(dupeAttrName, '');
+            clone.__ctx = forItems[j];
+            ctnr.appendChild(clone);
+          }
+          process(ctnr);
+
+          var after, child;
+          while (ctnr.children.length) {
+            child = ctnr.children[0];
+            insertAfter(child, after || el);
+            after = child;
+          }
+
+        }
+
+        el.style.display = '';
+
+      } else {
+
+        // Because the Array is empty we can hide it.
+        el.style.display = 'none';
+
+        registerIgnoreNode(el);
+
+        // We can return now as no more processing
+        // needs to be done against this node
+        return;
+
+      }
+    }
+
+    textAttr = attrs[textAttrName];
+    if (textAttr) {
+      el.innerText = evaluate(ctx, textAttr.value);
+    }
+
+    htmlAttr = attrs[htmlAttrName];
+    if (htmlAttr) {
+      el.innerHTML = evaluate(ctx, htmlAttr.value);
+    }
+
+    valueAttr = attrs[valueAttrName];
+    if (valueAttr) {
+      el.value = evaluate(ctx, valueAttr.value);
+    }
+
+    bindAttr = attrs[bindAttrName];
+    if (bindAttr) {
+      el.value = evaluate(ctx, bindAttr.value);
+
+      if (el.__bind) {
+        el.removeEventListener('change', el.__bind);
+      }
+      
+      el.__bind = function() {
+        (new Function('ctx', 'value', 'with (ctx) {\n ' + bindAttr.value + ' = value;\n}'))(ctx, this.value);
+      };
+      el.addEventListener('change', el.__bind, false);
+    }
+
+    attrsAttr = attrs[attrsAttrName];
+    if (attrsAttr) {
+      var attrsObj = evaluate(ctx, attrsAttr.value);
+      for (var attrName in attrsObj) {
+        var attrValue = attrsObj[attrName];
+        if (attrValue === null || typeof attrValue === 'undefined') {
+          el.removeAttribute(attrName);
+        } else {
+          el.setAttribute(attrName, attrValue);
         }
       }
-
-      var expr = $this.attr(attrName);
-      var ctx = $this.ctx();
-
-      var statement = '(function() {\n  with (' + ctx + ') {\n return ' + expr + '\n}})();';
-      var value = eval(statement);
-
-      opts.attributes[key].call(item, value);
-
-    });
-  });
-
-  function contextify(name) {
-    $('[' + name + ']').each(function() {
-      var $this = $(this);
-      var ctx = $this.ctx();
-      var fn = new Function('e', 'with (' + ctx + ') {\n' + $this.attr(name) + '\nconsole.log("' + name + '");\n}');
-      this[name] = fn;
-    });
-  }
-
-  // Contextify dom 'on' events
-  opts.events.forEach(contextify);
-  
-};
-
-// Plugin defaults – added as a property on our plugin function.
-$.fn.superviews.defaults  =  {
-  prefix: 'ui',
-  genAttrName: function(name) {
-    return $.fn.superviews.defaults.prefix + '-' + name;
-  },
-  attributes: {
-    for: function(value) {
-      var $this = $(this);
-      var dataKey = $.fn.superviews.defaults.prefix + '-for-data';
-      var templateKey = $.fn.superviews.defaults.prefix + '-for-template';
-
-      // If the array hasn't changed 'shape', do no work
-      var data = $this.data(dataKey);
-      if (data) {
-        if (data.length === value.length) {
-          // todo: and they contain the same items etc...
-          $this.superviews();
-          return;
-        }
+    }
+    
+    clickAttr = attrs[clickAttrName];
+    if (clickAttr) {
+      
+      if (el.__click && el.__click.ctx !== ctx) {
+        el.removeEventListener('click', el.__click.fn);
+        delete el.__click;
       }
-
-      var template = $this.data(templateKey);
-      if (!template) {
-        template = $this.html();
-        $this.data(templateKey, template);
-      }
-
-      var withAttr = $.fn.superviews.defaults.genAttrName('with');
-
-      $this.html('');
-      for (var i = 0; i < value.length; i++) {
-        $this.append($(template).attr(withAttr, '[' + i + ']'));
-      }
-
-      // make a copy of the current items
-      $this.data(dataKey, value.slice());
-
-      $this.superviews();
-    },
-    value: function(value) {
-      this.value = value;
-    },
-    text: function(value) {
-      this.innerText = value;
-    },
-    hide: function(value) {
-      this.style.display = value ? 'none' : '';
-    },
-    title: function(value) {
-      this.title = value;
-    },
-    max: function(value) {
-      this.max = value;
-    },
-    'class': function(value) {
-      var keys = Object.keys(value),
-        key, val;
-
-      for (var i = 0; i < keys.length; i++) {
-        key = keys[i];
-        val = value[key];
-        $(this)[val ? 'addClass' : 'removeClass'](key);
+      
+      if (!el.__click) {
+        var fn = function(e) {
+          return (new Function('e', 'ctx', 'with (ctx) {\n' + clickAttr.value + '\n}')).call(this, e, ctx);
+        };
+        
+        el.__click = {
+          fn: fn,
+          ctx: ctx
+        };
+        el.addEventListener('click', fn, false);
+        
       }
     }
-  },
-  events: ['onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove', 'onmouseout',
-    'ondragstart', 'ondrag', 'ondragenter', 'ondragleave', 'ondragover', 'ondrop', 'ondragend', 'onkeydown',
-    'onkeypress', 'onkeyup', 'onload', 'onunload', 'onabort', 'onerror', 'onresize', 'onscroll', 'select', 'onchange',
-    'onsubmit', 'onreset', 'onfocus', 'onblur'
-  ]
-};
 
-$.fn.ctx = function() {
-  var $this = $(this);
-  var withs = [];
-  var contextAttrs = [$.fn.superviews.defaults.genAttrName('with'), $.fn.superviews.defaults.genAttrName('for')];
-  var contextAttrsSelectors = contextAttrs.map(function(item) {
-    return '[' + item + ']';
-  });
-
-  function push(name, dot) {
-    if (dot !== false) {
-      withs.push('.');
-    }
-    withs.push(name);
   }
 
-  if ($this.is(contextAttrsSelectors[0])) {
-    push($this.attr(contextAttrs[0]));
-  }
+  /**
+   * Processes an element
+   * @method process
+   * @param Element el
+   * @return
+   */
+  function process(el) {
 
-  $this.parents(contextAttrsSelectors.join(',')).each(function() {
-    var $parent = $(this);
+    var initialSelection = el.querySelectorAll(selector);
+    var selection = nodeListToArray(initialSelection);
 
-    if ($parent.is(contextAttrsSelectors[0])) {
-      push($parent.attr(contextAttrs[0]));
+    // If element has no parent node,
+    // assume it's a temporary foreach
+    // we are dealing with and don't add
+    // it to the list of nodes to process
+    if (el.parentNode) {
+      selection.unshift(el);
+    }
 
-    } else if ($parent.is(contextAttrsSelectors[1])) {
-      push($parent.attr(contextAttrs[1]), false);
+    var node;
+    for (var i = 0; i < selection.length; i++) {
+
+      node = selection[i];
+      processNode(node);
 
     }
-  });
 
-  withs.shift();
-  return withs.reverse().join('');
+  }
 
-};
+  process(rootEl);
+}
+
+module.exports = superviews;
+},{}]},{},[1])
+(1)
+});

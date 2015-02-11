@@ -1,0 +1,109 @@
+
+function makeTpl(str) {
+  // Find the first whitespace char
+  var idx1 = str.indexOf(' ');
+  var idx2 = str.indexOf('>');
+  var idx = Math.min(idx1, idx2);
+  var pre = str.substr(0, idx);
+  var post = str.substring(idx);
+
+  return function(withAttr, i) {
+    var attrStr = ' ' + withAttr + '=' + i + ' ';
+    return pre + attrStr + post;
+  };
+}
+
+
+// Plugin defaults – added as a property on our plugin function.
+$.fn.superviews.defaults = {
+  prefix: 'ui',
+  genAttrName: function(name) {
+    return $.fn.superviews.defaults.prefix + '-' + name;
+  },
+  attributes: {
+    for: function(value) {
+      var $this = $(this);
+      var dataKey = $.fn.superviews.defaults.prefix + '-for-data';
+      var templateKey = $.fn.superviews.defaults.prefix + '-for-template';
+
+      // If the array hasn't changed 'shape', do no work
+      var data = $this.data(dataKey);
+      if (data) {
+        if (data.length === value.length) {
+          // todo: and they contain the same items etc...
+          $this.superviews();
+          return;
+        }
+      }
+
+      var template = $this.data(templateKey);
+      if (!template) {
+        template = $this.html().trim();
+        $this.data(templateKey, template);
+      }
+
+      var withAttr = $.fn.superviews.defaults.genAttrName('with');
+
+      function spliceSlice(str, index, count, add) {
+        return str.slice(0, index) + (add || '') + str.slice(index + count);
+      }
+      $this.html('');
+      var html = ''; //[];
+      for (var i = 0; i < value.length; i++) {
+        //html += spliceSlice(template, 4, 0, ' ' + withAttr + '="[' + i + ']"');
+        //html.push($(template).attr(withAttr, '[' + i + ']'));
+        $this.append($(template).attr(withAttr, '[' + i + ']'));
+      }
+
+      // //$this.html('');
+      // var html = '';//[];
+      // for (var i = 0; i < value.length; i++) {
+      //   html += spliceSlice(template, 4, 0, ' ' + withAttr + '="[' + i + ']"');
+      //   //html.push($(template).attr(withAttr, '[' + i + ']'));
+      // }
+      // $this.html(html);
+
+      // make a copy of the current items
+      $this.data(dataKey, value.slice());
+
+      $this.superviews();
+    },
+    'with': function() {
+
+    },
+    click: 1,
+    text: function(value) {
+      $(this).text(value);
+    },
+    attr: function(value) {
+      $(this).attr(value);
+    },
+    // value: function(value) {
+    //   $(this).val(value);
+    // },
+    // hide: function(value) {
+    //   $(this)[value ? 'hide' : 'show']();
+    // },
+    // title: function(value) {
+    //   this.title = value;
+    // },
+    // max: function(value) {
+    //   $(this).attr('max', value);
+    // },
+    // 'class': function(value) {
+    //   var keys = Object.keys(value),
+    //     key, val;
+
+    //   for (var i = 0; i < keys.length; i++) {
+    //     key = keys[i];
+    //     val = value[key];
+    //     $(this)[val ? 'addClass' : 'removeClass'](key);
+    //   }
+    // }
+  },
+  events: ['onclick', 'ondblclick', 'onmousedown', 'onmouseup', 'onmouseover', 'onmousemove', 'onmouseout',
+    'ondragstart', 'ondrag', 'ondragenter', 'ondragleave', 'ondragover', 'ondrop', 'ondragend', 'onkeydown',
+    'onkeypress', 'onkeyup', 'onload', 'onunload', 'onabort', 'onerror', 'onresize', 'onscroll', 'select', 'onchange',
+    'onsubmit', 'onreset', 'onfocus', 'onblur'
+  ]
+};
