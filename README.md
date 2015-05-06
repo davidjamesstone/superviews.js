@@ -1,2 +1,5 @@
 # superviews.js
-HTML template bindings for supermodels.js
+Tiny DOM binding library.
+Proof of concept.
+
+Todo: example
