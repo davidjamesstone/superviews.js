@@ -14,7 +14,7 @@ var stdin = process.stdin
 var stdout = process.stdout
 
 stdin.setEncoding('utf8')
-var superviews = require('../index1')
+var superviews = require('../')
 var buffer = ''
 
 stdin.on('data', function (text) {
