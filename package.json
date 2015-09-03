@@ -1,36 +1,23 @@
 {
   "name": "superviews.js",
-  "version": "0.0.0",
-  "description": "HTML template bindings for supermodels.js",
+  "version": "0.0.1",
+  "description": "Template engine compiler tageting incremental-dom by Google",
   "main": "index.js",
   "scripts": {
-    "test": "mocha ./test",
-    "build": "npm run jshint && npm run build:js && npm run build:js-min",
-    "build:js": "browserify index.js --standalone superviews > ./dist/superviews.js",
-    "build:js-min": "browserify index.js --standalone superviews | uglifyjs --screw-ie8 --mangle > ./dist/superviews.min.js",
-    "jshint": "jshint index.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/davidjamesstone/superviews.js.git"
+  "bin": {
+    "superviews": "./bin/cmd.js"
   },
-  "keywords": [
-    "views",
-    "html",
-    "supermodels.js",
-    "two-way",
-    "one-way",
-    "pubsub",
-    "event",
-    "emitter"
-  ],
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/davidjamesstone/superviews.js/issues"
-  },
-  "homepage": "https://github.com/davidjamesstone/superviews.js",
+  "author": "djs",
+  "license": "ISC",
   "dependencies": {
-    "supermodels.js": "davidjamesstone/supermodels.js"
+    "htmlparser2": "^3.8.3",
+    "indent-string": "^2.0.0",
+    "minimist": "^1.2.0"
+  },
+  "devDependencies": {
+    "incremental-dom": "git+https://github.com/google/incremental-dom.git",
+    "standard": "^5.1.0"
   }
 }
