@@ -1,0 +1,32 @@
+<div ui-title="data.cls">
+  <ui-text>data.cls</ui-text>
+  <input type="text" ui-value="data.val" ui-onchange="data.onChange" ui-style="{ color: data.foo, backgroundColor: data.bar }">
+  <p ui-if="data.showName">
+    <span ui-text="data.name"></span>
+    <span ui-class="data.bar + ' other-css'">description</span>
+    <span>description1</span>
+    <input type="text" ui-disabled="data.isDisabled">
+  </p>
+  <ui-widget some-thing="data.cls"></ui-widget>
+  <ul>
+    <li ui-for="item in data.items">
+      <span ui-text="index"></span>
+      <span ui-text="item.name"></span>
+      <input ui-value="item.name">
+    </li>
+  </ul>
+  <ul>
+    <li ui-for="key in data.obj">
+      <span ui-text="key"></span>
+      <span ui-text="index"></span>
+      <span ui-text="data.obj[key]"></span>
+    </li>
+  </ul>
+  <ul>
+    <li ui-for="key in data.obj">
+      <span ui-text="key"></span>
+      <span ui-text="index"></span>
+      <span ui-text="this[key]"></span>
+    </li>
+  </ul>
+</div>

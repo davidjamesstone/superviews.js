@@ -1,0 +1,33 @@
+<div title="{data.cls}">
+  My name is {data.cls} my age is {data.age}
+  I live at {data.address}
+  <span title="{=JSON.stringify(data)}">Hi</span>
+  <input type="text" value="{data.val}" onchange="{=data.onChange}" style="{ color: data.foo, backgroundColor: data.bar }">
+  <p if="data.showName">
+    <span style="{= color: data.foo, backgroundColor: data.bar }">{data.name}</span>
+    <span class="{data.bar + ' other-css'}">description</span>
+    <span>description1</span>
+    <input type="text" disabled="{data.isDisabled}" onchange="{function() {}}">
+  </p>
+  <ul>
+    <li each="item in data.items">
+      <span>{index}</span>
+      <span>{item.name}</span>
+      <input value="{item.name}">
+    </li>
+  </ul>
+  <ul>
+    <li each="key in data.obj">
+      <span>{key}</span>
+      <span>{index}</span>
+      <span>{data.obj[key]}</span>
+    </li>
+  </ul>
+  <ul>
+    <li each="key in data.obj">
+      <span>{key}</span>
+      <span>{index}</span>
+      <span>{this[key]}</span>
+    </li>
+  </ul>
+</div>
