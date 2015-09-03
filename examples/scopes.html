@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="utf-8">
+  <title>Superviews</title>
+  <script src="../index.js"></script>
+</head>
+
+<body>
+  <div>
+    <div>
+      <input type="text" ui-bind="name">
+      <input type="text" ui-bind="age">
+
+      <address ui-with="address">
+        <input type="text" ui-bind="line1">
+        <input type="text" ui-bind="line2">
+        <input type="text" ui-bind="line3">
+        <input type="text" ui-bind="postcode">
+        <span ui-text="Object.keys(address).length"></span>
+      </address>
+
+      <ul>
+        <li ui-for="orders">
+          <span ui-text="product"></span>
+          <span ui-text="quantity"></span>
+          <span ui-text="Object.keys(address).length"></span>
+          <span ui-text="name"></span>
+          <span ui-text="age"></span>
+          <span ui-text="orders.length"></span>
+        </li>
+      </ul>
+    </div>
+  </div>
+  <script>
+    var app = {
+      name: 'Fred Bloggs',
+      age: 21,
+      address: {
+        line1: 'Line1',
+        line2: 'Line2',
+        line3: 'Line3',
+        postcode: 'CW8'
+      },
+      orders: [{
+        product: 'Eggs',
+        quantity: 1
+      }, {
+        product: 'Milk',
+        quantity: 2
+      }, {
+        product: 'Bread',
+        quantity: 1
+      }, {
+        product: 'Bacon',
+        quantity: 5
+      }]
+
+    };
+
+    superviews(document.body, app);
+  </script>
+</body>
+
+</html>

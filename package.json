@@ -7,7 +7,7 @@
     "test": "mocha ./test",
     "build": "npm run jshint && npm run build:js && npm run build:js-min",
     "build:js": "browserify index.js --standalone superviews > ./dist/superviews.js",
-    "build:js-min": "browserify index.js --standalone superviews | uglifyjs > ./dist/superviews.min.js",
+    "build:js-min": "browserify index.js --standalone superviews | uglifyjs --screw-ie8 --mangle > ./dist/superviews.min.js",
     "jshint": "jshint index.js"
   },
   "repository": {

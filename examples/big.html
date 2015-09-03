@@ -32,20 +32,20 @@
           <th>Date: </th>
           <td title="<%= email.date %>">Hover here</td>
         </tr>
-
+        <tr>
+          <th>To: </th>
+          <td>
+            <ul ui-for="to">
+              <% for (var j = 0, tos=email.to; j < tos.length; j++) { var to=tos[j]; %>
+              <li><%= to %></li>
+              <% } %>
+            </ul>
+          </td>
+        </tr>
       </table>
       <% } %>
   </script>
-        <!--<tr>-->
-        <!--  <th>To: </th>-->
-        <!--  <td>-->
-        <!--    <ul ui-for="to">-->
-        <!--      <% for (var j = 0, tos=email.to; j < tos.length; j++) { var to=tos[j]; %>-->
-        <!--      <li><%= to %></li>-->
-        <!--      <% } %>-->
-        <!--    </ul>-->
-        <!--  </td>-->
-        <!--</tr>-->
+
 </head>
 
 <body ui-with="list">
@@ -73,14 +73,14 @@
         <th>Date: </th>
         <td ui-attr1="{ title: date }">Hover here</td>
       </tr>
-      <!--<tr>-->
-      <!--  <th>To: </th>-->
-      <!--  <td>-->
-      <!--    <ul>-->
-      <!--      <li ui-for="to" ui-text="ctx"></li>-->
-      <!--    </ul>-->
-      <!--  </td>-->
-      <!--</tr>-->
+      <tr>
+        <th>To: </th>
+        <td>
+          <ul>
+            <li ui-for="to" ui-text="this"></li>
+          </ul>
+        </td>
+      </tr>
     </table>
     <hr size=1>
 

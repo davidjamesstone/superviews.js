@@ -3,16 +3,7 @@
  * Default Options
  */
 var defaultOptions = {
-  prefix: 'ui',
-  dupeAttrName: 'dupe',
-  withAttrName: 'with',
-  forAttrName: 'for',
-  ifAttrName: 'if',
-  attrsAttrName: 'attrs',
-  textAttrName: 'text',
-  htmlAttrName: 'html',
-  valueAttrName: 'value',
-  bindAttrName: 'bind'
+  prefix: 'ui'
 };
 
 /**
@@ -42,14 +33,37 @@ function Scope(el, ctx) {
 }
 
 /**
+ * getEvaluateFnObj
+ */
+function getEvaluateFnObj(scopes, argOffset) {
+  var scopesLength = scopes.length;
+  var currentScope = scopes[scopesLength - 1];
+  var pre = '', post = '', idx;
+
+  for (var i = 0; i < scopesLength; i++) {
+    idx = i + (argOffset || 0);
+    pre += 'with (arguments[' + idx + '].ctx) {\n';
+    post += '\n}';
+  }
+
+  return {
+    pre: pre,
+    post: post,
+    currentScope: currentScope
+  };
+  
+}
+
+/**
  * Evaluate
  * @method evaluate
- * @param Object ctx
+ * @param Object scopes
  * @param string statement
  * @return
  */
-function evaluate(ctx, statement) {
-  return (new Function('ctx', 'with (ctx) {\n return ' + statement + '\n}'))(ctx);
+function evaluate(scopes, statement) {
+  var obj = getEvaluateFnObj(scopes);
+  return (new Function(obj.pre + ' return ' + statement + ';' + obj.post)).apply(obj.currentScope.ctx, scopes);
 }
 
 /**
@@ -59,7 +73,7 @@ function evaluate(ctx, statement) {
  * @param Object source
  * @return target
  */
-function mixin(target, source) {
+function scopes(target, source) {
   for (var key in source) {
     target[key] = source[key];
   }
@@ -77,36 +91,74 @@ function getAttrName(prefix, name) {
   return prefix ? (prefix + '-' + name) : name;
 }
 
-/**
- * Find the Scope of an element
- * @method findScope
- * @param Element el
- * @param [Scopes] scopes
- * @return Scope
- */
-function findScope(el, scopes) {
 
-  var scopeElements = scopes.map(function(item) {
-    return item.el;
-  });
+/**
+ * Find the Scopes of an element
+ * @method findScopes
+ * @param Element el
+ * @param [Scope] scopes
+ * @return [Scope]
+ */
+function findScopes(el, scopes) {
+
+  var scopeChain = [], scopeElements;
 
   var idx, check = el;
+
   while (check) {
-    if (check.__ctx) {
-      return {
-        el: check,
-        ctx: check.__ctx
-      };
+
+    if (check.__scopes) {
+      
+      // return a shallow copy
+      return check.__scopes.slice(0);
+
+    } else {
+
+      var scope;
+      for (var i = 0; i < scopes.length; i++) {
+        scope = scopes[i];
+        if (scope.el === check) {
+          scopeChain.unshift(scope);
+          if (scope.ctx === '__IGNORE__') {
+            return scopeChain;
+          }
+        }
+      }
+      
+
+
+
+
+
+      // scopeElements = scopeElements || (scopeElements = scopes.map(function(item) {
+      //   return item.el;
+      // }));
+      
+      // idx = scopeElements.lastIndexOf(check);
+      
+      // var matches = scopeElements.filter(function() {
+      //   return item === check;
+      // });
+      
+      // if (idx !== -1) {
+      //   var match = scopes[idx];
+      //   scopeChain.unshift(match);
+      //   if (match.ctx === '__IGNORE__') {
+      //     return scopeChain;
+      //   }
+      // }
+
     }
 
-    idx = scopeElements.lastIndexOf(check);
-    if (idx !== -1) {
-      return scopes[idx];
-    }
     check = check.parentNode;
+
   }
 
-  throw new Error('Unable to resolve scope');
+  if (!scopeChain.length) {
+    throw new Error('Unable to resolve scopes');
+  }
+
+  return scopeChain;
 }
 
 /**
@@ -139,17 +191,17 @@ function superviews(rootEl, rootCtx, options) {
   }
 
   var prefix = opts.prefix;
-  var dupeAttrName = getAttrName(prefix, opts.dupeAttrName);
-  var withAttrName = getAttrName(prefix, opts.withAttrName);
-  var forAttrName = getAttrName(prefix, opts.forAttrName);
-  var ifAttrName = getAttrName(prefix, opts.ifAttrName);
-  var attrsAttrName = getAttrName(prefix, opts.attrsAttrName);
-  var textAttrName = getAttrName(prefix, opts.textAttrName);
-  var htmlAttrName = getAttrName(prefix, opts.valueAttrName);
-  var valueAttrName = getAttrName(prefix, opts.valueAttrName);
-  var bindAttrName = getAttrName(prefix, opts.bindAttrName);
+  var dupeAttrName = getAttrName(prefix, 'dupe');
+  var withAttrName = getAttrName(prefix, 'with');
+  var forAttrName = getAttrName(prefix, 'for');
+  var ifAttrName = getAttrName(prefix, 'if');
+  var attrsAttrName = getAttrName(prefix, 'attrs');
+  var textAttrName = getAttrName(prefix, 'text');
+  var htmlAttrName = getAttrName(prefix, 'html');
+  var valueAttrName = getAttrName(prefix, 'value');
+  var bindAttrName = getAttrName(prefix, 'bind');
   var clickAttrName = getAttrName(prefix, 'click');
-  
+
   var selectors = [withAttrName, forAttrName, textAttrName, ifAttrName,
     attrsAttrName, htmlAttrName, valueAttrName, bindAttrName, clickAttrName
   ];
@@ -161,44 +213,50 @@ function superviews(rootEl, rootCtx, options) {
 
   var selector = '[' + selectors.join('],[') + ']';
 
-  scopes = [new Scope(rootEl, rootCtx)];
+  var scopes = [new Scope(rootEl, rootCtx)];
 
   function registerIgnoreNode(el) {
     // Push a new Scope object with a special
     // identifier to indicate to child nodes
-    // that they need not be processed
+    // that they need not be processed. Used 
+    // in `for` (if the are no items) and `if` 
+    // (if it evaluates to falsey) to short-circuit 
+    // processing any children.
     scopes.push(new Scope(el, '__IGNORE__'));
   }
-  /**
-   * Process an individual element
-   * @method processNode
-   * @param Element el
-   * @return
-   */
+    
+    /**
+     * Process an individual element
+     * @method processNode
+     * @param Element el
+     * @return
+     */
   function processNode(el) {
 
-    var ctx, attrs, withAttr, forAttr, ifAttr, attrsAttr, textAttr, htmlAttr, valueAttr, bindAttr, clickAttr, forItems;
+    var elScopes, attrs, withAttr, forAttr, ifAttr, attrsAttr, textAttr, 
+      htmlAttr, valueAttr, bindAttr, clickAttr, forItems;
 
     attrs = el.attributes;
-    ctx = findScope(el, scopes).ctx;//el.__ctx || 
+    elScopes = findScopes(el, scopes);
 
     // This element could be a child
     // of a node we have already
     // discounted. If so, do no work.
-    if (ctx === '__IGNORE__') {
-      return;
+    for (var i = 0; i < elScopes.length; i++) {
+      if (elScopes[i].ctx === '__IGNORE__') {
+        return;
+      }
     }
-
 
     withAttr = attrs[withAttrName];
     if (withAttr) {
-      ctx = evaluate(ctx, withAttr.value);
-      scopes.push(new Scope(el, ctx));
+      var newCtx = evaluate(elScopes, withAttr.value);
+      scopes.push(new Scope(el, newCtx));
     }
 
     ifAttr = attrs[ifAttrName];
     if (ifAttr) {
-      var ifTest = !!evaluate(ctx, ifAttr.value);
+      var ifTest = !!evaluate(elScopes, ifAttr.value);
 
       if (ifTest) {
         el.style.display = '';
@@ -211,27 +269,52 @@ function superviews(rootEl, rootCtx, options) {
 
     forAttr = attrs[forAttrName];
     if (forAttr) {
-      forItems = evaluate(ctx, forAttr.value);
-
+      forItems = evaluate(elScopes, forAttr.value);
+      
+      // Capture the initial state of the 
+      // dom element and use it as the template
+      var template = el.__template || (el.__template = el.cloneNode(true));
+      
       if (forItems.length) {
 
+        // Push the first (template) element
+        // onto both the current scope stack
+        // and the main scope stack. This will be
+        // used after we continue processing 
+        // the children.
         var firstItem = forItems[0];
-        scopes.push(new Scope(el, firstItem));
-        ctx = firstItem;
+        var newScope = new Scope(el, firstItem);
+        elScopes.push(newScope);
+        scopes.push(newScope);
+
+        // For each additional item in the foreach,
+        // we clone the template element and also 
+        // clone the elScopes of this current element
+        // given they're siblings. We replace the last 
+        // scope to set it to the current foreach item
+        // The cloned scopes are added to the element
+        // to save us having to re-look them up when
+        // we process() them.
+        var lastScopeIdx = elScopes.length - 1;
 
         if (forItems.length > 1) {
 
           var ctnr = document.createElement('div');
-          var clone;
+          var clone, scopesClone;
           for (var j = 1; j < forItems.length; j++) {
-            clone = el.cloneNode(true);
+            clone = template.cloneNode(true);
             clone.removeAttribute(forAttrName);
             clone.setAttribute(dupeAttrName, '');
-            clone.__ctx = forItems[j];
+            scopesClone = elScopes.slice(0);
+            scopesClone[lastScopeIdx] = new Scope(clone, forItems[j]);
+            clone.__scopes = scopesClone;
             ctnr.appendChild(clone);
           }
           process(ctnr);
 
+          // Once all the foreach items have been
+          // created and process, we insert them into
+          // the DOM.
           var after, child;
           while (ctnr.children.length) {
             child = ctnr.children[0];
@@ -259,36 +342,52 @@ function superviews(rootEl, rootCtx, options) {
 
     textAttr = attrs[textAttrName];
     if (textAttr) {
-      el.innerText = evaluate(ctx, textAttr.value);
+      el[('innerText' in el) ? 'innerText' : 'textContent'] = evaluate(elScopes, textAttr.value);
     }
 
     htmlAttr = attrs[htmlAttrName];
     if (htmlAttr) {
-      el.innerHTML = evaluate(ctx, htmlAttr.value);
+      el.innerHTML = evaluate(elScopes, htmlAttr.value);
     }
 
     valueAttr = attrs[valueAttrName];
     if (valueAttr) {
-      el.value = evaluate(ctx, valueAttr.value);
+      el.value = evaluate(elScopes, valueAttr.value);
     }
 
     bindAttr = attrs[bindAttrName];
     if (bindAttr) {
-      el.value = evaluate(ctx, bindAttr.value);
+      var bindProp = ~['checkbox', 'radio'].indexOf(el.type) ? 'checked' : 'value';
+      var bindValue = evaluate(elScopes, bindAttr.value);
+      if (typeof bindValue === 'undefined') {
+        bindValue = '';
+      }
+      
+      if (~['SELECT'].indexOf(el.tagName)) {
+        // todo: consider binding last?
+        // defer the binding until children have been processed
+        setTimeout(function() {
+          el[bindProp] = bindValue;
+        });
+      } else {
+        el[bindProp] = bindValue;
+      }
 
       if (el.__bind) {
         el.removeEventListener('change', el.__bind);
       }
-      
+
       el.__bind = function() {
-        (new Function('ctx', 'value', 'with (ctx) {\n ' + bindAttr.value + ' = value;\n}'))(ctx, this.value);
+        var obj = getEvaluateFnObj(elScopes, 1);
+        var args = [this[bindProp]].concat(elScopes);
+        return (new Function('val', obj.pre + bindAttr.value + ' = val;' + obj.post)).apply(this, args);
       };
       el.addEventListener('change', el.__bind, false);
     }
 
     attrsAttr = attrs[attrsAttrName];
     if (attrsAttr) {
-      var attrsObj = evaluate(ctx, attrsAttr.value);
+      var attrsObj = evaluate(elScopes, attrsAttr.value);
       for (var attrName in attrsObj) {
         var attrValue = attrsObj[attrName];
         if (attrValue === null || typeof attrValue === 'undefined') {
@@ -298,26 +397,28 @@ function superviews(rootEl, rootCtx, options) {
         }
       }
     }
-    
+
     clickAttr = attrs[clickAttrName];
     if (clickAttr) {
-      
-      if (el.__click && el.__click.ctx !== ctx) {
+
+      if (el.__click && el.__click.scopes !== elScopes) {
         el.removeEventListener('click', el.__click.fn);
         delete el.__click;
       }
-      
+
       if (!el.__click) {
         var fn = function(e) {
-          return (new Function('e', 'ctx', 'with (ctx) {\n' + clickAttr.value + '\n}')).call(this, e, ctx);
+          var obj = getEvaluateFnObj(elScopes, 2);
+          var args = [e, obj.currentScope.ctx].concat(elScopes);
+          return (new Function('e', 'ctx', obj.pre + clickAttr.value + ';' + obj.post)).apply(this, args);
         };
-        
+
         el.__click = {
           fn: fn,
-          ctx: ctx
+          scopes: elScopes
         };
         el.addEventListener('click', fn, false);
-        
+
       }
     }
 
