@@ -144,7 +144,9 @@ function description(data) {
 }
 ```
 
-Then to use it:
+Then to use it in the browser
+
+```js
 
 var IncrementalDOM = require('incremental-dom'),
     elementOpen = IncrementalDOM.elementOpen,
@@ -171,6 +173,8 @@ var el = document.getElementById('');
 patch(el, function() {
   description(data);
 });
+
+```
 
 ## Testing
 
