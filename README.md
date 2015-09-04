@@ -144,6 +144,34 @@ function description(data) {
 }
 ```
 
+Then to use it:
+
+var IncrementalDOM = require('incremental-dom'),
+    elementOpen = IncrementalDOM.elementOpen,
+    elementClose = IncrementalDOM.elementClose,
+    elementVoid = IncrementalDOM.elementVoid,
+    text = IncrementalDOM.text,
+    patch = IncrementalDOM.patch;
+    
+var data = {
+  title: 'Hello World!',
+  cssClass: 'my-class',
+  val: 42,
+  name: 'Elizabeth',
+  age: 90,
+  address: 'Buckingham Palace',
+  showMe: true,
+  items: [...],
+  arr: [...],
+  obj: {...}
+};
+
+var el = document.getElementById('');
+
+patch(el, function() {
+  description(data);
+});
+
 ## Testing
 
 ```
