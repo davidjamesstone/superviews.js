@@ -2,7 +2,7 @@
 
 Template engine for google [incremental-dom](http://google.github.io/incremental-dom)
 
-`npm install superview.js`
+`npm install superviews.js`
 
 ```html
 <!-- Attributes can be set using javascript between curly braces {} -->
