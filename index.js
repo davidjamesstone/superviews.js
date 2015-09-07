@@ -41,6 +41,7 @@ function writeln (command, tag, key, spvp, pvp) {
   str = str.replace(', null, null, null)', ')')
   str = str.replace(', null, null)', ')')
   str = str.replace(', null)', ')')
+
   return write(str)
 }
 
@@ -108,10 +109,6 @@ var handler = {
     writeln('elementOpen', name, key, attrs.staticPropertyValuePairs, attrs.propertyValuePairs)
 
     ++indent
-
-    if (specialProps['text']) {
-      write('text(' + specialProps['text'] + ')')
-    }
   },
   ontext: function (text) {
     if (!text || !text.trim()) {
