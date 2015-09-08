@@ -1,0 +1,71 @@
+<script>
+  var basket = model.basket
+  var products = model.products
+  var linesSummary = require('./lines-summary')
+  var totalSummary = require('./total-summary')
+
+  function add (product) {
+    var items = basket.items
+
+    var existing = items.find(function (item) {
+      return item.productId === product.productId
+    })
+
+    if (existing) {
+      existing.quantity++
+    } else {
+      var item = items.create()
+      item.productId = product.productId
+      item.quantity = 1
+      items.push(item)
+    }
+  }
+
+  function remove ($index) {
+    basket.items.splice($index, 1)
+  }
+</script>
+
+<table>
+  <thead>
+    <tr>
+      <th>productId</th>
+      <th>productName</th>
+      <th>quantity</th>
+      <th>price</th>
+      <th>discountPercent</th>
+      <th>cost</th>
+      <th>
+        <script>
+          linesSummary(basket)
+        </script>
+      </th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr each="item, item.id in basket.items">
+      <td onclick="{add}">{item.product.productId}</td>
+      <td>{item.product.productName}</td>
+      <td><input type="number" value="{item.quantity}" onchange="{=> item.quantity = this.value}"></td>
+      <td>{item.product.price}</td>
+      <td>{item.product.discountPercent * 100 + ' %'}</td>
+      <td>{item.cost.toFixed(2)}</td>
+      <td>
+        <button onclick="{=> remove($index) }">Remove</button>
+      </td>
+    </tr>
+  <tbody>
+  <script>
+    totalSummary(basket)
+  </script>
+</table>
+
+<div each="product in products" style="width: 33%; float: left;">
+  <div>{product.productId}</div>
+  <div>{product.productName}</div>
+  <div>{product.price}</div>
+  <div>{product.discountPercent * 100 + ' %'}</div>
+  <div>{product.cost.toFixed(2)}</div>
+  <img src="{product.image}" style="max-width: 240px; max-height: 200px;"/>
+  <button onclick="{=> add(product)}">Add to basket</button>
+</div>

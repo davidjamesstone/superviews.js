@@ -4,11 +4,7 @@
 
 var minimist = require('minimist')
 
-var argv = minimist(process.argv.slice(2), {
-  default: {
-    name: 'description'
-  }
-})
+var argv = minimist(process.argv.slice(2))
 
 var stdin = process.stdin
 var stdout = process.stdout
@@ -23,7 +19,9 @@ stdin.on('data', function (text) {
 })
 stdin.on('end', function () {
   var s = superviews(buffer)
-  stdout.write('function ' + argv.name + '(data) {\n' + s + '\n};\n')
+  stdout.write(argv.name ?
+    'function ' + argv.name + '(model) {\n' + s + '\n};\n' :
+    'module.exports = function (model) {\n' + s + '\n};\n')
 })
 
 stdin.resume()
