@@ -151,8 +151,8 @@ var handler = {
     if (literal) {
       write(text.trim())
     } else {
-      text = text.replace(/\{/g, '" + ')
-      text = text.replace(/\}/g, ' + "')
+      text = text.replace(/\{/g, '" + (')
+      text = text.replace(/\}/g, ') + "')
       text = text.replace(/\n/g, ' \\\n')
       // text = text.replace(/^" \+ /, '')
       // text = text.replace(/ \+ "$/, '')

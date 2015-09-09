@@ -1,7 +1,7 @@
 {
   "name": "superviews.js",
-  "version": "0.0.3",
-  "description": "Template engine compiler tageting incremental-dom by Google",
+  "version": "0.0.4",
+  "description": "Template engine compiler targeting incremental-dom by Google",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
