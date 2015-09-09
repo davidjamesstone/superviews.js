@@ -1,6 +1,6 @@
 {
   "name": "superviews.js",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Template engine compiler tageting incremental-dom by Google",
   "main": "index.js",
   "scripts": {
@@ -8,6 +8,10 @@
   },
   "bin": {
     "superviews": "./bin/cmd.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/davidjamesstone/superviews.js.git"
   },
   "author": "djs",
   "license": "ISC",
@@ -19,5 +23,9 @@
   "devDependencies": {
     "incremental-dom": "git+https://github.com/google/incremental-dom.git",
     "standard": "^5.1.0"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/davidjamesstone/superviews.js/issues"
+  },
+  "homepage": "https://github.com/davidjamesstone/superviews.js#readme",
 }

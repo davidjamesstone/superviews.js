@@ -47,9 +47,9 @@ Template engine for google [incremental-dom](http://google.github.io/incremental
   same rules as any other attributes but add a fat arrow shortcut to
   define a staticPropertyValue function-->
   <input type="text" value="{data.val}" onchange="{=data.onChange}">
-  <input type="text" value="{data.val}" onchange="{= function(e) { this.val = val }}">
+  <input type="text" value="{data.val}" onchange="{= function(e) { data.val = this.value }}">
   <!-- The following is equivalent to the line above -->
-  <input type="text" value="{data.val}" onchange="{=> this.val = val }">
+  <input type="text" value="{data.val}" onchange="{=> data.val = this.value }">
   <!-- This adds an event handler to the function 'remove' defined locally above -->
   <button onclick="{=remove}"></button>
 
@@ -73,7 +73,8 @@ Template engine for google [incremental-dom](http://google.github.io/incremental
 
   <!-- The `each` attribute declares a forEach
   block and can be used to repeat over items in
-  an Array or keys on an Object -->
+  an Array or keys on an Object. The $index can be
+  used to reference the current index in the loop. -->
   <ul>
     <li each="item in data.items">
       <span class="{ $index % 2 ? 'odd' : 'even' }">{$index}</span>

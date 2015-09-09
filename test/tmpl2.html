@@ -37,7 +37,7 @@ I live at {data.address}
 
 <!-- `on` events can be bound to model handlers. These follow the
 same rules as any other attributes but add a fat arrow shortcut to
-define a staticPropertyValue function-->
+define a staticPropertyValue function -->
 <input type="text" value="{data.val}" onchange="{=data.onChange}">
 <input type="text" value="{data.val}" onchange="{= function(e) { this.val = val }}">
 <!-- The following is equivalent to the line above -->
