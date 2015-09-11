@@ -15,13 +15,10 @@ var buffer = ''
 
 stdin.on('data', function (text) {
   buffer += text
-  // console.log(buffer)
+// console.log(buffer)
 })
 stdin.on('end', function () {
-  var s = superviews(buffer)
-  stdout.write(argv.name ?
-    'function ' + argv.name + '(model) {\n' + s + '\n};\n' :
-    'module.exports = function (model) {\n' + s + '\n};\n')
+  stdout.write(superviews(buffer, argv.name, argv.argstr))
 })
 
 stdin.resume()

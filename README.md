@@ -5,6 +5,14 @@ Template engine for google [incremental-dom](http://google.github.io/incremental
 `npm install superviews.js`
 
 ```html
+<!--
+The outermost element in the template should contain
+a `name` and an `argstr` attributes. This will act as the
+template definition and will be used to define the
+enclosing function name and arguments in the
+incremental-dom output.
+-->
+<my-widget args="model data animals fooData barData">
 
   <!--
   `script` tags without a `src` attribute are treated as literal javascript
@@ -12,7 +20,7 @@ Template engine for google [incremental-dom](http://google.github.io/incremental
   using browserify to require some other compiled template that we can use later
   to render sub components. We also write a few functions to be used as event handlers.
   -->
-<script>
+  <script>
   var linesSummary = require('./lines-summary')
   var totalSummary = require('./total-summary')
 
@@ -24,95 +32,93 @@ Template engine for google [incremental-dom](http://google.github.io/incremental
   function remove () {
     items.pop()
   }
-</script>
+  </script>
 
-<!-- Attributes can be set using javascript between curly braces {} -->
-<div title="{data.title}">
+  <!-- Attribute values can be set using javascript between curly braces {} -->
+  <div class="{data.cssClass}">
 
-  <!-- If an Attribute value is known not
-  to change include an equals sign '='.
-  This assigns a staticPropertyValue
-  and is set-once evaluation. Do this to save
-  time during diff patch updates. -->
-  <div class="{=data.cssClass}"></div>
+    <!-- If an Attribute value is known not
+    to change include an equals sign '='.
+    This assigns a staticPropertyValue
+    and is set-once evaluation. Do this to save
+    time during diff patch updates. -->
+    <div title="{=data.title}"></div>
+    <div title="={data.title}"></div>
+    <div title="{>data.title}"></div>
+    <div title="{#data.title}"></div>
+    <div title="{{data.title}}"></div>
+    <input type="text" value="{data.val}" onchange="{=data.val = this.value}">
+    <input type="text" value="{data.val}" onchange="={data.val = this.value}">
+    <input type="text" value="{data.val}" onchange="{>data.val = this.value}">
+    <input type="text" value="{data.val}" onchange="{#data.val = this.value}">
+    <input type="text" value="{data.val}" onchange="{{data.val = this.value}}">
 
-  <!-- Text Interpolation is done using {} -->
-  My name is {data.name} my age is {data.age}
-  I live at {data.address}
+    <!-- Text Interpolation is done using {} -->
+    My name is {data.name} my age is {data.age}
+    I live at {data.address}
 
-  <!-- Any javascript can be used -->
-  <span title="{JSON.stringify(data)}">Hi</span>
+    <!-- Any javascript can be used -->
+    <span title="{JSON.stringify(data)}">Hi</span>
 
-  <!-- `on` events can be bound to model handlers. These follow the
-  same rules as any other attributes but add a fat arrow shortcut to
-  define a staticPropertyValue function-->
-  <input type="text" value="{data.val}" onchange="{=data.onChange}">
-  <input type="text" value="{data.val}" onchange="{= function(e) { data.val = this.value }}">
-  <!-- The following is equivalent to the line above -->
-  <input type="text" value="{data.val}" onchange="{=> data.val = this.value }">
-  <!-- This adds an event handler to the function 'remove' defined locally above -->
-  <button onclick="{=remove}"></button>
+    <!-- `on` events can be bound to model handlers. -->
+    <button onclick="{remove()}"></button>
+    <!-- The following is equivalent to the line above -->
+    <input type="text" value="{data.val}" onchange="{data.val = this.value}">
 
-  <!-- Use an `if` attribute for conditional rendering -->
-  <p if="data.showMe">
-    <span class="{data.bar + ' other-css'}">description</span>
-    <input type="text" disabled="{data.isDisabled}">
-  </p>
+    <!-- Use an `if` attribute for conditional rendering -->
+    <p if="data.showMe">
+      <span class="{data.bar + ' other-css'}">description</span>
+      <input type="text" disabled="{data.isDisabled}">
+    </p>
 
-	<!-- An `if` tag can also be used for conditional rendering
-  by adding a condition attribute. The 'if' tag itself is not rendered
-  to the output, only the contents if the condition is truthy. -->
-  <if condition="data.showMe">
-    I'm in an `if` attribute {basket.totalCost}
-  </if>
+    <!-- An `if` tag can also be used for conditional rendering
+    by adding a condition attribute. -->
+    <if condition="data.showMe">
+      I'm in an `if` attribute {basket.totalCost}
+    </if>
 
-	<!-- The `style` attribute is special and can be set with an object.
-  If the data is known not to change, again, use the equals sign.-->
-  <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
-  <span style="{= color: data.foo, backgroundColor: data.bar }">My style doesn't change</span>
+    <!-- The `style` attribute is special and can be set with an object. -->
+    <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
 
-  <!-- The `each` attribute declares a forEach
-  block and can be used to repeat over items in
-  an Array or keys on an Object. The $index can be
-  used to reference the current index in the loop. -->
-  <ul>
-    <li each="item in data.items">
-      <span class="{ $index % 2 ? 'odd' : 'even' }">{$index}</span>
-      <span>{item.foo}</span>
-      <input value="{item.name}">
-    </li>
-  </ul>
+    <!-- The `each` attribute declares a forEach
+    block and can be used to repeat over items in
+    an Array or keys on an Object. The $index variable
+    can be used to identify the position of each item. -->
+    <ul>
+      <li each="item in data.items">
+        <span class="{ $index % 2 ? 'odd' : 'even' }">{ $index }</span>
+        <span>{item.foo}</span>
+        <input value="{item.name}">
+      </li>
+    </ul>
 
-  <!-- Looping over arrays -->
-  <ul>
-    <li each="item in data.arr">
-      <span>{item}</span>
-      <span>{$index}</span>
-      <span>{data.arr[item]}</span>
-    </li>
-  </ul>
+    <!-- Looping over arrays -->
+    <ul>
+      <li each="item in data.arr">
+        <span>{item.name}</span>
+      </li>
+    </ul>
 
-  <!-- Looping over object keys -->
-  <ul>
-    <li each="key in data.obj">
-      <span>{key}</span>
-      <span>{$index}</span>
-      <!-- `this` can also be used in `each` blocks -->
-      <span>{this[key]}</span>
-    </li>
-  </ul>
+    <!-- Looping over object keys -->
+    <ul>
+      <li each="key in data.obj">
+        <span>{key}</span>
+      </li>
+    </ul>
 
-  <!-- The `each` attribute also supports defining a `key` to use.
-  This should be set to identify each item in the list. This allow
-  the diff patch in to keep track of each item in the list.
-  See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items
-   -->
-  <ul>
-    <li each="product, product.id in data.products">
-    </li>
-  </ul>
+    <!-- The `each` attribute also supports defining a `key` to use.
+    This should be set to identify each item in the list. This allow
+    the diff patch in to keep track of each item in the list.
+    See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items
+     -->
+    <ul>
+      <li each="product, product.id in data.products">
+      </li>
+    </ul>
 
-</div>
+  </div>
+
+</my-widget>
 ```
 
 `cat tmpl.html | superviews -name description > output.js`
@@ -121,38 +127,51 @@ The above compiles this [incremental-dom](http://google.github.io/incremental-do
 
 
 ```js
-function description(data) {
+function myWidget (model, data, animals, fooData, barData) {
   var linesSummary = require('./lines-summary')
-  var totalSummary = require('./total-summary')
+    var totalSummary = require('./total-summary')
 
-  var items = []
-  function add (item) {
-    items.push(item)
-  }
+    var items = []
+    function add (item) {
+      items.push(item)
+    }
 
-  function remove () {
-    items.pop()
-  }
-
-  elementOpen("div", null, null, "title", data.title)
-    elementOpen("div", null, ["class", data.cssClass])
+    function remove () {
+      items.pop()
+    }
+  elementOpen("div", null, null, "class", data.cssClass)
+    elementOpen("div", null, ["title", data.title])
     elementClose("div")
+    elementOpen("div", null, ["title", "={data.title}"])
+    elementClose("div")
+    elementOpen("div", null, null, "title", >data.title)
+    elementClose("div")
+    elementOpen("div", null, null, "title", #data.title)
+    elementClose("div")
+    elementOpen("div", null, null, "title", {data.title})
+    elementClose("div")
+    elementOpen("input", null, ["type", "text", "onchange", function (e) {data.val = this.value}], "value", data.val)
+    elementClose("input")
+    elementOpen("input", null, ["type", "text", "onchange", "={data.val = this.value}"], "value", data.val)
+    elementClose("input")
+    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function (e) {>data.val = this.value})
+    elementClose("input")
+    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function (e) {#data.val = this.value})
+    elementClose("input")
+    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function (e) {{data.val = this.value}})
+    elementClose("input")
     text(" \
-    My name is " + data.name + " my age is " + data.age + " \
-    I live at " + data.address + " \
+        My name is " + (data.name) + " my age is " + (data.age) + " \
+        I live at " + (data.address) + " \
      \
-    ")
+        ")
     elementOpen("span", null, null, "title", JSON.stringify(data))
       text("Hi")
     elementClose("span")
-    elementOpen("input", null, ["type", "text", "onchange", data.onChange], "value", data.val)
-    elementClose("input")
-    elementOpen("input", null, ["type", "text", "onchange",  function(e) { this.val = val }], "value", data.val)
-    elementClose("input")
-    elementOpen("input", null, ["type", "text", "onchange", function (e) { this.val = val }], "value", data.val)
-    elementClose("input")
-    elementOpen("button", null, ["onclick", remove])
+    elementOpen("button", null, null, "onclick", function (e) {remove()})
     elementClose("button")
+    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function (e) {data.val = this.value})
+    elementClose("input")
     if (data.showMe) {
       elementOpen("p")
         elementOpen("span", null, null, "class", data.bar + ' other-css')
@@ -164,23 +183,20 @@ function description(data) {
     }
     if (data.showMe) {
       text(" \
-        I'm in an `if` attribute " + basket.totalCost + " \
-      ")
+            I'm in an `if` attribute " + (basket.totalCost) + " \
+          ")
     }
     elementOpen("span", null, null, "style", { color: data.foo, backgroundColor: data.bar })
       text("My style changes")
-    elementClose("span")
-    elementOpen("span", null, ["style", { color: data.foo, backgroundColor: data.bar }])
-      text("My style doesn't change")
     elementClose("span")
     elementOpen("ul")
       ;(Array.isArray(data.items) ? data.items : Object.keys(data.items)).forEach(function(item, $index) {
         elementOpen("li", $index)
           elementOpen("span", null, null, "class",  $index % 2 ? 'odd' : 'even' )
-            text("" + $index + "")
+            text("" + ( $index ) + "")
           elementClose("span")
           elementOpen("span")
-            text("" + item.foo + "")
+            text("" + (item.foo) + "")
           elementClose("span")
           elementOpen("input", null, null, "value", item.name)
           elementClose("input")
@@ -191,13 +207,7 @@ function description(data) {
       ;(Array.isArray(data.arr) ? data.arr : Object.keys(data.arr)).forEach(function(item, $index) {
         elementOpen("li", $index)
           elementOpen("span")
-            text("" + item + "")
-          elementClose("span")
-          elementOpen("span")
-            text("" + $index + "")
-          elementClose("span")
-          elementOpen("span")
-            text("" + data.arr[item] + "")
+            text("" + (item.name) + "")
           elementClose("span")
         elementClose("li")
       }, data.arr)
@@ -206,13 +216,7 @@ function description(data) {
       ;(Array.isArray(data.obj) ? data.obj : Object.keys(data.obj)).forEach(function(key, $index) {
         elementOpen("li", $index)
           elementOpen("span")
-            text("" + key + "")
-          elementClose("span")
-          elementOpen("span")
-            text("" + $index + "")
-          elementClose("span")
-          elementOpen("span")
-            text("" + this[key] + "")
+            text("" + (key) + "")
           elementClose("span")
         elementClose("li")
       }, data.obj)

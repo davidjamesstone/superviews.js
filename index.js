@@ -5,16 +5,24 @@ var buffer = []
 var indent = 0
 var endBraces = {}
 var literal = false
+var meta = null
 
 function flush () {
   buffer.length = 0
   indent = 0
   endBraces = {}
   literal = false
+  meta = null
 }
 
 function strify (str) {
   return '"' + (str || '') + '"'
+}
+
+function snakeToCamel (s) {
+  return s.replace(/(\-\w)/g, function (m) {
+    return m[1].toUpperCase()
+  })
 }
 
 function write (line) {
@@ -42,6 +50,7 @@ function writeln (command, tag, key, spvp, pvp) {
   str = str.replace(', null, null, null)', ')')
   str = str.replace(', null, null)', ')')
   str = str.replace(', null)', ')')
+
   return write(str)
 }
 
@@ -54,14 +63,14 @@ function getAttrs (attribs) {
   for (var key in attribs) {
     attrib = attribs[key]
 
-    if (key === 'each' || key === 'if' /* || key === 'with' */) {
+    if (key === 'each' || key === 'if') {
       specialPropertyMap[key] = attrib
     } else if (attrib.charAt(0) === '{') {
       if (attrib.charAt(1) === '=') {
-        if (attrib.charAt(2) === '>') {
-          // fat arrow
+        if (key.substr(0, 2) === 'on') {
+          // event handler
           staticPropertyValuePairs.push(key)
-          staticPropertyValuePairs.push('__EVAL' + attrib.replace('{=>', 'function (e) {'))
+          staticPropertyValuePairs.push('__EVAL' + attrib.replace('{=', 'function (e) {'))
         } else {
           if (key === 'style') {
             staticPropertyValuePairs.push(key)
@@ -76,8 +85,13 @@ function getAttrs (attribs) {
           propertyValuePairs.push(key)
           propertyValuePairs.push(attrib.replace('{=', '{'))
         } else {
-          propertyValuePairs.push(key)
-          propertyValuePairs.push(attrib.substring(1, attrib.length - 1))
+          if (key.substr(0, 2) === 'on') {
+            propertyValuePairs.push(key)
+            propertyValuePairs.push(attrib.replace('{', 'function (e) {'))
+          } else {
+            propertyValuePairs.push(key)
+            propertyValuePairs.push(attrib.substring(1, attrib.length - 1))
+          }
         }
       }
     } else {
@@ -94,6 +108,15 @@ function getAttrs (attribs) {
 
 var handler = {
   onopentag: function (name, attribs) {
+    if (!indent && attribs['args']) {
+      meta = {
+        name: attribs['name'] || snakeToCamel(name),
+        argstr: attribs['args'],
+        tagName: name
+      }
+      indent++
+      return
+    }
     if (name === 'script' && !attribs['src']) {
       literal = true
       return
@@ -107,11 +130,6 @@ var handler = {
     var attrs = getAttrs(attribs)
     var specialProps = attrs.specialPropertyMap
 
-    // if (specialProps['with']) {
-    //   endBraces[name + '_' + indent] = '}'
-    //   write('with (' + specialProps['with'] + ') {')
-    //   ++indent
-    // }
     if (specialProps['if']) {
       endBraces[name + '_' + indent] = '}'
       write('if (' + specialProps['if'] + ') {')
@@ -138,10 +156,6 @@ var handler = {
     writeln('elementOpen', name, key, attrs.staticPropertyValuePairs, attrs.propertyValuePairs)
 
     ++indent
-
-    if (specialProps['text']) {
-      write('text(' + specialProps['text'] + ')')
-    }
   },
   ontext: function (text) {
     if (!text || !text.trim()) {
@@ -161,6 +175,9 @@ var handler = {
     }
   },
   onclosetag: function (name) {
+    if (indent === 1 && meta && meta.tagName === name) {
+      return
+    }
     if (name === 'script' && literal) {
       literal = false
       return
@@ -186,7 +203,7 @@ var handler = {
   }
 }
 
-module.exports = function (tmplstr) {
+module.exports = function (tmplstr, name, argstr) {
   flush()
 
   var parser = new htmlparser.Parser(handler, {
@@ -197,6 +214,15 @@ module.exports = function (tmplstr) {
   parser.end()
 
   var result = buffer.join('\n')
+
+  name = (meta && meta.name) || (name || 'description')
+  argstr = (meta && meta.argstr) || (argstr || 'data')
+
+  var args = argstr.split(' ').filter(function (item) {
+    return item.trim()
+  }).join(', ')
+
+  result = 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
 
   flush()
 
