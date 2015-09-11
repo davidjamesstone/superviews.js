@@ -43,15 +43,6 @@ incremental-dom output.
     and is set-once evaluation. Do this to save
     time during diff patch updates. -->
     <div title="{=data.title}"></div>
-    <div title="={data.title}"></div>
-    <div title="{>data.title}"></div>
-    <div title="{#data.title}"></div>
-    <div title="{{data.title}}"></div>
-    <input type="text" value="{data.val}" onchange="{=data.val = this.value}">
-    <input type="text" value="{data.val}" onchange="={data.val = this.value}">
-    <input type="text" value="{data.val}" onchange="{>data.val = this.value}">
-    <input type="text" value="{data.val}" onchange="{#data.val = this.value}">
-    <input type="text" value="{data.val}" onchange="{{data.val = this.value}}">
 
     <!-- Text Interpolation is done using {} -->
     My name is {data.name} my age is {data.age}
