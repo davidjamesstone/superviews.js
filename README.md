@@ -2,12 +2,16 @@
 
 Template engine for google [incremental-dom](http://google.github.io/incremental-dom)
 
-`npm install superviews.js`
+`npm install superviews.js --save`
+
+Using [browserify](http://browserify.org/)? There's the [superviewify](https://github.com/davidjamesstone/superviewify) transform allowing you to simply require your templates and have them automatically compiled to incremental-dom javascript.
+
+`npm install superviewify --save`
 
 ```html
 <!--
 The outermost element in the template should contain
-a `name` and an `argstr` attributes. This will act as the
+a `name` and an `args` attribute. This will act as the
 template definition and will be used to define the
 enclosing function name and arguments in the
 incremental-dom output.
@@ -21,8 +25,8 @@ incremental-dom output.
   to render sub components. We also write a few functions to be used as event handlers.
   -->
   <script>
-  var linesSummary = require('./lines-summary')
-  var totalSummary = require('./total-summary')
+  var linesSummary = require('./lines-summary.html')
+  var totalSummary = require('./total-summary.html')
 
   var items = []
   function add (item) {
@@ -246,7 +250,7 @@ var data = {
   obj: {...}
 };
 
-var el = document.getElementById('');
+var el = document.getElementById('mount');
 
 patch(el, function() {
   description(data);
