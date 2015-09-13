@@ -1,3 +1,5 @@
+'use strict'
+
 var htmlparser = require('htmlparser2')
 var indentString = require('indent-string')
 
@@ -19,12 +21,6 @@ function strify (str) {
   return '"' + (str || '') + '"'
 }
 
-function snakeToCamel (s) {
-  return s.replace(/(\-\w)/g, function (m) {
-    return m[1].toUpperCase()
-  })
-}
-
 function write (line) {
   var str = indentString(line, ' ', indent * 2)
   buffer.push(str)
@@ -38,7 +34,7 @@ function writeln (command, tag, key, spvp, pvp) {
     str += key ? ', ' + key : ', null'
 
     str += spvp && spvp.length ? ', [' + spvp.map(function (item, index) {
-      return item.substr(0, 6) === '__EVAL' ? item.substr(6) : strify(item)
+      return strify(item)
     }).join(', ') + ']' : ', null'
 
     str += pvp && pvp.length ? ', ' + pvp.map(function (item, index) {
@@ -55,55 +51,46 @@ function writeln (command, tag, key, spvp, pvp) {
 }
 
 function getAttrs (attribs) {
-  var specialPropertyMap = {}
-  var staticPropertyValuePairs = []
-  var propertyValuePairs = []
+  var specials = {}
+  var statics = []
+  var properties = []
+  var token = '{'
   var attrib
 
   for (var key in attribs) {
     attrib = attribs[key]
 
     if (key === 'each' || key === 'if') {
-      specialPropertyMap[key] = attrib
-    } else if (attrib.charAt(0) === '{') {
-      if (attrib.charAt(1) === '=') {
-        if (key.substr(0, 2) === 'on') {
-          // event handler
-          staticPropertyValuePairs.push(key)
-          staticPropertyValuePairs.push('__EVAL' + attrib.replace('{=', 'function (e) {'))
-        } else {
-          if (key === 'style') {
-            staticPropertyValuePairs.push(key)
-            staticPropertyValuePairs.push('__EVAL' + attrib.replace('{=', '{'))
-          } else {
-            staticPropertyValuePairs.push(key)
-            staticPropertyValuePairs.push('__EVAL' + attrib.substring(2, attrib.length - 1))
-          }
-        }
+      specials[key] = attrib
+    } else if (attrib.charAt(0) === token) {
+      if (key === 'style') {
+        properties.push(key)
+        properties.push(attrib)
       } else {
-        if (key === 'style') {
-          propertyValuePairs.push(key)
-          propertyValuePairs.push(attrib.replace('{=', '{'))
+        if (key.substr(0, 2) === 'on') {
+          properties.push(key)
+          properties.push(attrib.replace(token, 'function ($event) {\n  $event.preventDefault();\n  var $element = this;\n'))
         } else {
-          if (key.substr(0, 2) === 'on') {
-            propertyValuePairs.push(key)
-            propertyValuePairs.push(attrib.replace('{', 'function (e) {'))
-          } else {
-            propertyValuePairs.push(key)
-            propertyValuePairs.push(attrib.substring(1, attrib.length - 1))
-          }
+          properties.push(key)
+          properties.push(attrib.substring(1, attrib.length - 1))
         }
       }
     } else {
-      staticPropertyValuePairs.push(key)
-      staticPropertyValuePairs.push(attrib)
+      statics.push(key)
+      statics.push(attrib)
     }
   }
   return {
-    specialPropertyMap: specialPropertyMap,
-    staticPropertyValuePairs: staticPropertyValuePairs,
-    propertyValuePairs: propertyValuePairs
+    specials: specials,
+    statics: statics,
+    properties: properties
   }
+}
+
+function snakeToCamel (s) {
+  return s.replace(/(\-\w)/g, function (m) {
+    return m[1].toUpperCase()
+  })
 }
 
 var handler = {
@@ -117,7 +104,7 @@ var handler = {
       indent++
       return
     }
-    if (name === 'script' && !attribs['src']) {
+    if (name === 'script' && !attribs.length) {
       literal = true
       return
     }
@@ -128,15 +115,15 @@ var handler = {
     }
 
     var attrs = getAttrs(attribs)
-    var specialProps = attrs.specialPropertyMap
+    var specials = attrs.specials
 
-    if (specialProps['if']) {
+    if (specials['if']) {
       endBraces[name + '_' + indent] = '}'
-      write('if (' + specialProps['if'] + ') {')
+      write('if (' + specials['if'] + ') {')
       ++indent
     }
-    if (specialProps['each']) {
-      var eachProp = specialProps['each']
+    if (specials['each']) {
+      var eachProp = specials['each']
       var idxComma = eachProp.indexOf(',')
       var idxIn = eachProp.indexOf(' in')
       var key
@@ -153,7 +140,7 @@ var handler = {
       ++indent
     }
 
-    writeln('elementOpen', name, key, attrs.staticPropertyValuePairs, attrs.propertyValuePairs)
+    writeln('elementOpen', name, key, attrs.statics, attrs.properties)
 
     ++indent
   },
@@ -168,9 +155,6 @@ var handler = {
       text = text.replace(/\{/g, '" + (')
       text = text.replace(/\}/g, ') + "')
       text = text.replace(/\n/g, ' \\\n')
-      // text = text.replace(/^" \+ /, '')
-      // text = text.replace(/ \+ "$/, '')
-
       write('text(' + strify(text) + ')')
     }
   },

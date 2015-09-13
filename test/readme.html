@@ -11,7 +11,7 @@ is the same as
 <template name="myWidget" args="foo bar baz">.
 (Notice the hyphen-case tags are converted to camelCase)
 -->
-<template name="myWidget" args="data">
+<template name="widget" args="data">
 
   <!--
   `script` tags that have no attributes are treated as literal javascript
@@ -19,14 +19,13 @@ is the same as
   -->
   <script>
 
-  var todos = []
-
+  var items = []
   function add (item) {
-    todos.push(item)
+    items.push(item)
   }
 
   function remove () {
-    todos.pop()
+    items.pop()
   }
 
   </script>
@@ -34,14 +33,16 @@ is the same as
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
 
-    <!-- Text Interpolation -->
+    <!-- Text Interpolation is also done using {} -->
     My name is {data.name} my age is {data.age}
     I live at {data.address}
 
     <!-- Any javascript can be used -->
-    <div title="{JSON.stringify(data)}">Hover for json</div>
+    <span title="{JSON.stringify(data)}">Hi</span>
 
-    <button onclick="{alert('hi')}">Say hi</button>
+    <!-- `on` events can be bound to model handlers. -->
+    <button onclick="{remove()}"></button>
+    <!-- The following is equivalent to the line above -->
     <input type="text" value="{data.val}" onchange="{data.val = this.value}">
 
     <!-- Use an `if` attribute for conditional rendering -->
@@ -50,10 +51,10 @@ is the same as
       <input type="text" disabled="{data.isDisabled}">
     </p>
 
-    <!-- An `if` tag can also be used for conditional
-     rendering by adding a `condition` attribute. -->
+    <!-- An `if` tag can also be used for conditional rendering
+    by adding a condition attribute. -->
     <if condition="data.showMe">
-      I'm in an `if` attribute
+      I'm in an `if` attribute {basket.totalCost}
     </if>
 
     <!-- The `style` attribute is special and can be set with an object. -->
@@ -65,7 +66,8 @@ is the same as
     can be used to identify the position of each item. -->
     <ul>
       <li each="item in data.items">
-        <span class="{ $index % 2 ? 'odd' : 'even' }">{$index}</span>
+        <span class="{ $index % 2 ? 'odd' : 'even' }">{ $index }</span>
+        <span>{item.foo}</span>
         <input value="{item.name}">
       </li>
     </ul>
@@ -80,21 +82,20 @@ is the same as
     <!-- Looping over object keys -->
     <ul>
       <li each="key in data.obj">
-        <span>{key} - {data.obj[key]}</span>
+        <span>{key}</span>
       </li>
     </ul>
 
     <!-- The `each` attribute also supports defining a `key` to use.
     This should be set to identify each item in the list. This allow
     the diff patch in to keep track of each item in the list.
-    See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items.
-    The key used here is `product.id`. If a key is not supplied, $index will be used.
+    See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items
      -->
     <ul>
       <li each="product, product.id in data.products">
-        {product.name}
       </li>
     </ul>
+
   </div>
 
-</template>
+</my-widget>

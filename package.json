@@ -4,7 +4,9 @@
   "description": "Template engine compiler targeting incremental-dom by Google",
   "main": "index.js",
   "scripts": {
-    "test": "cat test/tmpl.html | ./bin/cmd.js > test/tmpl.js"
+    "build:test": "cat test/tmpl.html | ./bin/cmd.js > test/tmpl.js",
+    "lint": "standard index.js bin/cmd.js",
+    "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },
   "bin": {
     "superviews": "./bin/cmd.js"
@@ -21,7 +23,6 @@
     "minimist": "^1.2.0"
   },
   "devDependencies": {
-    "incremental-dom": "git+https://github.com/google/incremental-dom.git",
     "standard": "^5.1.0"
   },
   "bugs": {

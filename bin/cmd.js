@@ -15,7 +15,6 @@ var buffer = ''
 
 stdin.on('data', function (text) {
   buffer += text
-// console.log(buffer)
 })
 stdin.on('end', function () {
   stdout.write(superviews(buffer, argv.name, argv.argstr))

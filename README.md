@@ -8,25 +8,28 @@ Using [browserify](http://browserify.org/)? There's the [superviewify](https://g
 
 `npm install superviewify --save`
 
+[supermodels.js](https://github.com/davidjamesstone/supermodels.js) fits in nicely with superviews.js. Building models that are observable objects lets us know when our data has changed and when we should patch the dom.
 ```html
 <!--
-The outermost element in the template should contain
-a `name` and an `args` attribute. This will act as the
-template definition and will be used to define the
-enclosing function name and arguments in the
-incremental-dom output.
+If the outermost element in the template contains
+an `args` attribute it will be used as the template definition.
+A `name` attribute can also be supplied. These will be used to
+define the enclosing function name and arguments in the incremental-dom output.
+
+If the `name` attribute is omitted, the tag name will be used
+allowing you to define custom tags. E.g.
+<my-widget args="foo bar baz">
+is the same as
+<template name="myWidget" args="foo bar baz">.
+(Notice the hyphen-case tags are converted to camelCase)
 -->
-<my-widget args="model data animals fooData barData">
+<template name="myWidget" args="data">
 
   <!--
-  `script` tags without a `src` attribute are treated as literal javascript
-  and will be simply inlined into the incremental-dom output. Here's an example
-  using browserify to require some other compiled template that we can use later
-  to render sub components. We also write a few functions to be used as event handlers.
+  `script` tags that have no attributes are treated as literal javascript
+  and will be simply inlined into the incremental-dom output.
   -->
   <script>
-  var linesSummary = require('./lines-summary.html')
-  var totalSummary = require('./total-summary.html')
 
   var items = []
   function add (item) {
@@ -36,19 +39,13 @@ incremental-dom output.
   function remove () {
     items.pop()
   }
+
   </script>
 
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
 
-    <!-- If an Attribute value is known not
-    to change include an equals sign '='.
-    This assigns a staticPropertyValue
-    and is set-once evaluation. Do this to save
-    time during diff patch updates. -->
-    <div title="{=data.title}"></div>
-
-    <!-- Text Interpolation is done using {} -->
+    <!-- Text Interpolation is also done using {} -->
     My name is {data.name} my age is {data.age}
     I live at {data.address}
 
@@ -113,48 +110,25 @@ incremental-dom output.
 
   </div>
 
-</my-widget>
+</template>
 ```
 
 `cat tmpl.html | superviews -name description > output.js`
 
 The above compiles this [incremental-dom](http://google.github.io/incremental-dom) code:
 
-
 ```js
-function myWidget (model, data, animals, fooData, barData) {
-  var linesSummary = require('./lines-summary')
-    var totalSummary = require('./total-summary')
+function myWidget (foo, bar, baz) {
+  var items = []
+  function add (item) {
+    items.push(item)
+  }
 
-    var items = []
-    function add (item) {
-      items.push(item)
-    }
+  function remove () {
+    items.pop()
+  }
 
-    function remove () {
-      items.pop()
-    }
   elementOpen("div", null, null, "class", data.cssClass)
-    elementOpen("div", null, ["title", data.title])
-    elementClose("div")
-    elementOpen("div", null, ["title", "={data.title}"])
-    elementClose("div")
-    elementOpen("div", null, null, "title", >data.title)
-    elementClose("div")
-    elementOpen("div", null, null, "title", #data.title)
-    elementClose("div")
-    elementOpen("div", null, null, "title", {data.title})
-    elementClose("div")
-    elementOpen("input", null, ["type", "text", "onchange", function (e) {data.val = this.value}], "value", data.val)
-    elementClose("input")
-    elementOpen("input", null, ["type", "text", "onchange", "={data.val = this.value}"], "value", data.val)
-    elementClose("input")
-    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function (e) {>data.val = this.value})
-    elementClose("input")
-    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function (e) {#data.val = this.value})
-    elementClose("input")
-    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function (e) {{data.val = this.value}})
-    elementClose("input")
     text(" \
         My name is " + (data.name) + " my age is " + (data.age) + " \
         I live at " + (data.address) + " \
@@ -163,9 +137,15 @@ function myWidget (model, data, animals, fooData, barData) {
     elementOpen("span", null, null, "title", JSON.stringify(data))
       text("Hi")
     elementClose("span")
-    elementOpen("button", null, null, "onclick", function (e) {remove()})
+    elementOpen("button", null, null, "onclick", function ($event) {
+      $event.preventDefault();
+      var $element = this;
+    remove()})
     elementClose("button")
-    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function (e) {data.val = this.value})
+    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function ($event) {
+      $event.preventDefault();
+      var $element = this;
+    data.val = this.value})
     elementClose("input")
     if (data.showMe) {
       elementOpen("p")
@@ -253,7 +233,7 @@ var data = {
 var el = document.getElementById('mount');
 
 patch(el, function() {
-  description(data);
+  myWidget(data);
 });
 
 ```
