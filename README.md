@@ -9,6 +9,9 @@ Using [browserify](http://browserify.org/)? There's the [superviewify](https://g
 `npm install superviewify --save`
 
 [supermodels.js](https://github.com/davidjamesstone/supermodels.js) fits in nicely with superviews.js. Building models that are observable objects lets us know when our data has changed and when we should patch the dom.
+
+To see how to use supermodels.js and superviews.js together, checkout [superglue.js](http://davidjamesstone.github.io/superglue.js)
+
 ```html
 <!--
 If the outermost element in the template contains
