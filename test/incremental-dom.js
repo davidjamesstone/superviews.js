@@ -170,6 +170,12 @@
     } else {
       el.setAttribute(name, value);
     }
+    
+    // If, after changing the attribute, the corresponding property is not updated,
+    // also update it.
+    if (el[propertyName] !== value) {
+      el[propertyName] = value;
+    }
   };
 
   /**

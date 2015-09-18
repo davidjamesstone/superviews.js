@@ -3,31 +3,24 @@ If the outermost element in the template contains
 an `args` attribute it will be used as the template definition.
 A `name` attribute can also be supplied. These will be used to
 define the enclosing function name and arguments in the incremental-dom output.
-
-If the `name` attribute is omitted, the tag name will be used
-allowing you to define custom tags. E.g.
-<my-widget args="foo bar baz">
-is the same as
-<template name="myWidget" args="foo bar baz">.
-(Notice the hyphen-case tags are converted to camelCase)
 -->
-<template name="myWidget" args="data">
-
+<template name="myWidget" args="data foo bar">
+  
   <!--
   `script` tags that have no attributes are treated as literal javascript
   and will be simply inlined into the incremental-dom output.
   -->
   <script>
 
-  var todos = []
+    var todos = []
 
-  function add (item) {
-    todos.push(item)
-  }
+    function add (item) {
+      todos.push(item)
+    }
 
-  function remove () {
-    todos.pop()
-  }
+    function remove () {
+      todos.pop()
+    }
 
   </script>
 
@@ -41,7 +34,7 @@ is the same as
     <!-- Any javascript can be used -->
     <div title="{JSON.stringify(data)}">Hover for json</div>
 
-    <button onclick="{alert('hi')}">Say hi</button>
+    <button onclick="{alert(hi)}">Say hi</button>
     <input type="text" value="{data.val}" onchange="{data.val = this.value}">
 
     <!-- Use an `if` attribute for conditional rendering -->

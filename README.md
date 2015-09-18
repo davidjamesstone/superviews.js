@@ -14,19 +14,12 @@ To see how to use supermodels.js and superviews.js together, checkout [superglue
 
 ```html
 <!--
-If the outermost element in the template contains
+If the outermost element is a template tag and contains
 an `args` attribute it will be used as the template definition.
 A `name` attribute can also be supplied. These will be used to
 define the enclosing function name and arguments in the incremental-dom output.
-
-If the `name` attribute is omitted, the tag name will be used
-allowing you to define custom tags. E.g.
-<my-widget args="foo bar baz">
-is the same as
-<template name="myWidget" args="foo bar baz">.
-(Notice the hyphen-case tags are converted to camelCase)
 -->
-<template name="myWidget" args="data">
+<template name="myWidget" args="data foo bar">
 
   <!--
   `script` tags that have no attributes are treated as literal javascript
@@ -34,30 +27,29 @@ is the same as
   -->
   <script>
 
-  var items = []
-  function add (item) {
-    items.push(item)
-  }
+    var todos = []
 
-  function remove () {
-    items.pop()
-  }
+    function add (item) {
+      todos.push(item)
+    }
+
+    function remove () {
+      todos.pop()
+    }
 
   </script>
 
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
 
-    <!-- Text Interpolation is also done using {} -->
+    <!-- Text Interpolation -->
     My name is {data.name} my age is {data.age}
     I live at {data.address}
 
     <!-- Any javascript can be used -->
-    <span title="{JSON.stringify(data)}">Hi</span>
+    <div title="{JSON.stringify(data)}">Hover for json</div>
 
-    <!-- `on` events can be bound to model handlers. -->
-    <button onclick="{remove()}"></button>
-    <!-- The following is equivalent to the line above -->
+    <button onclick="{alert(hi)}">Say hi</button>
     <input type="text" value="{data.val}" onchange="{data.val = this.value}">
 
     <!-- Use an `if` attribute for conditional rendering -->
@@ -66,10 +58,10 @@ is the same as
       <input type="text" disabled="{data.isDisabled}">
     </p>
 
-    <!-- An `if` tag can also be used for conditional rendering
-    by adding a condition attribute. -->
+    <!-- An `if` tag can also be used for conditional
+     rendering by adding a `condition` attribute. -->
     <if condition="data.showMe">
-      I'm in an `if` attribute {basket.totalCost}
+      I'm in an `if` attribute
     </if>
 
     <!-- The `style` attribute is special and can be set with an object. -->
@@ -81,8 +73,7 @@ is the same as
     can be used to identify the position of each item. -->
     <ul>
       <li each="item in data.items">
-        <span class="{ $index % 2 ? 'odd' : 'even' }">{ $index }</span>
-        <span>{item.foo}</span>
+        <span class="{ $index % 2 ? 'odd' : 'even' }">{$index}</span>
         <input value="{item.name}">
       </li>
     </ul>
@@ -97,20 +88,21 @@ is the same as
     <!-- Looping over object keys -->
     <ul>
       <li each="key in data.obj">
-        <span>{key}</span>
+        <span>{key} - {data.obj[key]}</span>
       </li>
     </ul>
 
     <!-- The `each` attribute also supports defining a `key` to use.
     This should be set to identify each item in the list. This allow
     the diff patch in to keep track of each item in the list.
-    See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items
+    See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items.
+    The key used here is `product.id`. If a key is not supplied, $index will be used.
      -->
     <ul>
       <li each="product, product.id in data.products">
+        {product.name}
       </li>
     </ul>
-
   </div>
 
 </template>
@@ -121,14 +113,15 @@ is the same as
 The above compiles this [incremental-dom](http://google.github.io/incremental-dom) code:
 
 ```js
-function myWidget (foo, bar, baz) {
-  var items = []
+function myWidget (data, foo, bar) {
+  var todos = []
+
   function add (item) {
-    items.push(item)
+    todos.push(item)
   }
 
   function remove () {
-    items.pop()
+    todos.pop()
   }
 
   elementOpen("div", null, null, "class", data.cssClass)
@@ -137,13 +130,14 @@ function myWidget (foo, bar, baz) {
         I live at " + (data.address) + " \
      \
         ")
-    elementOpen("span", null, null, "title", JSON.stringify(data))
-      text("Hi")
-    elementClose("span")
+    elementOpen("div", null, null, "title", JSON.stringify(data))
+      text("Hover for json")
+    elementClose("div")
     elementOpen("button", null, null, "onclick", function ($event) {
       $event.preventDefault();
       var $element = this;
-    remove()})
+    alert(hi)})
+      text("Say hi")
     elementClose("button")
     elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function ($event) {
       $event.preventDefault();
@@ -161,7 +155,7 @@ function myWidget (foo, bar, baz) {
     }
     if (data.showMe) {
       text(" \
-            I'm in an `if` attribute " + (basket.totalCost) + " \
+            I'm in an `if` attribute \
           ")
     }
     elementOpen("span", null, null, "style", { color: data.foo, backgroundColor: data.bar })
@@ -171,10 +165,7 @@ function myWidget (foo, bar, baz) {
       ;(Array.isArray(data.items) ? data.items : Object.keys(data.items)).forEach(function(item, $index) {
         elementOpen("li", $index)
           elementOpen("span", null, null, "class",  $index % 2 ? 'odd' : 'even' )
-            text("" + ( $index ) + "")
-          elementClose("span")
-          elementOpen("span")
-            text("" + (item.foo) + "")
+            text("" + ($index) + "")
           elementClose("span")
           elementOpen("input", null, null, "value", item.name)
           elementClose("input")
@@ -194,7 +185,7 @@ function myWidget (foo, bar, baz) {
       ;(Array.isArray(data.obj) ? data.obj : Object.keys(data.obj)).forEach(function(key, $index) {
         elementOpen("li", $index)
           elementOpen("span")
-            text("" + (key) + "")
+            text("" + (key) + " - " + (data.obj[key]) + "")
           elementClose("span")
         elementClose("li")
       }, data.obj)
@@ -202,43 +193,14 @@ function myWidget (foo, bar, baz) {
     elementOpen("ul")
       ;(Array.isArray(data.products) ? data.products : Object.keys(data.products)).forEach(function(product, $index) {
         elementOpen("li", product.id)
+          text(" \
+                  " + (product.name) + " \
+                ")
         elementClose("li")
       }, data.products)
     elementClose("ul")
   elementClose("div")
 }
-```
-
-Then to use it in the browser
-
-```js
-
-var IncrementalDOM = require('incremental-dom'),
-    elementOpen = IncrementalDOM.elementOpen,
-    elementClose = IncrementalDOM.elementClose,
-    elementVoid = IncrementalDOM.elementVoid,
-    text = IncrementalDOM.text,
-    patch = IncrementalDOM.patch;
-
-var data = {
-  title: 'Hello World!',
-  cssClass: 'my-class',
-  val: 42,
-  name: 'Elizabeth',
-  age: 90,
-  address: 'Buckingham Palace',
-  showMe: true,
-  items: [...],
-  arr: [...],
-  obj: {...}
-};
-
-var el = document.getElementById('mount');
-
-patch(el, function() {
-  myWidget(data);
-});
-
 ```
 
 ## Testing

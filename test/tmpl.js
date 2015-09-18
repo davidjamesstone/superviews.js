@@ -1,13 +1,13 @@
-function widget (data) {
+function myWidget (data, foo, bar) {
   var todos = []
 
-    function add (item) {
-      todos.push(item)
-    }
+      function add (item) {
+        todos.push(item)
+      }
 
-    function remove () {
-      todos.pop()
-    }
+      function remove () {
+        todos.pop()
+      }
   elementOpen("div", null, null, "class", data.cssClass)
     text(" \
         My name is " + (data.name) + " my age is " + (data.age) + " \
@@ -20,7 +20,7 @@ function widget (data) {
     elementOpen("button", null, null, "onclick", function ($event) {
       $event.preventDefault();
       var $element = this;
-    alert('hi')})
+    alert(hi)})
       text("Say hi")
     elementClose("button")
     elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function ($event) {
@@ -39,7 +39,7 @@ function widget (data) {
     }
     if (data.showMe) {
       text(" \
-            I'm in an `if` attribute " + (basket.totalCost) + " \
+            I'm in an `if` attribute \
           ")
     }
     elementOpen("span", null, null, "style", { color: data.foo, backgroundColor: data.bar })

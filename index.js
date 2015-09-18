@@ -87,19 +87,12 @@ function getAttrs (attribs) {
   }
 }
 
-function snakeToCamel (s) {
-  return s.replace(/(\-\w)/g, function (m) {
-    return m[1].toUpperCase()
-  })
-}
-
 var handler = {
   onopentag: function (name, attribs) {
-    if (!indent && attribs['args']) {
+    if (!indent && (name === 'template') && attribs['args'] && attribs['name']) {
       meta = {
-        name: attribs['name'] || snakeToCamel(name),
-        argstr: attribs['args'],
-        tagName: name
+        name: attribs['name'],
+        argstr: attribs['args']
       }
       indent++
       return
@@ -159,7 +152,7 @@ var handler = {
     }
   },
   onclosetag: function (name) {
-    if (indent === 1 && meta && meta.tagName === name) {
+    if (indent === 1 && meta && name === 'template') {
       return
     }
     if (name === 'script' && literal) {
