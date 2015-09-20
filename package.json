@@ -1,6 +1,6 @@
 {
   "name": "superviews.js",
-  "version": "0.0.7",
+  "version": "0.0.8",
   "description": "Template engine compiler targeting incremental-dom by Google",
   "main": "index.js",
   "scripts": {
