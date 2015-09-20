@@ -89,7 +89,7 @@ function getAttrs (attribs) {
 
 var handler = {
   onopentag: function (name, attribs) {
-    if (!indent && (name === 'template') && attribs['args'] && attribs['name']) {
+    if (!indent && (name === 'template') && 'args' in attribs) {
       meta = {
         name: attribs['name'],
         argstr: attribs['args']
