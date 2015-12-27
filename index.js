@@ -180,7 +180,7 @@ var handler = {
   }
 }
 
-module.exports = function (tmplstr, name, argstr) {
+module.exports = function (tmplstr, name, argstr, es6) {
   flush()
 
   var parser = new htmlparser.Parser(handler, {
@@ -199,7 +199,12 @@ module.exports = function (tmplstr, name, argstr) {
     return item.trim()
   }).join(', ')
 
+
   result = 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
+	
+	if (es6) {
+		result = 'export ' + result
+	}
 
   flush()
 

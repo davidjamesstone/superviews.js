@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build:test": "cat test/tmpl.html | ./bin/cmd.js > test/tmpl.js",
+    "build:test-es6": "cat test/tmpl.html | ./bin/cmd.js --es6 > test/tmpl.js",
     "lint": "standard index.js bin/cmd.js",
     "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },
