@@ -234,7 +234,7 @@ var handler = {
   }
 }
 
-module.exports = function (tmplstr, name, argstr) {
+module.exports = function (tmplstr, name, argstr, es6) {
   flush()
 
   var parser = new htmlparser.Parser(handler, {
@@ -255,8 +255,16 @@ module.exports = function (tmplstr, name, argstr) {
     return item.trim()
   }).join(', ')
 
-  result = hoist.join('\n') + '\n\n' + 'return function ' + name + ' (' + args + ') {\n' + result + '\n}'
-  result = ';(function () {' + '\n' + result + '\n' + '})()'
+  var func = 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
+  var hoisted = hoist.join('\n') + '\n\n'
+
+  if (es6) {
+    result = "import {patch, elementOpen, elementClose, text} from 'incremental-dom'\n\n";
+    result += hoisted + 'export ' + func
+  } else {
+    result = hoisted + 'return ' + func
+    result = ';(function () {' + '\n' + result + '\n' + '})()'
+  }
 
   flush()
 
