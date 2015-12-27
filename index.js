@@ -203,7 +203,7 @@ module.exports = function (tmplstr, name, argstr, es6) {
   result = 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
 	
 	if (es6) {
-		result = 'export ' + result
+		result = "import { patch, elementOpen, elementClose, text } from 'incremental-dom' \n\nexport " + result
 	}
 
   flush()
