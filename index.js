@@ -97,7 +97,7 @@ var handler = {
       indent++
       return
     }
-    if (name === 'script' && !attribs.length) {
+    if (name === 'script' && !Object.keys(attribs).length) {
       literal = true
       return
     }
