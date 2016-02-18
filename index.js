@@ -185,7 +185,8 @@ module.exports = function (tmplstr, name, argstr) {
 
   var parser = new htmlparser.Parser(handler, {
     decodeEntities: false,
-    lowerCaseAttributeNames: false
+    lowerCaseAttributeNames: false,
+    lowerCaseTags: false
   })
 
   parser.write(tmplstr)
