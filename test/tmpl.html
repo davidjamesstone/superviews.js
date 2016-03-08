@@ -5,7 +5,7 @@ A `name` attribute can also be supplied. These will be used to
 define the enclosing function name and arguments in the incremental-dom output.
 -->
 <template name="myWidget" args="data foo bar">
-  
+
   <!--
   `script` tags that have no attributes are treated as literal javascript
   and will be simply inlined into the incremental-dom output.
@@ -23,6 +23,14 @@ define the enclosing function name and arguments in the incremental-dom output.
     }
 
   </script>
+
+  <!-- Element keys are added with the `key` attribute -->
+  <span key="foo" title="boo">foo</span>
+
+  <placeholder key="bar" title="I will render only once. Subsequent patches will be skipped."></placeholder>
+
+  <!-- Placeholder elements are defined with the `skip` attribute -->
+  <div skip key="bar" title="I will render only once. Subsequent patches will be skipped."></div>
 
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
@@ -73,7 +81,7 @@ define the enclosing function name and arguments in the incremental-dom output.
     <!-- Looping over object keys -->
     <ul>
       <li each="key in data.obj">
-        <span>{key} - {data.obj[key]}</span>
+        <span title="hello">{key} - {data.obj[key]}</span>
       </li>
     </ul>
 

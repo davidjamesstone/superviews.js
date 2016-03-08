@@ -1,3 +1,10 @@
+var hoisted1 = ["title", "boo"]
+var hoisted2 = ["title", "I will render only once. Subsequent patches will be skipped."]
+var hoisted3 = ["skip", "", "title", "I will render only once. Subsequent patches will be skipped."]
+var hoisted4 = ["type", "text"]
+var hoisted5 = ["type", "text"]
+var hoisted6 = ["title", "hello"]
+
 function myWidget (data, foo, bar) {
   var todos = []
 
@@ -8,6 +15,12 @@ function myWidget (data, foo, bar) {
       function remove () {
         todos.pop()
       }
+  elementOpen("span", "foo", hoisted1)
+    text("foo")
+  elementClose("span")
+  elementPlaceholder("placeholder", "bar", hoisted2)
+  elementOpen("div", "bar", hoisted3)
+  elementClose("div")
   elementOpen("div", null, null, "class", data.cssClass)
     text(" \
         My name is " + (data.name) + " my age is " + (data.age) + " \
@@ -23,7 +36,7 @@ function myWidget (data, foo, bar) {
     alert(hi)})
       text("Say hi")
     elementClose("button")
-    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function ($event) {
+    elementOpen("input", null, hoisted4, "value", data.val, "onchange", function ($event) {
       $event.preventDefault();
       var $element = this;
     data.val = this.value})
@@ -33,7 +46,7 @@ function myWidget (data, foo, bar) {
         elementOpen("span", null, null, "class", data.bar + ' other-css')
           text("description")
         elementClose("span")
-        elementOpen("input", null, ["type", "text"], "disabled", data.isDisabled)
+        elementOpen("input", null, hoisted5, "disabled", data.isDisabled)
         elementClose("input")
       elementClose("p")
     }
@@ -68,7 +81,7 @@ function myWidget (data, foo, bar) {
     elementOpen("ul")
       ;(Array.isArray(data.obj) ? data.obj : Object.keys(data.obj)).forEach(function(key, $index) {
         elementOpen("li", $index)
-          elementOpen("span")
+          elementOpen("span", null, hoisted6)
             text("" + (key) + " - " + (data.obj[key]) + "")
           elementClose("span")
         elementClose("li")

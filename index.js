@@ -4,14 +4,18 @@ var htmlparser = require('htmlparser2')
 var indentString = require('indent-string')
 
 var buffer = []
+var hoist = []
 var indent = 0
+var hoisted = 0
 var endBraces = {}
 var literal = false
 var meta = null
 
 function flush () {
   buffer.length = 0
+  hoist.length = 0
   indent = 0
+  hoisted = 0
   endBraces = {}
   literal = false
   meta = null
@@ -30,17 +34,27 @@ function write (line) {
 function writeln (command, tag, key, spvp, pvp) {
   var str = command
   str += '(' + strify(tag)
-  if (command === 'elementOpen') {
+
+  if (command === 'elementOpen' || command === 'elementPlaceholder') {
     str += key ? ', ' + key : ', null'
 
-    str += spvp && spvp.length ? ', [' + spvp.map(function (item, index) {
-      return strify(item)
-    }).join(', ') + ']' : ', null'
+    if (spvp && spvp.length) {
+      var statics = '[' + spvp.map(function (item, index) {
+        return strify(item)
+      }).join(', ') + ']'
+
+      ++hoisted
+      hoist.push(('var hoisted' + hoisted) + ' = ' + statics)
+      str += ', hoisted' + hoisted
+    } else {
+      str += ', null'
+    }
 
     str += pvp && pvp.length ? ', ' + pvp.map(function (item, index) {
       return index % 2 ? item : strify(item)
     }).join(', ') : ', null'
   }
+
   str += ')'
 
   str = str.replace(', null, null, null)', ')')
@@ -50,7 +64,7 @@ function writeln (command, tag, key, spvp, pvp) {
   return write(str)
 }
 
-function getAttrs (attribs) {
+function getAttrs (name, attribs) {
   var specials = {}
   var statics = []
   var properties = []
@@ -107,25 +121,39 @@ var handler = {
       return
     }
 
-    var attrs = getAttrs(attribs)
+    var key
+    if (attribs['key']) {
+      key = strify(attribs['key'])
+      delete attribs['key']
+    }
+
+    var placeholder = (name === 'placeholder')
+    if (attribs['tag']) {
+      name = attribs['tag']
+      delete attribs['tag']
+    }
+
+    var attrs = getAttrs(name, attribs)
     var specials = attrs.specials
 
-    if (specials['if']) {
+    if (specials.if) {
       endBraces[name + '_' + indent] = '}'
-      write('if (' + specials['if'] + ') {')
+      write('if (' + specials.if + ') {')
       ++indent
     }
-    if (specials['each']) {
-      var eachProp = specials['each']
+
+    if (specials.each) {
+      var eachProp = specials.each
       var idxComma = eachProp.indexOf(',')
       var idxIn = eachProp.indexOf(' in')
-      var key
+
       if (~idxComma) {
         key = eachProp.substring(idxComma + 2, idxIn)
         eachProp = eachProp.substring(0, idxComma) + eachProp.substr(idxIn)
       } else {
         key = '$index'
       }
+
       var eachAttr = eachProp
       var eachParts = eachAttr.split(' in ')
       endBraces[name + '_' + indent] = '}, ' + eachParts[1] + ')'
@@ -133,9 +161,11 @@ var handler = {
       ++indent
     }
 
-    writeln('elementOpen', name, key, attrs.statics, attrs.properties)
+    writeln(placeholder ? 'elementPlaceholder' : 'elementOpen', name, key, attrs.statics, attrs.properties)
 
-    ++indent
+    if (!placeholder) {
+      ++indent
+    }
   },
   ontext: function (text) {
     if (!text || !text.trim()) {
@@ -152,7 +182,7 @@ var handler = {
     }
   },
   onclosetag: function (name) {
-    if (indent === 1 && meta && name === 'template') {
+    if ((indent === 1 && meta && name === 'template') || name === 'placeholder') {
       return
     }
     if (name === 'script' && literal) {
@@ -199,7 +229,7 @@ module.exports = function (tmplstr, name, argstr) {
     return item.trim()
   }).join(', ')
 
-  result = 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
+  result = hoist.join('\n') + '\n\n' + 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
 
   flush()
 

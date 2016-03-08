@@ -9,7 +9,6 @@ var argv = minimist(process.argv.slice(2))
 var stdin = process.stdin
 var stdout = process.stdout
 
-
 stdin.setEncoding('utf8')
 var superviews = require('../')
 var buffer = ''
