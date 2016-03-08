@@ -1,0 +1,40 @@
+<template name="widget" args="data">
+
+  <!-- Attribute values can be set using javascript between curly braces {} -->
+  <div class="{data.cssClass}">
+
+    <!-- Text Interpolation is also done using {} -->
+    My name is {data.name} my age is {data.age}
+    I live at {data.address}
+
+    <!-- Any javascript can be used -->
+    <span title="{JSON.stringify(data)}">Hi</span>
+
+    <!-- `on` events can be bound to model handlers. -->
+    <button onclick="{remove()}"></button>
+    <!-- The following is equivalent to the line above -->
+    <input type="text" value="{data.val}" onchange="{data.val = this.value}">
+
+    <!-- Use an `if` attribute for conditional rendering -->
+    <p if="data.showMe">
+      <span class="{data.bar + ' other-css'}">description</span>
+      <input type="text" disabled="{data.isDisabled}">
+    </p>
+
+    <!-- An `if` tag can also be used for conditional rendering
+    by adding a condition attribute. -->
+    <if condition="data.showMe">
+      I'm in an `if` attribute {basket.totalCost}
+    </if>
+
+    <!-- The `style` attribute is special and can be set with an object. -->
+    <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
+
+    <ul>
+      <li each="product, product.id in data.products">
+      </li>
+    </ul>
+
+  </div>
+
+</template>
