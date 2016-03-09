@@ -64,6 +64,13 @@ function writeln (command, tag, key, spvp, pvp) {
   return write(str)
 }
 
+function interpolate (text) {
+  text = text.replace(/\{/g, '" + (')
+  text = text.replace(/\}/g, ') + "')
+  text = text.replace(/\n/g, ' \\\n')
+  return strify(text)
+}
+
 function getAttrs (name, attribs) {
   var specials = {}
   var statics = []
@@ -89,6 +96,9 @@ function getAttrs (name, attribs) {
           properties.push(attrib.substring(1, attrib.length - 1))
         }
       }
+    } else if (attrib.indexOf(token) > 0) {
+      properties.push(key)
+      properties.push(interpolate(attrib))
     } else {
       statics.push(key)
       statics.push(attrib)
@@ -175,10 +185,7 @@ var handler = {
     if (literal) {
       write(text.trim())
     } else {
-      text = text.replace(/\{/g, '" + (')
-      text = text.replace(/\}/g, ') + "')
-      text = text.replace(/\n/g, ' \\\n')
-      write('text(' + strify(text) + ')')
+      write('text(' + interpolate(text) + ')')
     }
   },
   onclosetag: function (name) {
@@ -229,7 +236,8 @@ module.exports = function (tmplstr, name, argstr) {
     return item.trim()
   }).join(', ')
 
-  result = hoist.join('\n') + '\n\n' + 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
+  result = hoist.join('\n') + '\n\n' + 'return function ' + name + ' (' + args + ') {\n' + result + '\n}'
+  result = ';(function () {' + '\n' + result + '\n' + '})()'
 
   flush()
 

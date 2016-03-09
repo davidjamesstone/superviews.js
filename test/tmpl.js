@@ -1,4 +1,4 @@
-var hoisted1 = ["title", "boo"]
+var hoisted1 = ["title1", "boo"]
 var hoisted2 = ["title", "I will render only once. Subsequent patches will be skipped."]
 var hoisted3 = ["skip", "", "title", "I will render only once. Subsequent patches will be skipped."]
 var hoisted4 = ["type", "text"]
@@ -16,12 +16,14 @@ function myWidget (data, foo, bar) {
         todos.pop()
       }
   elementOpen("span", "foo", hoisted1)
-    text("foo")
+    text("&#125;foo&#125;")
   elementClose("span")
   elementPlaceholder("placeholder", "bar", hoisted2)
   elementOpen("div", "bar", hoisted3)
   elementClose("div")
   elementOpen("div", null, null, "class", data.cssClass)
+    elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
+    elementClose("a")
     text(" \
         My name is " + (data.name) + " my age is " + (data.age) + " \
         I live at " + (data.address) + " \

@@ -25,7 +25,7 @@ define the enclosing function name and arguments in the incremental-dom output.
   </script>
 
   <!-- Element keys are added with the `key` attribute -->
-  <span key="foo" title="boo">foo</span>
+  <span key="foo" title1="boo">&#125;foo&#125;</span>
 
   <placeholder key="bar" title="I will render only once. Subsequent patches will be skipped."></placeholder>
 
@@ -34,6 +34,8 @@ define the enclosing function name and arguments in the incremental-dom output.
 
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
+
+    <a href="http://www.google.co.uk?q={data.query}"></a>
 
     <!-- Text Interpolation -->
     My name is {data.name} my age is {data.age}
