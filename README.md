@@ -12,12 +12,16 @@ Using [browserify](http://browserify.org/)? There's the [superviewify](https://g
 
 To see how to use supermodels.js and superviews.js together, checkout [superglue.js](http://davidjamesstone.github.io/superglue.js)
 
+## Example
+
+Create a file called `tmpl.html`
+
 ```html
 <!--
-If the outermost element is a template tag and contains
-an `args` attribute it will be used as the template definition.
+If the outermost element is a `template` element and contains
+an `args` attribute it will be used as the function definition.
 A `name` attribute can also be supplied. These will be used to
-define the enclosing function name and arguments in the incremental-dom output.
+define the enclosing function name and arguments in the incremental-dom output (see below).
 -->
 <template name="myWidget" args="data foo bar">
 
@@ -39,8 +43,17 @@ define the enclosing function name and arguments in the incremental-dom output.
 
   </script>
 
+  <!-- Element keys are added with the `key` attribute -->
+  <span key="foo" title="boo"></span>
+
+  <!-- Placeholder elements are defined with the `placeholder` element. The `tag` attribute is optional -->
+  <placeholder key="bar" title="I will render only once. Subsequent patches will be skipped." tag="div"></placeholder>
+
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
+
+    <!-- Interpolation in attributes -->
+    <a href="http://www.google.co.uk?q={data.query}"></a>
 
     <!-- Text Interpolation -->
     My name is {data.name} my age is {data.age}
@@ -88,7 +101,7 @@ define the enclosing function name and arguments in the incremental-dom output.
     <!-- Looping over object keys -->
     <ul>
       <li each="key in data.obj">
-        <span>{key} - {data.obj[key]}</span>
+        <span title="hello">{key} - {data.obj[key]}</span>
       </li>
     </ul>
 
@@ -108,23 +121,34 @@ define the enclosing function name and arguments in the incremental-dom output.
 </template>
 ```
 
-`cat tmpl.html | superviews -name description > output.js`
+`cat tmpl.html | superviews > tmpl.js`
 
-The above compiles this [incremental-dom](http://google.github.io/incremental-dom) code:
+Converts the template above to this [incremental-dom](http://google.github.io/incremental-dom) code:
 
 ```js
-function myWidget (data, foo, bar) {
+;(function () {
+var hoisted1 = ["title", "boo"]
+var hoisted2 = ["title", "I will render only once. Subsequent patches will be skipped."]
+var hoisted3 = ["type", "text"]
+var hoisted4 = ["type", "text"]
+var hoisted5 = ["title", "hello"]
+
+return function myWidget (data, foo, bar) {
   var todos = []
 
-  function add (item) {
-    todos.push(item)
-  }
+      function add (item) {
+        todos.push(item)
+      }
 
-  function remove () {
-    todos.pop()
-  }
-
+      function remove () {
+        todos.pop()
+      }
+  elementOpen("span", "foo", hoisted1)
+  elementClose("span")
+  elementPlaceholder("div", "bar", hoisted2)
   elementOpen("div", null, null, "class", data.cssClass)
+    elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
+    elementClose("a")
     text(" \
         My name is " + (data.name) + " my age is " + (data.age) + " \
         I live at " + (data.address) + " \
@@ -136,10 +160,11 @@ function myWidget (data, foo, bar) {
     elementOpen("button", null, null, "onclick", function ($event) {
       $event.preventDefault();
       var $element = this;
-    alert(hi)})
+      alert(hi)
+    })
       text("Say hi")
     elementClose("button")
-    elementOpen("input", null, ["type", "text"], "value", data.val, "onchange", function ($event) {
+    elementOpen("input", null, hoisted3, "value", data.val, "onchange", function ($event) {
       $event.preventDefault();
       var $element = this;
     data.val = this.value})
@@ -149,7 +174,7 @@ function myWidget (data, foo, bar) {
         elementOpen("span", null, null, "class", data.bar + ' other-css')
           text("description")
         elementClose("span")
-        elementOpen("input", null, ["type", "text"], "disabled", data.isDisabled)
+        elementOpen("input", null, hoisted4, "disabled", data.isDisabled)
         elementClose("input")
       elementClose("p")
     }
@@ -184,7 +209,7 @@ function myWidget (data, foo, bar) {
     elementOpen("ul")
       ;(Array.isArray(data.obj) ? data.obj : Object.keys(data.obj)).forEach(function(key, $index) {
         elementOpen("li", $index)
-          elementOpen("span")
+          elementOpen("span", null, hoisted5)
             text("" + (key) + " - " + (data.obj[key]) + "")
           elementClose("span")
         elementClose("li")
@@ -201,12 +226,7 @@ function myWidget (data, foo, bar) {
     elementClose("ul")
   elementClose("div")
 }
-```
-
-## Testing
-
-```
-$ npm test
+})()
 ```
 
 # License

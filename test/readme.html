@@ -1,8 +1,8 @@
 <!--
-If the outermost element is a template tag and contains
-an `args` attribute it will be used as the template definition.
+If the outermost element is a `template` element and contains
+an `args` attribute it will be used as the function definition.
 A `name` attribute can also be supplied. These will be used to
-define the enclosing function name and arguments in the incremental-dom output.
+define the enclosing function name and arguments in the incremental-dom output (see below).
 -->
 <template name="myWidget" args="data foo bar">
 
@@ -24,8 +24,17 @@ define the enclosing function name and arguments in the incremental-dom output.
 
   </script>
 
+  <!-- Element keys are added with the `key` attribute -->
+  <span key="foo" title="boo"></span>
+
+  <!-- Placeholder elements are defined with the `placeholder` element. The `tag` attribute is optional -->
+  <placeholder key="bar" title="I will render only once. Subsequent patches will be skipped." tag="div"></placeholder>
+
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
+
+    <!-- Interpolation in attributes -->
+    <a href="http://www.google.co.uk?q={data.query}"></a>
 
     <!-- Text Interpolation -->
     My name is {data.name} my age is {data.age}
@@ -73,7 +82,7 @@ define the enclosing function name and arguments in the incremental-dom output.
     <!-- Looping over object keys -->
     <ul>
       <li each="key in data.obj">
-        <span>{key} - {data.obj[key]}</span>
+        <span title="hello">{key} - {data.obj[key]}</span>
       </li>
     </ul>
 

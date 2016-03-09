@@ -1,11 +1,13 @@
-var hoisted1 = ["title1", "boo"]
-var hoisted2 = ["title", "I will render only once. Subsequent patches will be skipped."]
-var hoisted3 = ["skip", "", "title", "I will render only once. Subsequent patches will be skipped."]
+;(function () {
+var hoisted1 = ["name", "myWidget"]
+var hoisted2 = ["title", "boo"]
+var hoisted3 = ["title", "I will render only once. Subsequent patches will be skipped."]
 var hoisted4 = ["type", "text"]
 var hoisted5 = ["type", "text"]
 var hoisted6 = ["title", "hello"]
 
-function myWidget (data, foo, bar) {
+return function description (data) {
+elementOpen("template", null, hoisted1)
   var todos = []
 
       function add (item) {
@@ -15,12 +17,9 @@ function myWidget (data, foo, bar) {
       function remove () {
         todos.pop()
       }
-  elementOpen("span", "foo", hoisted1)
-    text("&#125;foo&#125;")
+  elementOpen("span", "foo", hoisted2)
   elementClose("span")
-  elementPlaceholder("placeholder", "bar", hoisted2)
-  elementOpen("div", "bar", hoisted3)
-  elementClose("div")
+  elementPlaceholder("div", "bar", hoisted3)
   elementOpen("div", null, null, "class", data.cssClass)
     elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     elementClose("a")
@@ -99,4 +98,6 @@ function myWidget (data, foo, bar) {
       }, data.products)
     elementClose("ul")
   elementClose("div")
+elementClose("template")
 }
+})()
