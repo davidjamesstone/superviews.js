@@ -147,7 +147,7 @@ var handler = {
     var specials = attrs.specials
 
     if (specials.if) {
-      endBraces[name + '_' + indent] = '}'
+      endBraces[name + '_if_' + indent] = '}'
       write('if (' + specials.if + ') {')
       ++indent
     }
@@ -166,7 +166,7 @@ var handler = {
 
       var eachAttr = eachProp
       var eachParts = eachAttr.split(' in ')
-      endBraces[name + '_' + indent] = '}, ' + eachParts[1] + ')'
+      endBraces[name + '_each_' + indent] = '}, ' + eachParts[1] + ')'
       write(';(Array.isArray(' + eachParts[1] + ') ? ' + eachParts[1] + ' : Object.keys(' + eachParts[1] + ')' + ').forEach(function(' + eachParts[0] + ', $index) {')
       ++indent
     }
@@ -206,10 +206,21 @@ var handler = {
     --indent
     writeln('elementClose', name)
 
-    var endBraceKey = name + '_' + (indent - 1)
+    // Check end `each` braces
+    var endBraceKey, end
 
+    endBraceKey = name + '_each_' + (indent - 1)
     if (endBraces[endBraceKey]) {
-      var end = endBraces[endBraceKey]
+      end = endBraces[endBraceKey]
+      delete endBraces[endBraceKey]
+      --indent
+      write(end)
+    }
+
+    // Check end `if` braces
+    endBraceKey = name + '_if_' + (indent - 1)
+    if (endBraces[endBraceKey]) {
+      end = endBraces[endBraceKey]
       delete endBraces[endBraceKey]
       --indent
       write(end)

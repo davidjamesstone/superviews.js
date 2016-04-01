@@ -1,10 +1,9 @@
 {
   "name": "superviews.js",
-  "version": "0.0.9",
+  "version": "0.0.10",
   "description": "Template engine compiler targeting incremental-dom by Google",
   "main": "index.js",
   "scripts": {
-    "build:test": "cat test/tmpl.html | ./bin/cmd.js > test/tmpl.js",
     "lint": "standard index.js bin/cmd.js",
     "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },
@@ -23,7 +22,7 @@
     "minimist": "^1.2.0"
   },
   "devDependencies": {
-    "standard": "^5.1.0"
+    "standard": "^6.0.8"
   },
   "bugs": {
     "url": "https://github.com/davidjamesstone/superviews.js/issues"

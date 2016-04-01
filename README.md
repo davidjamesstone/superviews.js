@@ -116,6 +116,16 @@ define the enclosing function name and arguments in the incremental-dom output (
         {product.name}
       </li>
     </ul>
+
+    <!-- Conditional iteration -->
+    <ul>
+      <li if="data.items.length" each="item, item.id in data.arr">
+        {item.name}
+      </li>
+      <li if="!data.items.length" class="list-header">
+        No items found
+      </li>
+    </ul>
   </div>
 
 </template>
@@ -132,17 +142,19 @@ var hoisted2 = ["title", "I will render only once. Subsequent patches will be sk
 var hoisted3 = ["type", "text"]
 var hoisted4 = ["type", "text"]
 var hoisted5 = ["title", "hello"]
+var hoisted6 = ["class", "list-header"]
 
 return function myWidget (data, foo, bar) {
   var todos = []
 
-      function add (item) {
-        todos.push(item)
-      }
+  function add (item) {
+    todos.push(item)
+  }
 
-      function remove () {
-        todos.pop()
-      }
+  function remove () {
+    todos.pop()
+  }
+
   elementOpen("span", "foo", hoisted1)
   elementClose("span")
   elementPlaceholder("div", "bar", hoisted2)
@@ -160,8 +172,7 @@ return function myWidget (data, foo, bar) {
     elementOpen("button", null, null, "onclick", function ($event) {
       $event.preventDefault();
       var $element = this;
-      alert(hi)
-    })
+    alert(hi)})
       text("Say hi")
     elementClose("button")
     elementOpen("input", null, hoisted3, "value", data.val, "onchange", function ($event) {
@@ -223,6 +234,24 @@ return function myWidget (data, foo, bar) {
                 ")
         elementClose("li")
       }, data.products)
+    elementClose("ul")
+    elementOpen("ul")
+      if (data.items.length) {
+        ;(Array.isArray(data.arr) ? data.arr : Object.keys(data.arr)).forEach(function(item, $index) {
+          elementOpen("li", item.id)
+            text(" \
+                    " + (item.name) + " \
+                  ")
+          elementClose("li")
+        }, data.arr)
+      }
+      if (!data.items.length) {
+        elementOpen("li", null, hoisted6)
+          text(" \
+                  No items found \
+                ")
+        elementClose("li")
+      }
     elementClose("ul")
   elementClose("div")
 }
