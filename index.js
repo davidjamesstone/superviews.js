@@ -81,7 +81,7 @@ function getAttrs (name, attribs) {
   for (var key in attribs) {
     attrib = attribs[key]
 
-    if (key === 'each' || key === 'if') {
+    if (key === 'each' || key === 'if' || key === 'skip') {
       specials[key] = attrib
     } else if (attrib.charAt(0) === token) {
       if (key === 'style') {
@@ -130,6 +130,11 @@ var handler = {
       ++indent
       return
     }
+    if (name === 'skip') {
+      write('if (' + (attribs['condition'] || 'true') + ') {\n  skip()\n} else {')
+      ++indent
+      return
+    }
 
     var key
     if (attribs['key']) {
@@ -152,6 +157,12 @@ var handler = {
       ++indent
     }
 
+    if (specials.skip) {
+      endBraces[name + '_skip_' + indent] = '}'
+      write('if (' + specials.skip + ') {\n  skip()\n} else {')
+      ++indent
+    }
+    
     if (specials.each) {
       var eachProp = specials.each
       var idxComma = eachProp.indexOf(',')
@@ -202,6 +213,12 @@ var handler = {
       write('}')
       return
     }
+  
+    if (name === 'skip') {
+      --indent
+      write('}')
+      return
+    }
 
     --indent
     writeln('elementClose', name)
@@ -219,6 +236,15 @@ var handler = {
 
     // Check end `if` braces
     endBraceKey = name + '_if_' + (indent - 1)
+    if (endBraces[endBraceKey]) {
+      end = endBraces[endBraceKey]
+      delete endBraces[endBraceKey]
+      --indent
+      write(end)
+    }
+
+    // Check end `skip` braces
+    endBraceKey = name + '_skip_' + (indent - 1)
     if (endBraces[endBraceKey]) {
       end = endBraces[endBraceKey]
       delete endBraces[endBraceKey]

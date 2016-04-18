@@ -6,16 +6,14 @@ var hoisted4 = ["type", "text"]
 var hoisted5 = ["title", "hello"]
 var hoisted6 = ["class", "list-header"]
 
-return function myWidget (data, foo, bar) {
-  var todos = []
-
-      function add (item) {
-        todos.push(item)
-      }
-
-      function remove () {
-        todos.pop()
-      }
+return function myWidget (data, foo, bar, todos) {
+  function add (item) {
+      todos.push(item)
+    }
+  
+    function remove () {
+      todos.pop()
+    }
   elementOpen("span", "foo", hoisted1)
   elementClose("span")
   elementPlaceholder("div", "bar", hoisted2)
@@ -52,7 +50,24 @@ return function myWidget (data, foo, bar) {
     }
     if (data.showMe) {
       text(" \
-            I'm in an `if` attribute \
+            I'm in an `if` block. \
+          ")
+    }
+    elementOpen("aside")
+      if (data.skipMe) {
+        skip()
+      } else {
+        elementOpen("div")
+          elementOpen("span", null, null, "id", data.id)
+          elementClose("span")
+        elementClose("div")
+      }
+    elementClose("aside")
+    if (data.skipMe) {
+      skip()
+    } else {
+      text(" \
+            I'm in a `skip` block. \
           ")
     }
     elementOpen("span", null, null, "style", { color: data.foo, backgroundColor: data.bar })

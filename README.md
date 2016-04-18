@@ -23,24 +23,20 @@ an `args` attribute it will be used as the function definition.
 A `name` attribute can also be supplied. These will be used to
 define the enclosing function name and arguments in the incremental-dom output (see below).
 -->
-<template name="myWidget" args="data foo bar">
+<template name="myWidget" args="data foo bar todos">
 
   <!--
   `script` tags that have no attributes are treated as literal javascript
   and will be simply inlined into the incremental-dom output.
   -->
   <script>
-
-    var todos = []
-
-    function add (item) {
-      todos.push(item)
-    }
-
-    function remove () {
-      todos.pop()
-    }
-
+  function add (item) {
+    todos.push(item)
+  }
+  
+  function remove () {
+    todos.pop()
+  }
   </script>
 
   <!-- Element keys are added with the `key` attribute -->
@@ -74,9 +70,23 @@ define the enclosing function name and arguments in the incremental-dom output (
     <!-- An `if` tag can also be used for conditional
      rendering by adding a `condition` attribute. -->
     <if condition="data.showMe">
-      I'm in an `if` attribute
+      I'm in an `if` block.
     </if>
 
+    <!-- Use a `skip` attribute for conditional patching -->
+    <aside>
+      <div skip="data.skipMe">
+        <span id="{data.id}">
+        </span>
+      </div>
+    </aside>
+
+    <!-- A `skip` tag can also be used for conditional
+     patching by adding a `condition` attribute. -->
+    <skip condition="data.skipMe">
+      I'm in a `skip` block.
+    </skip>
+    
     <!-- The `style` attribute is special and can be set with an object. -->
     <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
 
@@ -129,6 +139,7 @@ define the enclosing function name and arguments in the incremental-dom output (
   </div>
 
 </template>
+
 ```
 
 `cat tmpl.html | superviews > tmpl.js`
@@ -144,17 +155,14 @@ var hoisted4 = ["type", "text"]
 var hoisted5 = ["title", "hello"]
 var hoisted6 = ["class", "list-header"]
 
-return function myWidget (data, foo, bar) {
-  var todos = []
-
+return function myWidget (data, foo, bar, todos) {
   function add (item) {
-    todos.push(item)
-  }
-
-  function remove () {
-    todos.pop()
-  }
-
+      todos.push(item)
+    }
+  
+    function remove () {
+      todos.pop()
+    }
   elementOpen("span", "foo", hoisted1)
   elementClose("span")
   elementPlaceholder("div", "bar", hoisted2)
@@ -191,7 +199,24 @@ return function myWidget (data, foo, bar) {
     }
     if (data.showMe) {
       text(" \
-            I'm in an `if` attribute \
+            I'm in an `if` block. \
+          ")
+    }
+    elementOpen("aside")
+      if (data.skipMe) {
+        skip()
+      } else {
+        elementOpen("div")
+          elementOpen("span", null, null, "id", data.id)
+          elementClose("span")
+        elementClose("div")
+      }
+    elementClose("aside")
+    if (data.skipMe) {
+      skip()
+    } else {
+      text(" \
+            I'm in a `skip` block. \
           ")
     }
     elementOpen("span", null, null, "style", { color: data.foo, backgroundColor: data.bar })
