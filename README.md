@@ -33,7 +33,7 @@ define the enclosing function name and arguments in the incremental-dom output (
   function add (item) {
     todos.push(item)
   }
-  
+
   function remove () {
     todos.pop()
   }
@@ -73,7 +73,7 @@ define the enclosing function name and arguments in the incremental-dom output (
       I'm in an `if` block.
     </if>
 
-    <!-- Use a `skip` attribute for conditional patching -->
+    <!-- Use a `skip` attribute for conditional patching of children -->
     <aside>
       <div skip="data.skipMe">
         <span id="{data.id}">
@@ -81,12 +81,6 @@ define the enclosing function name and arguments in the incremental-dom output (
       </div>
     </aside>
 
-    <!-- A `skip` tag can also be used for conditional
-     patching by adding a `condition` attribute. -->
-    <skip condition="data.skipMe">
-      I'm in a `skip` block.
-    </skip>
-    
     <!-- The `style` attribute is special and can be set with an object. -->
     <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
 
@@ -139,7 +133,6 @@ define the enclosing function name and arguments in the incremental-dom output (
   </div>
 
 </template>
-
 ```
 
 `cat tmpl.html | superviews > tmpl.js`
@@ -159,7 +152,7 @@ return function myWidget (data, foo, bar, todos) {
   function add (item) {
       todos.push(item)
     }
-  
+
     function remove () {
       todos.pop()
     }
@@ -203,22 +196,15 @@ return function myWidget (data, foo, bar, todos) {
           ")
     }
     elementOpen("aside")
-      if (data.skipMe) {
-        skip()
-      } else {
-        elementOpen("div")
+      elementOpen("div")
+        if (data.skipMe) {
+          skip()
+        } else {
           elementOpen("span", null, null, "id", data.id)
           elementClose("span")
-        elementClose("div")
-      }
+        }
+      elementClose("div")
     elementClose("aside")
-    if (data.skipMe) {
-      skip()
-    } else {
-      text(" \
-            I'm in a `skip` block. \
-          ")
-    }
     elementOpen("span", null, null, "style", { color: data.foo, backgroundColor: data.bar })
       text("My style changes")
     elementClose("span")

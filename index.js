@@ -130,11 +130,6 @@ var handler = {
       ++indent
       return
     }
-    if (name === 'skip') {
-      write('if (' + (attribs['condition'] || 'true') + ') {\n  skip()\n} else {')
-      ++indent
-      return
-    }
 
     var key
     if (attribs['key']) {
@@ -157,12 +152,6 @@ var handler = {
       ++indent
     }
 
-    if (specials.skip) {
-      endBraces[name + '_skip_' + indent] = '}'
-      write('if (' + specials.skip + ') {\n  skip()\n} else {')
-      ++indent
-    }
-    
     if (specials.each) {
       var eachProp = specials.each
       var idxComma = eachProp.indexOf(',')
@@ -184,7 +173,12 @@ var handler = {
 
     writeln(placeholder ? 'elementPlaceholder' : 'elementOpen', name, key, attrs.statics, attrs.properties)
 
-    if (!placeholder) {
+    if (specials.skip) {
+      ++indent
+      write('if (' + specials.skip + ') {\n  skip()\n} else {')
+      endBraces[name + '_skip_' + indent] = '}'
+      ++indent
+    } else if (!placeholder) {
       ++indent
     }
   },
@@ -213,11 +207,14 @@ var handler = {
       write('}')
       return
     }
-  
-    if (name === 'skip') {
+
+    // Check end `skip` braces
+    endBraceKey = name + '_skip_' + (indent - 1)
+    if (endBraces[endBraceKey]) {
+      end = endBraces[endBraceKey]
+      delete endBraces[endBraceKey]
       --indent
-      write('}')
-      return
+      write(end)
     }
 
     --indent
@@ -236,15 +233,6 @@ var handler = {
 
     // Check end `if` braces
     endBraceKey = name + '_if_' + (indent - 1)
-    if (endBraces[endBraceKey]) {
-      end = endBraces[endBraceKey]
-      delete endBraces[endBraceKey]
-      --indent
-      write(end)
-    }
-
-    // Check end `skip` braces
-    endBraceKey = name + '_skip_' + (indent - 1)
     if (endBraces[endBraceKey]) {
       end = endBraces[endBraceKey]
       delete endBraces[endBraceKey]

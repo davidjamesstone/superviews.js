@@ -10,7 +10,7 @@ return function myWidget (data, foo, bar, todos) {
   function add (item) {
       todos.push(item)
     }
-  
+
     function remove () {
       todos.pop()
     }
@@ -54,22 +54,15 @@ return function myWidget (data, foo, bar, todos) {
           ")
     }
     elementOpen("aside")
-      if (data.skipMe) {
-        skip()
-      } else {
-        elementOpen("div")
+      elementOpen("div")
+        if (data.skipMe) {
+          skip()
+        } else {
           elementOpen("span", null, null, "id", data.id)
           elementClose("span")
-        elementClose("div")
-      }
+        }
+      elementClose("div")
     elementClose("aside")
-    if (data.skipMe) {
-      skip()
-    } else {
-      text(" \
-            I'm in a `skip` block. \
-          ")
-    }
     elementOpen("span", null, null, "style", { color: data.foo, backgroundColor: data.bar })
       text("My style changes")
     elementClose("span")
