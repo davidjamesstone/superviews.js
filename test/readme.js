@@ -1,10 +1,9 @@
 ;(function () {
 var hoisted1 = ["title", "boo"]
-var hoisted2 = ["title", "I will render only once. Subsequent patches will be skipped."]
+var hoisted2 = ["type", "text"]
 var hoisted3 = ["type", "text"]
-var hoisted4 = ["type", "text"]
-var hoisted5 = ["title", "hello"]
-var hoisted6 = ["class", "list-header"]
+var hoisted4 = ["title", "hello"]
+var hoisted5 = ["class", "list-header"]
 
 return function myWidget (data, foo, bar, todos) {
   function add (item) {
@@ -16,7 +15,6 @@ return function myWidget (data, foo, bar, todos) {
     }
   elementOpen("span", "foo", hoisted1)
   elementClose("span")
-  elementPlaceholder("div", "bar", hoisted2)
   elementOpen("div", null, null, "class", data.cssClass)
     elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     elementClose("a")
@@ -34,7 +32,7 @@ return function myWidget (data, foo, bar, todos) {
     alert(hi)})
       text("Say hi")
     elementClose("button")
-    elementOpen("input", null, hoisted3, "value", data.val, "onchange", function ($event) {
+    elementOpen("input", null, hoisted2, "value", data.val, "onchange", function ($event) {
       $event.preventDefault();
       var $element = this;
     data.val = this.value})
@@ -44,7 +42,7 @@ return function myWidget (data, foo, bar, todos) {
         elementOpen("span", null, null, "class", data.bar + ' other-css')
           text("description")
         elementClose("span")
-        elementOpen("input", null, hoisted4, "disabled", data.isDisabled)
+        elementOpen("input", null, hoisted3, "disabled", data.isDisabled)
         elementClose("input")
       elementClose("p")
     }
@@ -89,7 +87,7 @@ return function myWidget (data, foo, bar, todos) {
     elementOpen("ul")
       ;(Array.isArray(data.obj) ? data.obj : Object.keys(data.obj)).forEach(function(key, $index) {
         elementOpen("li", $index)
-          elementOpen("span", null, hoisted5)
+          elementOpen("span", null, hoisted4)
             text("" + (key) + " - " + (data.obj[key]) + "")
           elementClose("span")
         elementClose("li")
@@ -115,7 +113,7 @@ return function myWidget (data, foo, bar, todos) {
         }, data.arr)
       }
       if (!data.items.length) {
-        elementOpen("li", null, hoisted6)
+        elementOpen("li", null, hoisted5)
           text(" \
                   No items found \
                 ")

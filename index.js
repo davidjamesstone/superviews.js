@@ -35,7 +35,7 @@ function writeln (command, tag, key, spvp, pvp) {
   var str = command
   str += '(' + strify(tag)
 
-  if (command === 'elementOpen' || command === 'elementPlaceholder') {
+  if (command === 'elementOpen') {
     str += key ? ', ' + key : ', null'
 
     if (spvp && spvp.length) {
@@ -137,12 +137,6 @@ var handler = {
       delete attribs['key']
     }
 
-    var placeholder = (name === 'placeholder')
-    if (attribs['tag']) {
-      name = attribs['tag']
-      delete attribs['tag']
-    }
-
     var attrs = getAttrs(name, attribs)
     var specials = attrs.specials
 
@@ -171,14 +165,12 @@ var handler = {
       ++indent
     }
 
-    writeln(placeholder ? 'elementPlaceholder' : 'elementOpen', name, key, attrs.statics, attrs.properties)
+    writeln('elementOpen', name, key, attrs.statics, attrs.properties)
+    ++indent
 
     if (specials.skip) {
-      ++indent
       write('if (' + specials.skip + ') {\n  skip()\n} else {')
       endBraces[name + '_skip_' + indent] = '}'
-      ++indent
-    } else if (!placeholder) {
       ++indent
     }
   },
@@ -194,7 +186,7 @@ var handler = {
     }
   },
   onclosetag: function (name) {
-    if ((indent === 1 && meta && name === 'template') || name === 'placeholder') {
+    if ((indent === 1 && meta && name === 'template')) {
       return
     }
     if (name === 'script' && literal) {
