@@ -234,7 +234,7 @@ var handler = {
   }
 }
 
-module.exports = function (tmplstr, name, argstr) {
+module.exports = function (tmplstr, name, argstr, options) {
   flush()
 
   var parser = new htmlparser.Parser(handler, {
@@ -255,8 +255,20 @@ module.exports = function (tmplstr, name, argstr) {
     return item.trim()
   }).join(', ')
 
-  result = hoist.join('\n') + '\n\n' + 'return function ' + name + ' (' + args + ') {\n' + result + '\n}'
-  result = ';(function () {' + '\n' + result + '\n' + '})()'
+  var options = options || {}
+
+  if (options.module === 'cjs') {
+    var header = 'var IncrementalDOM = require(\'incremental-dom\'),\n' +
+             '    elementOpen = IncrementalDOM.elementOpen,\n' +
+             '    elementClose = IncrementalDOM.elementClose,\n' +
+             '    elementVoid = IncrementalDOM.elementVoid,\n' +
+             '    text = IncrementalDOM.text;\n\n';
+    header += hoist.join('\n') + '\n\n';
+    result = header + 'module.exports = function ' + name + ' (' + args + ') {\n' + result + '\n}';
+  } else {
+    result = hoist.join('\n') + '\n\n' + 'return function ' + name + ' (' + args + ') {\n' + result + '\n}'
+    result = ';(function () {' + '\n' + result + '\n' + '})()'
+  }
 
   flush()
 
