@@ -8,10 +8,6 @@ Using [browserify](http://browserify.org/)? There's the [superviewify](https://g
 
 `npm install superviewify --save`
 
-[supermodels.js](https://github.com/davidjamesstone/supermodels.js) fits in nicely with superviews.js. Building models that are observable objects lets us know when our data has changed and when we should patch the dom.
-
-To see how to use supermodels.js and superviews.js together, checkout [superglue.js](http://davidjamesstone.github.io/superglue.js)
-
 ## Example
 
 Create a file called `tmpl.html`
@@ -45,6 +41,9 @@ define the enclosing function name and arguments in the incremental-dom output (
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
 
+    <!-- Attributes are omitted if their expression is null or undefined. Useful for `checked`, `disabled` -->
+    <input type="text" disabled="{data.isDisabled}">
+
     <!-- Interpolation in attributes -->
     <a href="http://www.google.co.uk?q={data.query}"></a>
 
@@ -61,13 +60,21 @@ define the enclosing function name and arguments in the incremental-dom output (
     <!-- Use an `if` attribute for conditional rendering -->
     <p if="data.showMe">
       <span class="{data.bar + ' other-css'}">description</span>
-      <input type="text" disabled="{data.isDisabled}">
     </p>
 
     <!-- An `if` tag can also be used for conditional
-     rendering by adding a `condition` attribute. -->
+    rendering by adding a `condition` attribute. -->
     <if condition="data.showMe">
       I'm in an `if` block.
+    </if>
+
+    <!-- `elseif` and `else` tags can also be used -->
+    <if condition="data.foo === 1">
+      <span>1</span>
+    <elseif condition="data.foo === 2">
+      <span>2</span>
+    <else>
+      Default
     </if>
 
     <!-- Use a `skip` attribute for conditional patching of children -->
@@ -155,6 +162,8 @@ return function myWidget (data, foo, bar, todos) {
   elementOpen("span", "foo", hoisted1)
   elementClose("span")
   elementOpen("div", null, null, "class", data.cssClass)
+    elementOpen("input", null, hoisted2, "disabled", data.isDisabled)
+    elementClose("input")
     elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     elementClose("a")
     text(" \
@@ -171,7 +180,7 @@ return function myWidget (data, foo, bar, todos) {
     alert(hi)})
       text("Say hi")
     elementClose("button")
-    elementOpen("input", null, hoisted2, "value", data.val, "onchange", function ($event) {
+    elementOpen("input", null, hoisted3, "value", data.val, "onchange", function ($event) {
       $event.preventDefault();
       var $element = this;
     data.val = this.value})
@@ -181,13 +190,24 @@ return function myWidget (data, foo, bar, todos) {
         elementOpen("span", null, null, "class", data.bar + ' other-css')
           text("description")
         elementClose("span")
-        elementOpen("input", null, hoisted3, "disabled", data.isDisabled)
-        elementClose("input")
       elementClose("p")
     }
     if (data.showMe) {
       text(" \
             I'm in an `if` block. \
+          ")
+    }
+    if (data.foo === 1) {
+      elementOpen("span")
+        text("1")
+      elementClose("span")
+    } else if (data.foo === 2) {
+      elementOpen("span")
+        text("2")
+      elementClose("span")
+    } else {
+      text(" \
+            Default \
           ")
     }
     elementOpen("aside")
@@ -263,6 +283,12 @@ return function myWidget (data, foo, bar, todos) {
 }
 })()
 ```
+
+## supermodels.js
+
+[supermodels.js](https://github.com/davidjamesstone/supermodels.js) fits in nicely with superviews.js. Building models that are observable objects lets us know when our data has changed and when we should patch the dom.
+
+To see how to use supermodels.js and superviews.js together, checkout [superglue.js](http://davidjamesstone.github.io/superglue.js)
 
 # License
 

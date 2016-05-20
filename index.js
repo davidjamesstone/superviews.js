@@ -10,6 +10,13 @@ var hoisted = 0
 var endBraces = {}
 var literal = false
 var meta = null
+var specialTags = {
+  each: 'each',
+  if: 'if',
+  elseif: 'elseif',
+  else: 'else',
+  skip: 'skip'
+}
 
 function flush () {
   buffer.length = 0
@@ -81,7 +88,7 @@ function getAttrs (name, attribs) {
   for (var key in attribs) {
     attrib = attribs[key]
 
-    if (key === 'each' || key === 'if' || key === 'skip') {
+    if (key in specialTags) {
       specials[key] = attrib
     } else if (attrib.charAt(0) === token) {
       if (key === 'style') {
@@ -127,6 +134,18 @@ var handler = {
     }
     if (name === 'if') {
       write('if (' + (attribs['condition'] || 'true') + ') {')
+      ++indent
+      return
+    }
+    if (name === 'elseif') {
+      --indent
+      write('} else if (' + (attribs['condition'] || 'true') + ') {')
+      ++indent
+      return
+    }
+    if (name === 'else') {
+      --indent
+      write('} else {')
       ++indent
       return
     }
@@ -189,6 +208,11 @@ var handler = {
     if ((indent === 1 && meta && name === 'template')) {
       return
     }
+
+    if (name === specialTags.elseif || name === specialTags.else) {
+      return
+    }
+
     if (name === 'script' && literal) {
       literal = false
       return

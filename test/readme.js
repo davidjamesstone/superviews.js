@@ -16,6 +16,8 @@ return function myWidget (data, foo, bar, todos) {
   elementOpen("span", "foo", hoisted1)
   elementClose("span")
   elementOpen("div", null, null, "class", data.cssClass)
+    elementOpen("input", null, hoisted2, "disabled", data.isDisabled)
+    elementClose("input")
     elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     elementClose("a")
     text(" \
@@ -32,7 +34,7 @@ return function myWidget (data, foo, bar, todos) {
     alert(hi)})
       text("Say hi")
     elementClose("button")
-    elementOpen("input", null, hoisted2, "value", data.val, "onchange", function ($event) {
+    elementOpen("input", null, hoisted3, "value", data.val, "onchange", function ($event) {
       $event.preventDefault();
       var $element = this;
     data.val = this.value})
@@ -42,13 +44,24 @@ return function myWidget (data, foo, bar, todos) {
         elementOpen("span", null, null, "class", data.bar + ' other-css')
           text("description")
         elementClose("span")
-        elementOpen("input", null, hoisted3, "disabled", data.isDisabled)
-        elementClose("input")
       elementClose("p")
     }
     if (data.showMe) {
       text(" \
             I'm in an `if` block. \
+          ")
+    }
+    if (data.foo === 1) {
+      elementOpen("span")
+        text("1")
+      elementClose("span")
+    } else if (data.foo === 2) {
+      elementOpen("span")
+        text("2")
+      elementClose("span")
+    } else {
+      text(" \
+            Default \
           ")
     }
     elementOpen("aside")
