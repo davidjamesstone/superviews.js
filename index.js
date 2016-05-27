@@ -259,7 +259,7 @@ module.exports = function (tmplstr, name, argstr, es6) {
   var hoisted = hoist.join('\n') + '\n\n'
 
   if (es6) {
-    result = "import {patch, elementOpen, elementClose, text} from 'incremental-dom'\n\n";
+    result = "import {patch, elementOpen, elementClose, text, skip} from 'incremental-dom'\n\n";
     result += hoisted + 'export ' + func
   } else {
     result = hoisted + 'return ' + func
