@@ -19,7 +19,8 @@
   "dependencies": {
     "htmlparser2": "^3.8.3",
     "indent-string": "^2.0.0",
-    "minimist": "^1.2.0"
+    "minimist": "^1.2.0",
+    "uuid": "^2.0.2"
   },
   "devDependencies": {
     "incremental-dom": "^0.4.1",

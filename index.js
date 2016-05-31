@@ -1,5 +1,6 @@
 'use strict'
 
+var uuid = require('uuid')
 var htmlparser = require('htmlparser2')
 var indentString = require('indent-string')
 
@@ -10,6 +11,7 @@ var hoisted = 0
 var endBraces = {}
 var literal = false
 var meta = null
+
 var specialTags = {
   each: 'each',
   if: 'if',
@@ -28,6 +30,12 @@ function flush () {
   meta = null
 }
 
+function isInIterator () {
+  return !!Object.keys(endBraces).find(function (item) {
+    return item.match('_each_')
+  })
+}
+
 function strify (str) {
   return '"' + (str || '') + '"'
 }
@@ -40,10 +48,20 @@ function write (line) {
 
 function writeln (command, tag, key, spvp, pvp) {
   var str = command
+  var isIterator = isInIterator()
+  
   str += '(' + strify(tag)
 
   if (command === 'elementOpen') {
-    str += key ? ', ' + key : ', null'
+    if (key) {
+      str += ', ' + key
+    } else if (spvp && spvp.length) {
+      str += ', ' + (isIterator 
+        ? strify(uuid.v4() + '_') + ' + $index'
+        : strify(uuid.v4()))
+    } else {
+      str += ', null'
+    }
 
     if (spvp && spvp.length) {
       var statics = '[' + spvp.map(function (item, index) {
@@ -174,7 +192,7 @@ var handler = {
         key = eachProp.substring(idxComma + 2, idxIn)
         eachProp = eachProp.substring(0, idxComma) + eachProp.substr(idxIn)
       } else {
-        key = '$index'
+        key = strify(uuid.v4() + '_') + ' + $index'
       }
 
       var eachAttr = eachProp
