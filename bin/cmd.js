@@ -17,7 +17,7 @@ stdin.on('data', function (text) {
   buffer += text
 })
 stdin.on('end', function () {
-  stdout.write(superviews(buffer, argv.name, argv.argstr))
+  stdout.write(superviews(buffer, argv.name, argv.argstr, argv.mode))
 })
 
 stdin.resume()

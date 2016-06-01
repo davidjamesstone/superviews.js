@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard index.js bin/cmd.js",
+    "build:examples": "cat examples/test.html | ./bin/cmd.js --mode=browser > examples/test.js",
     "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },
   "bin": {
@@ -25,9 +26,6 @@
   "devDependencies": {
     "incremental-dom": "^0.4.1",
     "standard": "^6.0.8"
-  },
-  "peerDependencies": {
-    "incremental-dom": "^0.4.1"
   },
   "bugs": {
     "url": "https://github.com/davidjamesstone/superviews.js/issues"

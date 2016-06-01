@@ -1,0 +1,34 @@
+<script src="../node_modules/incremental-dom/dist/incremental-dom.js"></script>
+<script src="./test.js"></script>
+
+<div id="mount"></div>
+<script>
+  window.patch = IncrementalDOM.patch
+  window.elementOpen = IncrementalDOM.elementOpen
+  window.elementClose = IncrementalDOM.elementClose
+  window.text = IncrementalDOM.text
+  window.skip = IncrementalDOM.skip
+  window.currentElement = IncrementalDOM.currentElement
+
+  var data = {
+    cssClass: 'foo',
+    isDisabled: null,
+    query: 'cats',
+    name: 'Liz',
+    age: 16,
+    address: 'Buckingham Palace',
+    foo: 3,
+    showMe: true,
+    val: 'default',
+    obj: { x: 1, y: 2, z: 3 },
+    arr: ['foo', 'bar', 'baz'],
+    map: new Map([[{ id: 101 }, 'a'], [{ id: 102 }, 'b'], [{ id: 103 }, 'c']])
+  }
+  
+  var el = document.getElementById('mount') 
+  
+  function run () {
+    patch(el, window.description, data)
+  }
+  run()
+</script>

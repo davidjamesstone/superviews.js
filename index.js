@@ -49,15 +49,15 @@ function write (line) {
 function writeln (command, tag, key, spvp, pvp) {
   var str = command
   var isIterator = isInIterator()
-  
+
   str += '(' + strify(tag)
 
   if (command === 'elementOpen') {
     if (key) {
       str += ', ' + key
     } else if (spvp && spvp.length) {
-      str += ', ' + (isIterator 
-        ? strify(uuid.v4() + '_') + ' + $index'
+      str += ', ' + (isIterator
+        ? strify(uuid.v4() + '_') + ' + $key'
         : strify(uuid.v4()))
     } else {
       str += ', null'
@@ -189,17 +189,22 @@ var handler = {
       var idxIn = eachProp.indexOf(' in')
 
       if (~idxComma) {
-        key = eachProp.substring(idxComma + 2, idxIn)
+        key = strify(uuid.v4() + '_') + ' + ' + eachProp.substring(idxComma + 2, idxIn)
         eachProp = eachProp.substring(0, idxComma) + eachProp.substr(idxIn)
       } else {
-        key = strify(uuid.v4() + '_') + ' + $index'
+        key = strify(uuid.v4() + '_') + ' + $item'
       }
 
       var eachAttr = eachProp
       var eachParts = eachAttr.split(' in ')
-      endBraces[name + '_each_' + indent] = '}, ' + eachParts[1] + ')'
-      write(';(Array.isArray(' + eachParts[1] + ') ? ' + eachParts[1] + ' : Object.keys(' + eachParts[1] + ')' + ').forEach(function(' + eachParts[0] + ', $index) {')
+      write('if (' + eachParts[1] + ') {')
       ++indent
+      endBraces[name + '_each_' + indent] = '}, ' + eachParts[1] + ')'
+      write(';(' + eachParts[1] + '.forEach ? ' + eachParts[1] + ' : Object.keys(' + eachParts[1] + ')' + ').forEach(function($value, $item, $target) {')
+      ++indent
+      write('var ' + eachParts[0] + ' = $value')
+      write('var $key = ' + key)
+      key = '$key'
     }
 
     writeln('elementOpen', name, key, attrs.statics, attrs.properties)
@@ -263,6 +268,8 @@ var handler = {
       delete endBraces[endBraceKey]
       --indent
       write(end)
+      --indent
+      write('}')
     }
 
     // Check end `if` braces
@@ -276,7 +283,7 @@ var handler = {
   }
 }
 
-module.exports = function (tmplstr, name, argstr) {
+module.exports = function (tmplstr, name, argstr, mode) {
   flush()
 
   var parser = new htmlparser.Parser(handler, {
@@ -297,8 +304,33 @@ module.exports = function (tmplstr, name, argstr) {
     return item.trim()
   }).join(', ')
 
-  result = hoist.join('\n') + '\n\n' + 'return function ' + name + ' (' + args + ') {\n' + result + '\n}'
-  result = ';(function () {' + '\n' + result + '\n' + '})()'
+  var hoisted = hoist.join('\n')
+  var fn = 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
+
+  switch (mode) {
+    case 'browser':
+      result = hoisted + '\n\n' + 'return ' + fn
+      result = 'window.' + name + ' = (function () {' + '\n' + result + '\n' + '})()' + '\n'
+      break
+    case 'es6':
+      result = 'import {patch, elementOpen, elementClose, text, skip, currentElement} from "incremental-dom"\n\n'
+      result += hoisted + 'export ' + fn + '\n'
+      break
+    case 'cjs':
+      result = 'var IncrementalDOM = require(\'incremental-dom\')\n' +
+        'var patch = IncrementalDOM.patch\n' +
+        'var elementOpen = IncrementalDOM.elementOpen\n' +
+        'var elementClose = IncrementalDOM.elementClose\n' +
+        'var skip = IncrementalDOM.skip\n' +
+        'var currentElement = IncrementalDOM.currentElement\n' +
+        'var text = IncrementalDOM.text\n\n'
+      result += hoisted + '\n\n'
+      result += 'module.exports = ' + fn + '\n'
+      break
+    default:
+      result = hoisted + '\n\n' + 'return ' + fn
+      result = (mode ? 'var ' + mode + ' = ' : ';') + '(function () {' + '\n' + result + '\n' + '})()' + '\n'
+  }
 
   flush()
 

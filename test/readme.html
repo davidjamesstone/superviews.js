@@ -20,9 +20,6 @@ define the enclosing function name and arguments in the incremental-dom output (
   }
   </script>
 
-  <!-- Element keys are added with the `key` attribute -->
-  <span key="foo" title="boo"></span>
-
   <!-- Attribute values can be set using javascript between curly braces {} -->
   <div class="{data.cssClass}">
 
@@ -73,13 +70,14 @@ define the enclosing function name and arguments in the incremental-dom output (
     <!-- The `style` attribute is special and can be set with an object. -->
     <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
 
-    <!-- The `each` attribute declares a forEach
-    block and can be used to repeat over items in
-    an Array or keys on an Object. The $index variable
-    can be used to identify the position of each item. -->
+    <!-- The `each` attribute can be used to repeat over items.
+    This includes iterating over keys on an Object or any object that has a 
+    forEach function e.g. an Array, Map, Set. The callback function
+    is passed 3 arguments $value, $item and $target. `this` is the
+    object being iterated over.-->
     <ul>
       <li each="item in data.items">
-        <span class="{ $index % 2 ? 'odd' : 'even' }">{$index}</span>
+        <span class="{ $item % 2 ? 'odd' : 'even' }">{$item}</span>
         <input value="{item.name}">
       </li>
     </ul>
@@ -99,10 +97,12 @@ define the enclosing function name and arguments in the incremental-dom output (
     </ul>
 
     <!-- The `each` attribute also supports defining a `key` to use.
-    This should be set to identify each item in the list. This allow
-    the diff patch in to keep track of each item in the list.
+    For Arrays and Objects this is done automatically for you.
+    
+    If you are iterating a Map, this should be set to identify each item in the list. 
+    This allow the diff patch in to keep track of each item in the list.
     See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items.
-    The key used here is `product.id`. If a key is not supplied, $index will be used.
+    The key used here is `product.id`.
      -->
     <ul>
       <li each="product, product.id in data.products">
