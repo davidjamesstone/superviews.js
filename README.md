@@ -4,9 +4,18 @@ Template engine for google [incremental-dom](http://google.github.io/incremental
 
 `npm install superviews.js --save`
 
-Using [browserify](http://browserify.org/)? There's the [superviewify](https://github.com/davidjamesstone/superviewify) transform allowing you to simply require your templates and have them automatically compiled to incremental-dom javascript.
+## API
 
-`npm install superviewify --save`
+`tmplstr` (required) - The template string.
+`name` - The output function name (will be overridden with a <template> element).
+`argstr` - The output function arguments (will be overridden with a <template> element).
+`mode` - The output format. Can be one of ['es6', 'cjs', 'browser'], if any other value is passed the function is exported as a variable with that name.
+
+`superviews(tmplstr, name, argstr, mode)`
+
+## CLI
+
+cat examples/test.html | superviews --mode=es6 --name=foo --argstr=bar > examples/test.js
 
 ## Example
 
@@ -86,7 +95,7 @@ define the enclosing function name and arguments in the incremental-dom output (
     <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
 
     <!-- The `each` attribute can be used to repeat over items.
-    This includes iterating over keys on an Object or any object that has a 
+    This includes iterating over keys on an Object or any object that has a
     forEach function e.g. an Array, Map, Set. The callback function
     is passed 3 arguments $value, $item and $target. `this` is the
     object being iterated over.-->
@@ -113,8 +122,8 @@ define the enclosing function name and arguments in the incremental-dom output (
 
     <!-- The `each` attribute also supports defining a `key` to use.
     For Arrays and Objects this is done automatically for you.
-    
-    If you are iterating a Map, this should be set to identify each item in the list. 
+
+    If you are iterating a Map, this should be set to identify each item in the list.
     This allow the diff patch in to keep track of each item in the list.
     See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items.
     The key used here is `product.id`.
@@ -300,6 +309,11 @@ return function myWidget (data, foo, bar, todos) {
 }
 })()
 ```
+
+## browserify
+Using [browserify](http://browserify.org/)? There's the [superviewify](https://github.com/davidjamesstone/superviewify) transform allowing you to simply require your templates and have them automatically compiled to incremental-dom javascript.
+
+`npm install superviewify --save`
 
 ## supermodels.js
 

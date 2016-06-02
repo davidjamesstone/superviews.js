@@ -1,11 +1,11 @@
 {
   "name": "superviews.js",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Template engine compiler targeting incremental-dom by Google",
   "main": "index.js",
   "scripts": {
     "lint": "standard index.js bin/cmd.js",
-    "build:examples": "cat examples/test.html | ./bin/cmd.js --mode=browser > examples/test.js",
+    "build:examples": "cat examples/test.html | ./bin/cmd.js --mode=browser --name=egg --argstr=foo > examples/test.js",
     "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },
   "bin": {

@@ -1,16 +1,16 @@
-window.description = (function () {
+window.egg = (function () {
 var hoisted1 = ["type", "text"]
 var hoisted2 = ["target", "_blank"]
 var hoisted3 = ["type", "text"]
 
-return function description (data) {
+return function egg (foo) {
 elementOpen("div", null, null, "class", data.cssClass)
   elementOpen("h2")
     text("Attributes")
   elementClose("h2")
-  elementOpen("input", "1f51f03b-9101-4f10-b42d-2aa374aaf1d5", hoisted1, "disabled", data.isDisabled)
+  elementOpen("input", "49672923-befd-4ab8-9977-74c7634d102a", hoisted1, "disabled", data.isDisabled)
   elementClose("input")
-  elementOpen("a", "b81cc4d4-af4b-47d0-9409-f6c0724b8e63", hoisted2, "href", "http://www.google.co.uk?q=" + (data.query) + "")
+  elementOpen("a", "32f2c4b8-3ee1-4b11-b5ff-8c14c2079ef9", hoisted2, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     text("Search for " + (data.query) + "")
   elementClose("a")
   elementOpen("h2")
@@ -49,7 +49,7 @@ elementOpen("div", null, null, "class", data.cssClass)
     if (data.obj) {
       ;(data.obj.forEach ? data.obj : Object.keys(data.obj)).forEach(function($value, $item, $target) {
         var key = $value
-        var $key = "34eef4b0-0b80-41ad-a45d-a87115296c14_" + $item
+        var $key = "63e4aa94-c2b9-43c9-bf0a-e0a8ce9765c6_" + $item
         elementOpen("li", $key)
           text(" \
                 key: " + (key) + ", value: " + (data.obj[key]) + " \
@@ -63,7 +63,7 @@ elementOpen("div", null, null, "class", data.cssClass)
     if (data.arr) {
       ;(data.arr.forEach ? data.arr : Object.keys(data.arr)).forEach(function($value, $item, $target) {
         var item = $value
-        var $key = "9cc70113-8885-4f3f-9760-83093696c20a_" + $item
+        var $key = "05ae0887-eff7-4e69-8e3e-ff3d34f8121b_" + $item
         elementOpen("li", $key)
           text(" \
                 " + (item) + "")
@@ -81,7 +81,7 @@ elementOpen("div", null, null, "class", data.cssClass)
     if (data.map) {
       ;(data.map.forEach ? data.map : Object.keys(data.map)).forEach(function($value, $item, $target) {
         var item = $value
-        var $key = "b2a95659-d9ae-4699-8d9a-be66f258438a_" + $item.id
+        var $key = "8dcffc27-c8f5-4cb6-bfc3-18b66576d9b5_" + $item.id
         elementOpen("li", $key)
           text(" \
                 " + (item) + " \
@@ -100,7 +100,7 @@ elementOpen("div", null, null, "class", data.cssClass)
   alert('hi')})
     text("Say hi")
   elementClose("button")
-  elementOpen("input", "b10ffe3c-80f8-4a0f-995b-86c35d591ce9", hoisted3, "value", data.val, "onchange", function ($event) {
+  elementOpen("input", "0dedcbd7-694e-4252-a128-59f60c6e9c2c", hoisted3, "value", data.val, "onchange", function ($event) {
     $event.preventDefault();
     var $element = this;
   alert(this.value)})
