@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "lint": "standard index.js bin/cmd.js",
+    "build:playground": "browserify examples/playground/playground.js > examples/playground/playground.bundle.js",
     "build:examples": "cat examples/test.html | ./bin/cmd.js --mode=browser --name=egg --argstr=foo > examples/test.js",
     "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },
@@ -24,6 +25,8 @@
     "uuid": "^2.0.2"
   },
   "devDependencies": {
+    "brace": "^0.8.0",
+    "browserify": "^13.0.1",
     "incremental-dom": "^0.4.1",
     "standard": "^6.0.8"
   },
