@@ -1,0 +1,31 @@
+<script src="../incremental-dom.js"></script>
+
+<style>
+  #template { position: absolute; top: 0; right: 50%; bottom: 50%; left: 0; }
+  #data { position: absolute; top: 0; right: 0; bottom: 50%; left: 50%; }
+  #compiled { position: absolute; top: 50%; right: 50%; bottom: 0; left: 0; }
+  #result { position: absolute; top: 50%; right: 0; bottom: 0; left: 50%; overflow: auto; }
+  #run { position: absolute; left: 0; padding: 8px; bottom: 50%; z-index: 1000; color: white; background-color: green; border: none; }
+  #patch { position: absolute; padding: 8px; bottom: 50%; right: 0; z-index: 1000; color: white; background-color: orange; border: none; }
+</style>
+<div id="template"></div>
+<div id="data">return {
+    cssClass: 'foo',
+    isDisabled: null,
+    query: 'cats',
+    name: 'Liz',
+    age: 16,
+    address: 'Buckingham Palace',
+    foo: 3,
+    showMe: true,
+    val: 'default',
+    obj: { x: 1, y: 2, z: 3 },
+    arr: ['foo', 'bar', 'baz'],
+    map: new Map([[{ id: 101 }, 'a'], [{ id: 102 }, 'b'], [{ id: 103 }, 'c']])
+  }
+</div>
+<button id="run">Run</button>
+<button id="patch" style="display: none;">Patch</button>
+<pre><code id="compiled"></code></pre>
+<div id="result"></div>
+<script src="./playground.bundle.js"></script>
