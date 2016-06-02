@@ -2,6 +2,8 @@
 
 Template engine for google [incremental-dom](http://google.github.io/incremental-dom)
 
+Try it out [live in your browser](http://davidjamesstone.github.io/superviews.js/playground/index.html)</a>
+
 `npm install superviews.js --save`
 
 ## API
