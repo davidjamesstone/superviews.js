@@ -6,16 +6,16 @@ Template engine for google [incremental-dom](http://google.github.io/incremental
 
 ## API
 
-`tmplstr` (required) - The template string.
-`name` - The output function name (will be overridden with a <template> element).
-`argstr` - The output function arguments (will be overridden with a <template> element).
-`mode` - The output format. Can be one of ['es6', 'cjs', 'browser'], if any other value is passed the function is exported as a variable with that name.
+`tmplstr` (required) - The template string.  
+`name` - The output function name (will be overridden with a <template> element).  
+`argstr` - The output function arguments (will be overridden with a <template> element).  
+`mode` - The output format. Can be one of ['es6', 'cjs', 'browser'], if any other value is passed the function is exported as a variable with that name. 
 
 `superviews(tmplstr, name, argstr, mode)`
 
 ## CLI
 
-cat examples/test.html | superviews --mode=es6 --name=foo --argstr=bar > examples/test.js
+`cat examples/test.html | superviews --mode=es6 --name=foo --argstr=bar > examples/test.js`
 
 ## Example
 
