@@ -9,27 +9,20 @@
   #patch { position: absolute; padding: 8px; bottom: 50%; right: 0; z-index: 1000; color: white; background-color: orange; border: none; }
 </style>
 <div id="template"></div>
-<div id="data">{
-  "cssClass": "foo",
-  "isDisabled": null,
-  "query": "cats",
-  "name": "Liz",
-  "age": 16,
-  "address": "Buckingham Palace",
-  "foo": 3,
-  "showMe": true,
-  "val": "default",
-  "obj": {
-    "x": 1,
-    "y": 2,
-    "z": 3
-  },
-  "arr": [
-    "foo",
-    "bar",
-    "baz"
-  ]
-}
+<div id="data">return {
+    cssClass: 'foo',
+    isDisabled: null,
+    query: 'cats',
+    name: 'Liz',
+    age: 16,
+    address: 'Buckingham Palace',
+    foo: 3,
+    showMe: true,
+    val: 'default',
+    obj: { x: 1, y: 2, z: 3 },
+    arr: ['foo', 'bar', 'baz'],
+    map: new Map([[{ id: 101 }, 'a'], [{ id: 102 }, 'b'], [{ id: 103 }, 'c']])
+  }
 </div>
 <button id="run">Run</button>
 <button id="patch" style="display: none;">Patch</button>

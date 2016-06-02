@@ -2,7 +2,7 @@
 var superviews = require('../..')
 var ace = require('brace')
 require('brace/mode/javascript')
-require('brace/mode/json')
+// require('brace/mode/json')
 require('brace/mode/html')
 require('brace/theme/monokai')
 
@@ -18,8 +18,9 @@ templateEditor.getSession().setMode('ace/mode/html')
 templateEditor.setTheme('ace/theme/monokai')
 
 var dataEditor = ace.edit(dataEl)
-dataEditor.getSession().setMode('ace/mode/json')
+dataEditor.getSession().setMode('ace/mode/javascript')
 dataEditor.setTheme('ace/theme/monokai')
+dataEditor.session.setUseWorker(false)
 
 var compiledEditor = ace.edit(compiledEl)
 compiledEditor.getSession().setMode('ace/mode/javascript')
@@ -99,7 +100,7 @@ function run () {
   try {
     template = eval(output)
   } catch (e) {
-    alert('Failed to compile - ' + e)
+    window.alert('Failed to compile - ' + e)
   }
   
   patchData()
@@ -108,10 +109,11 @@ function run () {
 
 function patchData () {
   try {
-    data = JSON.parse(dataEditor.getValue())
+    data = new Function(dataEditor.getValue())()
+    // data = JSON.parse(dataEditor.getValue())
     patch(resultEl, template, data)
   } catch (e) {
-    alert('Failed to patch - ' + e)
+    window.alert('Failed to patch - ' + e)
   }
 }
 
