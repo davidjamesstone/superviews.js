@@ -197,8 +197,6 @@ var handler = {
 
       var eachAttr = eachProp
       var eachParts = eachAttr.split(' in ')
-      write('if (' + eachParts[1] + ') {')
-      ++indent
       endBraces[name + '_each_' + indent] = '}, ' + eachParts[1] + ')'
       write(';(' + eachParts[1] + '.forEach ? ' + eachParts[1] + ' : Object.keys(' + eachParts[1] + ')' + ').forEach(function($value, $item, $target) {')
       ++indent
@@ -268,8 +266,6 @@ var handler = {
       delete endBraces[endBraceKey]
       --indent
       write(end)
-      --indent
-      write('}')
     }
 
     // Check end `if` braces
