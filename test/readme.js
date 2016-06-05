@@ -29,7 +29,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
     elementOpen("button", null, null, "onclick", alert(hi))
       text("Say hi")
     elementClose("button")
-    elementOpen("input", "d282769e-9831-42bd-b527-deea8e9df531", hoisted2, "value", data.val, "onchange", (e) => { onChange })
+    elementOpen("input", "d282769e-9831-42bd-b527-deea8e9df531", hoisted2, "value", data.val, "onchange", onChange)
     elementClose("input")
     if (data.showMe) {
       elementOpen("p")

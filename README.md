@@ -63,7 +63,7 @@ define the enclosing function name and arguments in the incremental-dom output (
     <div title="{JSON.stringify(data)}">Hover for json</div>
 
     <button onclick="{alert(hi)}">Say hi</button>
-    <input type="text" value="{data.val}" onchange="{(e) => { onChange }}">
+    <input type="text" value="{data.val}" onchange="{onChange}">
 
     <!-- Use an `if` attribute for conditional rendering -->
     <p if="data.showMe">
@@ -185,7 +185,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
     elementOpen("button", null, null, "onclick", alert(hi))
       text("Say hi")
     elementClose("button")
-    elementOpen("input", "d282769e-9831-42bd-b527-deea8e9df531", hoisted2, "value", data.val, "onchange", (e) => { onChange })
+    elementOpen("input", "d282769e-9831-42bd-b527-deea8e9df531", hoisted2, "value", data.val, "onchange", onChange)
     elementClose("input")
     if (data.showMe) {
       elementOpen("p")

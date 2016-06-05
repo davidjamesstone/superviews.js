@@ -37,7 +37,7 @@ define the enclosing function name and arguments in the incremental-dom output (
     <div title="{JSON.stringify(data)}">Hover for json</div>
 
     <button onclick="{alert(hi)}">Say hi</button>
-    <input type="text" value="{data.val}" onchange="{(e) => { onChange }}">
+    <input type="text" value="{data.val}" onchange="{onChange}">
 
     <!-- Use an `if` attribute for conditional rendering -->
     <p if="data.showMe">
