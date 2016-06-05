@@ -197,8 +197,12 @@ var handler = {
 
       var eachAttr = eachProp
       var eachParts = eachAttr.split(' in ')
-      endBraces[name + '_each_' + indent] = '}, ' + eachParts[1] + ')'
-      write(';(' + eachParts[1] + '.forEach ? ' + eachParts[1] + ' : Object.keys(' + eachParts[1] + ')' + ').forEach(function($value, $item, $target) {')
+      var target = eachParts[1]
+      write('__target = ' + target)
+      write('if (__target) {')
+      ++indent
+      endBraces[name + '_each_' + indent] = '}, __target)'
+      write(';(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {')
       ++indent
       write('var ' + eachParts[0] + ' = $value')
       write('var $key = ' + key)
@@ -266,6 +270,8 @@ var handler = {
       delete endBraces[endBraceKey]
       --indent
       write(end)
+      --indent
+      write('}')
     }
 
     // Check end `if` braces
@@ -300,6 +306,7 @@ module.exports = function (tmplstr, name, argstr, mode) {
     return item.trim()
   }).join(', ')
 
+  hoist.push(('var __target'))
   var hoisted = hoist.join('\n')
   var fn = 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
 

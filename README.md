@@ -98,9 +98,8 @@ define the enclosing function name and arguments in the incremental-dom output (
 
     <!-- The `each` attribute can be used to repeat over items.
     This includes iterating over keys on an Object or any object that has a
-    forEach function e.g. an Array, Map, Set. The callback function
-    is passed 3 arguments $value, $item and $target. `this` is the
-    object being iterated over.-->
+    forEach function e.g. an Array, Map, Set.
+    Three variables are available for each iteration: $value, $item and $target.-->
     <ul>
       <li each="item in data.items">
         <span class="{ $item % 2 ? 'odd' : 'even' }">{$item}</span>
