@@ -86,8 +86,7 @@ var template = '<div class="{data.cssClass}">\n' +
 '  </ul>\n' +
 '  \n' +
 '  <h2>Events</h2>\n' +
-'  <button onclick="{alert(\'hi\')}">Say hi</button>\n' +
-'  <input type="text" value="{data.val}" onchange="{alert(this.value)}">\n' +
+'  <button onclick="{data.onClick}">Say hi</button>\n' +
 '    \n' +
 '</div>\n'
 
@@ -103,7 +102,7 @@ function run () {
   } catch (e) {
     window.alert('Failed to compile - ' + e)
   }
-  
+
   patchData()
   patchButton.style.display = ''
 }
@@ -111,7 +110,6 @@ function run () {
 function patchData () {
   try {
     data = new Function(dataEditor.getValue())()
-    // data = JSON.parse(dataEditor.getValue())
     patch(resultEl, template, data)
   } catch (e) {
     window.alert('Failed to patch - ' + e)
@@ -237,13 +235,13 @@ function getAttrs (name, attribs) {
         properties.push(key)
         properties.push(attrib)
       } else {
-        if (key.substr(0, 2) === 'on') {
-          properties.push(key)
-          properties.push(attrib.replace(token, 'function ($event) {\n  $event.preventDefault();\n  var $element = this;\n'))
-        } else {
-          properties.push(key)
-          properties.push(attrib.substring(1, attrib.length - 1))
-        }
+        // if (key.substr(0, 2) === 'on') {
+        //   properties.push(key)
+        //   properties.push(attrib.replace(token, 'function ($event) {\n  $event.preventDefault();\n  var $element = this;\n'))
+        // } else {
+        properties.push(key)
+        properties.push(attrib.substring(1, attrib.length - 1))
+        // }
       }
     } else if (attrib.indexOf(token) > 0) {
       properties.push(key)
@@ -321,10 +319,12 @@ var handler = {
 
       var eachAttr = eachProp
       var eachParts = eachAttr.split(' in ')
-      write('if (' + eachParts[1] + ') {')
+      var target = eachParts[1]
+      write('__target = ' + target)
+      write('if (__target) {')
       ++indent
-      endBraces[name + '_each_' + indent] = '}, ' + eachParts[1] + ')'
-      write(';(' + eachParts[1] + '.forEach ? ' + eachParts[1] + ' : Object.keys(' + eachParts[1] + ')' + ').forEach(function($value, $item, $target) {')
+      endBraces[name + '_each_' + indent] = '}, this)'
+      write(';(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {')
       ++indent
       write('var ' + eachParts[0] + ' = $value')
       write('var $key = ' + key)
@@ -428,6 +428,7 @@ module.exports = function (tmplstr, name, argstr, mode) {
     return item.trim()
   }).join(', ')
 
+  hoist.push(('var __target'))
   var hoisted = hoist.join('\n')
   var fn = 'function ' + name + ' (' + args + ') {\n' + result + '\n}'
 

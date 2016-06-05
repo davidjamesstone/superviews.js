@@ -21,7 +21,10 @@
     val: 'default',
     obj: { x: 1, y: 2, z: 3 },
     arr: ['foo', 'bar', 'baz'],
-    map: new Map([[{ id: 101 }, 'a'], [{ id: 102 }, 'b'], [{ id: 103 }, 'c']])
+    map: new Map([[{ id: 101 }, 'a'], [{ id: 102 }, 'b'], [{ id: 103 }, 'c']]),
+    onClick: function () {
+      alert('hey')
+    }
   }
 </div>
 <button id="run">Run</button>

@@ -4,7 +4,7 @@ an `args` attribute it will be used as the function definition.
 A `name` attribute can also be supplied. These will be used to
 define the enclosing function name and arguments in the incremental-dom output (see below).
 -->
-<template name="myWidget" args="data foo bar todos">
+<template name="myWidget" args="data todos onChange foo bar">
 
   <!--
   `script` tags that have no attributes are treated as literal javascript
@@ -37,7 +37,7 @@ define the enclosing function name and arguments in the incremental-dom output (
     <div title="{JSON.stringify(data)}">Hover for json</div>
 
     <button onclick="{alert(hi)}">Say hi</button>
-    <input type="text" value="{data.val}" onchange="{data.val = this.value}">
+    <input type="text" value="{data.val}" onchange="{(e) => { onChange }}">
 
     <!-- Use an `if` attribute for conditional rendering -->
     <p if="data.showMe">
@@ -71,10 +71,9 @@ define the enclosing function name and arguments in the incremental-dom output (
     <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
 
     <!-- The `each` attribute can be used to repeat over items.
-    This includes iterating over keys on an Object or any object that has a 
-    forEach function e.g. an Array, Map, Set. The callback function
-    is passed 3 arguments $value, $item and $target. `this` is the
-    object being iterated over.-->
+    This includes iterating over keys on an Object or any object that has a
+    forEach function e.g. an Array, Map, Set.
+    Three variables are available for each iteration: $value, $item and $target.-->
     <ul>
       <li each="item in data.items">
         <span class="{ $item % 2 ? 'odd' : 'even' }">{$item}</span>

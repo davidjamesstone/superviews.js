@@ -85,8 +85,7 @@ var template = '<div class="{data.cssClass}">\n' +
 '  </ul>\n' +
 '  \n' +
 '  <h2>Events</h2>\n' +
-'  <button onclick="{alert(\'hi\')}">Say hi</button>\n' +
-'  <input type="text" value="{data.val}" onchange="{alert(this.value)}">\n' +
+'  <button onclick="{data.onClick}">Say hi</button>\n' +
 '    \n' +
 '</div>\n'
 
@@ -102,7 +101,7 @@ function run () {
   } catch (e) {
     window.alert('Failed to compile - ' + e)
   }
-  
+
   patchData()
   patchButton.style.display = ''
 }
@@ -110,7 +109,6 @@ function run () {
 function patchData () {
   try {
     data = new Function(dataEditor.getValue())()
-    // data = JSON.parse(dataEditor.getValue())
     patch(resultEl, template, data)
   } catch (e) {
     window.alert('Failed to patch - ' + e)

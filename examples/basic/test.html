@@ -47,7 +47,7 @@
   </ul>
   
   <h2>Events</h2>
-  <button onclick="{alert('hi')}">Say hi</button>
-  <input type="text" value="{data.val}" onchange="{alert(this.value)}">
+  <button onclick="{data.onClick}">Say hi</button>
+  <input type="text" value="{data.val}" onchange="{(e) => alert('yo')}">
     
 </div>

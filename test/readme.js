@@ -3,8 +3,9 @@ var hoisted1 = ["type", "text"]
 var hoisted2 = ["type", "text"]
 var hoisted3 = ["title", "hello"]
 var hoisted4 = ["class", "list-header"]
+var __target
 
-return function myWidget (data, foo, bar, todos) {
+return function myWidget (data, todos, onChange, foo, bar) {
   function add (item) {
       todos.push(item)
     }
@@ -13,7 +14,7 @@ return function myWidget (data, foo, bar, todos) {
       todos.pop()
     }
   elementOpen("div", null, null, "class", data.cssClass)
-    elementOpen("input", "9f92e657-449b-4c35-a890-60c2c3ecb1d5", hoisted1, "disabled", data.isDisabled)
+    elementOpen("input", "4112d027-5d7e-45de-9659-223fa4e5a6fb", hoisted1, "disabled", data.isDisabled)
     elementClose("input")
     elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     elementClose("a")
@@ -25,16 +26,10 @@ return function myWidget (data, foo, bar, todos) {
     elementOpen("div", null, null, "title", JSON.stringify(data))
       text("Hover for json")
     elementClose("div")
-    elementOpen("button", null, null, "onclick", function ($event) {
-      $event.preventDefault();
-      var $element = this;
-    alert(hi)})
+    elementOpen("button", null, null, "onclick", alert(hi))
       text("Say hi")
     elementClose("button")
-    elementOpen("input", "0ca89d0b-ca24-4052-b9f0-6effff9c8d37", hoisted2, "value", data.val, "onchange", function ($event) {
-      $event.preventDefault();
-      var $element = this;
-    data.val = this.value})
+    elementOpen("input", "d282769e-9831-42bd-b527-deea8e9df531", hoisted2, "value", data.val, "onchange", (e) => { onChange })
     elementClose("input")
     if (data.showMe) {
       elementOpen("p")
@@ -75,10 +70,11 @@ return function myWidget (data, foo, bar, todos) {
       text("My style changes")
     elementClose("span")
     elementOpen("ul")
-      if (data.items) {
-        ;(data.items.forEach ? data.items : Object.keys(data.items)).forEach(function($value, $item, $target) {
+      __target = data.items
+      if (__target) {
+        ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var item = $value
-          var $key = "4dfd1c5a-523d-41a5-a4f5-ed92f4016342_" + $item
+          var $key = "97e8ca7e-022b-4c1e-abbe-100286a0dc6a_" + $item
           elementOpen("li", $key)
             elementOpen("span", null, null, "class",  $item % 2 ? 'odd' : 'even' )
               text("" + ($item) + "")
@@ -86,64 +82,68 @@ return function myWidget (data, foo, bar, todos) {
             elementOpen("input", null, null, "value", item.name)
             elementClose("input")
           elementClose("li")
-        }, data.items)
+        }, this)
       }
     elementClose("ul")
     elementOpen("ul")
-      if (data.arr) {
-        ;(data.arr.forEach ? data.arr : Object.keys(data.arr)).forEach(function($value, $item, $target) {
+      __target = data.arr
+      if (__target) {
+        ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var item = $value
-          var $key = "3b5ee081-580b-48a2-9931-e2f63d922517_" + $item
+          var $key = "6720e865-a9b2-421e-b3f6-ad32ba913125_" + $item
           elementOpen("li", $key)
             elementOpen("span")
               text("" + (item.name) + "")
             elementClose("span")
           elementClose("li")
-        }, data.arr)
+        }, this)
       }
     elementClose("ul")
     elementOpen("ul")
-      if (data.obj) {
-        ;(data.obj.forEach ? data.obj : Object.keys(data.obj)).forEach(function($value, $item, $target) {
+      __target = data.obj
+      if (__target) {
+        ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var key = $value
-          var $key = "2b9e8e10-3ed9-4bd9-b249-90b61754a7d4_" + $item
+          var $key = "e4b73123-443c-490d-92d2-ab140541c988_" + $item
           elementOpen("li", $key)
-            elementOpen("span", "8f62358b-fea0-4132-b84a-1001452fee08_" + $key, hoisted3)
+            elementOpen("span", "f0975216-872d-4c47-8c3e-616612fda377_" + $key, hoisted3)
               text("" + (key) + " - " + (data.obj[key]) + "")
             elementClose("span")
           elementClose("li")
-        }, data.obj)
+        }, this)
       }
     elementClose("ul")
     elementOpen("ul")
-      if (data.products) {
-        ;(data.products.forEach ? data.products : Object.keys(data.products)).forEach(function($value, $item, $target) {
+      __target = data.products
+      if (__target) {
+        ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var product = $value
-          var $key = "4cf2ded1-8e8e-434a-8bf8-bbe1e7657aa6_" + product.id
+          var $key = "8fa1ee06-6721-40a0-bd0b-355f074cac4d_" + product.id
           elementOpen("li", $key)
             text(" \
                     " + (product.name) + " \
                   ")
           elementClose("li")
-        }, data.products)
+        }, this)
       }
     elementClose("ul")
     elementOpen("ul")
       if (data.items.length) {
-        if (data.arr) {
-          ;(data.arr.forEach ? data.arr : Object.keys(data.arr)).forEach(function($value, $item, $target) {
+        __target = data.arr
+        if (__target) {
+          ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
             var item = $value
-            var $key = "e6e59fd8-7971-44a8-8978-f6b5da06b03c_" + item.id
+            var $key = "5b17b834-a296-4871-93ab-d54c8532860a_" + item.id
             elementOpen("li", $key)
               text(" \
                       " + (item.name) + " \
                     ")
             elementClose("li")
-          }, data.arr)
+          }, this)
         }
       }
       if (!data.items.length) {
-        elementOpen("li", "4d94699c-82ec-4503-b67d-d1dd386a3b96", hoisted4)
+        elementOpen("li", "4fe7e61f-d936-4770-a340-4f9c33b79aaf", hoisted4)
           text(" \
                   No items found \
                 ")

@@ -113,13 +113,13 @@ function getAttrs (name, attribs) {
         properties.push(key)
         properties.push(attrib)
       } else {
-        if (key.substr(0, 2) === 'on') {
-          properties.push(key)
-          properties.push(attrib.replace(token, 'function ($event) {\n  $event.preventDefault();\n  var $element = this;\n'))
-        } else {
-          properties.push(key)
-          properties.push(attrib.substring(1, attrib.length - 1))
-        }
+        // if (key.substr(0, 2) === 'on') {
+        //   properties.push(key)
+        //   properties.push(attrib.replace(token, 'function ($event) {\n  $event.preventDefault();\n  var $element = this;\n'))
+        // } else {
+        properties.push(key)
+        properties.push(attrib.substring(1, attrib.length - 1))
+        // }
       }
     } else if (attrib.indexOf(token) > 0) {
       properties.push(key)
@@ -201,7 +201,7 @@ var handler = {
       write('__target = ' + target)
       write('if (__target) {')
       ++indent
-      endBraces[name + '_each_' + indent] = '}, __target)'
+      endBraces[name + '_each_' + indent] = '}, this)'
       write(';(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {')
       ++indent
       write('var ' + eachParts[0] + ' = $value')
