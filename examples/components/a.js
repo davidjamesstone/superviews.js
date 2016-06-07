@@ -2,9 +2,13 @@ var superviews = require('../../client')
 var view = require('./a.html')
 var b = require('./b')
 
-function Component (el, data) {
-  this.onClick = function () {
-    window.alert('yo')
+class Component {
+  onClick () {
+    window.alert('Click')
+  }
+
+  update (data) {
+    view.call(this, data, b)
   }
 }
 

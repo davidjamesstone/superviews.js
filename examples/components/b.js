@@ -1,19 +1,19 @@
 var superviews = require('../../client')
 var view = require('./b.html')
 
-function Component (el, data) {
-  this.onClick = function () {
-    window.alert('Yo')
+class Component {
+  constructor (el, data) {
+    this.data = data
   }
 
-  this.render = function (data) {
-    this.patch(data)
+  onChange (e) {
+    this.data.name = e.target.value
+    this.update(this.data)
   }
 
-  var curr = data.name
-  this.shouldUpdate = function (data) {
-    if (data.name !== curr) {
-      curr = data.name
+  shouldUpdate (data) {
+    if (data.name !== this.data.name) {
+      this.data.name = data.name
       return true
     }
   }
