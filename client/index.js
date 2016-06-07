@@ -1,25 +1,20 @@
 var IncrementalDOM = require('incremental-dom')
 var skip = IncrementalDOM.skip
 var currentElement = IncrementalDOM.currentElement
-var patch = IncrementalDOM.patch
+var patch = require('./patch')
+var slice = Array.prototype.slice
 
 // Fix up the element `value` attribute
 IncrementalDOM.attributes.value = function (el, name, value) {
   el.value = value
 }
 
-function patcher (el, view, data) {
-  var args = Array.prototype.slice.call(arguments)
-  if (args.length <= 3) {
-    patch(el, view, data)
-  } else {
-    patch(el, function () {
-      view.apply(this, args.slice(2))
-    })
+function superviews (Component, view) {
+  if (Component instanceof window.HTMLElement) {
+    var patchArgs = slice.call(arguments)
+    return patch.apply(window, patchArgs)
   }
-}
 
-function superviews (Component) {
   return function (data) {
     var el = currentElement()
     var isFirstUpdate = false
@@ -34,7 +29,8 @@ function superviews (Component) {
     if (!isFirstUpdate && !(ctx.shouldUpdate && ctx.shouldUpdate(data))) {
       skip()
     } else {
-      ctx.patch(data)
+      var viewArgs = slice.call(arguments)
+      view.apply(ctx, viewArgs)
     }
   }
 }

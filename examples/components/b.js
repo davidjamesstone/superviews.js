@@ -1,18 +1,14 @@
-var IncrementalDOM = require('incremental-dom')
-var skip = IncrementalDOM.skip
-var currentElement = IncrementalDOM.currentElement
+var superviews = require('../../client')
 var view = require('./b.html')
 
 function Component (el, data) {
-  this.el = el
-  this.data = data
-  this.patch = view
-
-  function onChange (e) {
-    window.alert('Hi there')
+  this.onClick = function () {
+    window.alert('Yo')
   }
 
-  this.onChange = onChange.bind(this)
+  this.render = function (data) {
+    this.patch(data)
+  }
 
   var curr = data.name
   this.shouldUpdate = function (data) {
@@ -23,4 +19,4 @@ function Component (el, data) {
   }
 }
 
-module.exports = superviews(Component)
+module.exports = superviews(Component, view)

@@ -1,16 +1,11 @@
-var superviews = require('../client')
+var superviews = require('../../client')
+var view = require('./a.html')
 var b = require('./b')
-var template = require('./a.html')
 
-var controller = {
-  template: template,
-  onClick: function () {
-    
+function Component (el, data) {
+  this.onClick = function () {
+    window.alert('yo')
   }
 }
 
-superviews(template)
-
-module.exports = function (data) {
-  view(data, b)
-}
+module.exports = superviews(Component, view)

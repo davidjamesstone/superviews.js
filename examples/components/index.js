@@ -1,7 +1,8 @@
-var a = require('./a')
+var superviews = require('../../client')
 var el = document.getElementById('mount')
-var IncrementalDOM = require('incremental-dom')
-var patch = IncrementalDOM.patch
+var a = require('./a')
+// var b = require('./b.html')
+// var IncrementalDOM = require('incremental-dom')
 
 var data = {
   aData: {
@@ -12,8 +13,4 @@ var data = {
   }
 }
 
-window.doPatch = function () {
-  patch(el, a, data)
-}
-
-window.doPatch()
+superviews(el, a, data)

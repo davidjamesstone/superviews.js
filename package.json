@@ -29,7 +29,8 @@
   "devDependencies": {
     "brace": "^0.8.0",
     "browserify": "^13.0.1",
-    "standard": "^6.0.8"
+    "standard": "^6.0.8",
+    "superviewify": "^1.0.0"
   },
   "bugs": {
     "url": "https://github.com/davidjamesstone/superviews.js/issues"
