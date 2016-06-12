@@ -10,10 +10,6 @@ IncrementalDOM.attributes.value = function (el, name, value) {
 }
 
 function superviews (Component, view) {
-  // if (Component instanceof window.HTMLElement) {
-  //   var patchArgs = slice.call(arguments)
-  //   return patch.apply(window, patchArgs)
-  // }
   var fn = function (data) {
     var el = currentElement()
     var isFirstUpdate = false

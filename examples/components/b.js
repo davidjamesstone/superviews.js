@@ -12,10 +12,10 @@ class Component {
   }
 
   shouldUpdate (data) {
-    if (data.name !== this.data.name) {
-      this.data.name = data.name
-      return true
-    }
+    // if (data.name !== this.data.name) {
+      // this.data.name = data.name
+    return true
+    // }
   }
 }
 
