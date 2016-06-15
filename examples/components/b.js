@@ -1,7 +1,7 @@
 var superviews = require('../../client')
 var view = require('./b.html')
 
-class Component {
+class BTag {
   constructor (el, data) {
     this.data = data
   }
@@ -19,4 +19,4 @@ class Component {
   }
 }
 
-module.exports = superviews(Component, view)
+module.exports = superviews(BTag, view)

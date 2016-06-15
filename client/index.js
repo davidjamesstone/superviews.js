@@ -1,5 +1,7 @@
 var IncrementalDOM = require('incremental-dom')
 var skip = IncrementalDOM.skip
+var elementOpen = IncrementalDOM.elementOpen
+var elementClose = IncrementalDOM.elementClose
 var currentElement = IncrementalDOM.currentElement
 var patch = require('./patch')
 var slice = Array.prototype.slice
@@ -10,13 +12,17 @@ IncrementalDOM.attributes.value = function (el, name, value) {
 }
 
 function superviews (Component, view) {
-  // if (Component instanceof window.HTMLElement) {
-  //   var patchArgs = slice.call(arguments)
-  //   return patch.apply(window, patchArgs)
-  // }
   var fn = function (data) {
     var el = currentElement()
+    var name = Component.name
     var isFirstUpdate = false
+    var close = false
+
+    if (el.tagName !== name.toUpperCase()) {
+      el = elementOpen(name)
+      close = true
+    }
+
     var ctx = el.__superviews
     var args = slice.call(arguments)
 
@@ -47,6 +53,10 @@ function superviews (Component, view) {
       skip()
     } else {
       ctx.update.apply(ctx, slice.call(arguments))
+    }
+
+    if (close) {
+      elementClose(name)
     }
   }
 

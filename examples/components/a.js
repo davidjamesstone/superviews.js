@@ -2,7 +2,7 @@ var superviews = require('../../client')
 var view = require('./a.html')
 var b = require('./b')
 
-class Component {
+class ATag {
   onClick () {
     window.alert('Click')
   }
@@ -12,4 +12,4 @@ class Component {
   }
 }
 
-module.exports = superviews(Component, view)
+module.exports = superviews(ATag, view)
