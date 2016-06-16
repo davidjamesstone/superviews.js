@@ -8,7 +8,15 @@ var data = {
   },
   bData: {
     name: 'My name'
-  }
+  },
+  list: [{
+      name: 'My name 1'
+    }, {
+      name: 'My name 2'
+    }, {
+      name: 'My name 3'
+    }
+  ]
 }
 
 // patch
