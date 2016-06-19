@@ -1,4 +1,4 @@
-<template name="a" args="data b">
+<template args="data child">
   <main>
     <h1 onclick={this.onClick}>{data.aData.title}</h1>
     <article>
@@ -7,5 +7,14 @@
         b(data.bData)
       </script>
     </article>
+
+    <ul>
+      <li each="item in data.list">
+        <script>
+          child(item)
+        </script>
+      </li>
+      <li><button onclick={this.addItem.bind(this)}>Add</button></li>
+    </ul>
   </main>
 </template>

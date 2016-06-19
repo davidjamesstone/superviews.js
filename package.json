@@ -7,6 +7,7 @@
     "lint": "standard index.js bin/cmd.js",
     "build:playground": "browserify examples/playground/playground.js > examples/playground/playground.bundle.js",
     "build:components": "browserify examples/components/index.js -t superviewify -d -o examples/components/components.bundle.js",
+    "build:custom": "browserify examples/custom/index.js -t superviewify -d -o examples/custom/custom.bundle.js",
     "build:basic": "cat examples/basic/test.html | ./bin/cmd.js --mode=browser --name=egg --argstr=foo > examples/basic/test.js",
     "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },

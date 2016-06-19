@@ -1,18 +1,22 @@
-var Base = require('./base')
+var superviews = require('../../client')
 var view = require('./child.html')
 
-class Child extends Base {
-  constructor (el) {
-    super(el, view)
+class Child {
+  constructor (el, data) {
+    this.data = data
   }
-  
-  onClick () {
-    
+
+  onChange (e) {
+    this.data.name = e.target.value
+    this.update(this.data)
   }
-  
-  doSomeAction () {
-    
+
+  shouldUpdate (data) {
+    // if (data.name !== this.data.name) {
+      // this.data.name = data.name
+    return true
+    // }
   }
 }
 
-module.exports = Child
+module.exports = superviews(Child, view)
