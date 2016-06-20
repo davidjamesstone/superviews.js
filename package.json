@@ -7,7 +7,7 @@
     "lint": "standard index.js bin/cmd.js",
     "build:playground": "browserify examples/playground/playground.js > examples/playground/playground.bundle.js",
     "build:components": "browserify examples/components/index.js -t superviewify -d -o examples/components/components.bundle.js",
-    "build:custom": "browserify examples/custom/index.js -t superviewify -d -o examples/custom/custom.bundle.js",
+    "build:x-tag": "browserify examples/x-tag/index.js -t superviewify -d -o examples/x-tag/x-tag.bundle.js",
     "build:basic": "cat examples/basic/test.html | ./bin/cmd.js --mode=browser --name=egg --argstr=foo > examples/basic/test.js",
     "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },
@@ -30,8 +30,10 @@
   "devDependencies": {
     "brace": "^0.8.0",
     "browserify": "^13.0.1",
+    "document-register-element": "^0.5.4",
     "standard": "^6.0.8",
-    "superviewify": "^1.0.0"
+    "superviewify": "^1.0.0",
+    "x-tag": "^1.5.11"
   },
   "bugs": {
     "url": "https://github.com/davidjamesstone/superviews.js/issues"

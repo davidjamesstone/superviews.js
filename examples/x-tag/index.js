@@ -7,7 +7,6 @@ xtag.register('x-sub', {
   lifecycle: {
     created: function () {
       this.data = {}
-      // this.patch()
     },
     attributeChanged: function (attrName, oldValue, newValue) {
       // window.alert('I fire when an ATTRIBUTE is CHANGED on an <x-clock>')
