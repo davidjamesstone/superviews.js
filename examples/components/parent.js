@@ -3,20 +3,35 @@ var view = require('./parent.html')
 var child = require('./child')
 
 class Parent {
-  constructor (el, data) {
+  constructor (el, data1, data2) {
     this.el = el
-    this.data = data
+    this.data1 = data1
+    this.data2 = data2
     this.view = view
+  }
+
+  get Egg () {
+    return ''
   }
 
   shouldUpdate () {
     return true
   }
 
+  render () {
+    this.view(this.data1, this.data2, child)
+  }
+
+  // update () {
+  //   this.patch(this.data1, this.data2, child)
+  // }
+
   onChange (e) {
-    this.data.name = e.target.value
-    this.update(this.data)
+    this.data1.name = e.target.value
+    this.patch()
   }
 }
+
+Parent.tagName = 'x-egg'
 
 module.exports = superviews(Parent)

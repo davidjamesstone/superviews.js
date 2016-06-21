@@ -2,13 +2,13 @@ var IncrementalDOM = require('incremental-dom')
 var patch = IncrementalDOM.patch
 var slice = Array.prototype.slice
 
-module.exports = function (el, view, data) {
+module.exports = function (el, fn, data) {
   var args = slice.call(arguments)
   if (args.length <= 3) {
-    patch(el, view, data)
+    patch(el, fn, data)
   } else {
     patch(el, function () {
-      view.apply(this, args.slice(2))
+      fn.apply(window, args.slice(2))
     })
   }
 }

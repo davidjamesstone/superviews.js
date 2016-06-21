@@ -1,10 +1,16 @@
-<template name="parent" args="data child">
+<template name="parent" args="data1 todos child">
   <form>
-    <input type="text" value={data.name} onkeyup={this.onChange.bind(this)}>
-    <span>{data.name}</span>
+    <input type="text" value={data1.name} onkeyup={this.onChange.bind(this)}>
+    <span>{data1.name}</span>
     <a href="#">Google</a>
-    <script>
-      child(data.child)
-    </script>
+    <ul>
+      <li each="todo in todos">{todo.text}</li>
+    </ul>
+    <pre>{JSON.stringify(todos)}</pre>
+    <ul>
+      <li each="item in data1.childData">
+        <script>child(item)</script>
+      </li>
+    </ul>
   </form>
 </template>
