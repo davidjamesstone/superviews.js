@@ -6,6 +6,7 @@
   "scripts": {
     "lint": "standard index.js bin/cmd.js",
     "build:playground": "browserify examples/playground/playground.js > examples/playground/playground.bundle.js",
+    "build:components": "browserify examples/components/index.js -t superviewify -d -o examples/components/components.bundle.js",
     "build:custom-elements": "browserify examples/custom-elements/index.js -t superviewify -d -o examples/custom-elements/custom-elements.bundle.js",
     "build:x-tag": "browserify examples/x-tag/index.js -t superviewify -d -o examples/x-tag/x-tag.bundle.js",
     "build:basic": "cat examples/basic/test.html | ./bin/cmd.js --mode=browser --name=egg --argstr=foo > examples/basic/test.js",

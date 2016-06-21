@@ -1,8 +1,8 @@
 var IncrementalDOM = require('incremental-dom')
-// var skip = IncrementalDOM.skip
-// var elementOpen = IncrementalDOM.elementOpen
-// var elementClose = IncrementalDOM.elementClose
-// var currentElement = IncrementalDOM.currentElement
+var skip = IncrementalDOM.skip
+var elementOpen = IncrementalDOM.elementOpen
+var elementClose = IncrementalDOM.elementClose
+var currentElement = IncrementalDOM.currentElement
 var patch = require('./patch')
 var slice = Array.prototype.slice
 
@@ -12,17 +12,22 @@ IncrementalDOM.attributes.value = function (el, name, value) {
 }
 
 function superviews (Component, view) {
-  var fn = function (el, data) {
-    // var name = Component.name
+  var fn = function () {
+    var currentEl = currentElement()
+    var name = Component.name
     var close = false
-    var ctx = el.__superviews
+    var isFirstUpdate = false
+    var el, ctx
 
-    if (el) {
-      if (el.tagName !== name.toUpperCase()) {
+    if (currentEl) {
+      if (currentEl.tagName !== name.toUpperCase()) {
         el = elementOpen(name)
         close = true
+        isFirstUpdate = true
+      } else {
+        el = currentEl
+        ctx = el.__superviews
       }
-      ctx = el.__superviews
     }
 
     var args = slice.call(arguments)
@@ -33,7 +38,7 @@ function superviews (Component, view) {
     if (!ctx) {
       ctx = new (Function.prototype.bind.apply(Component, args))
 
-      var updateFn = ctx.update
+      // var updateFn = ctx.update
       ctx.update = function () {
         var args = slice.call(arguments)
         args.unshift(fn)
@@ -46,7 +51,7 @@ function superviews (Component, view) {
     if (!isFirstUpdate && !(ctx.shouldUpdate && ctx.shouldUpdate.apply(ctx, slice.call(arguments)))) {
       skip()
     } else {
-      ctx.update.apply(ctx, slice.call(arguments))
+      ctx.view.apply(ctx, slice.call(arguments))
     }
 
     if (close) {

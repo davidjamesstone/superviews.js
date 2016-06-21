@@ -1,0 +1,10 @@
+<template name="parent" args="data child">
+  <form>
+    <input type="text" value={data.name} onkeyup={this.onChange.bind(this)}>
+    <span>{data.name}</span>
+    <a href="#">Google</a>
+    <script>
+      child(data.child)
+    </script>
+  </form>
+</template>
