@@ -3,7 +3,6 @@ var view = require('./child.html')
 
 class Child {
   constructor (el, data) {
-    this.el = el
     this.data = data
     this.view = view
   }
@@ -22,22 +21,6 @@ class Child {
   }
 }
 
-Child.tagName = 'div'
+Child.tagName = 'my-child'
 
-module.exports = superviews(function (el, data) {
-  this.el = el
-  this.data = data
-  this.view = view
-  this.shouldUpdate = function () {
-    return true
-  }
-
-  this.render = function () {
-    this.view(this.data)
-  }
-
-  this.onChange = function (e) {
-    this.data.name = e.target.value
-    this.patch()
-  }
-})
+module.exports = superviews(Child)

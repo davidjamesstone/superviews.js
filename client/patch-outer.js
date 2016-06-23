@@ -4,11 +4,11 @@ var slice = Array.prototype.slice
 
 module.exports = function (el, fn, data) {
   var args = slice.call(arguments)
-  // if (args.length <= 3) {
-  //   patch(el, view, data)
-  // } else {
-  patch(el, function () {
-    fn.apply(window, args.slice(2))
-  })
-  // }
+  if (args.length <= 3) {
+    patch(el, fn, data)
+  } else {
+    patch(el, function () {
+      fn.apply(window, args.slice(2))
+    })
+  }
 }

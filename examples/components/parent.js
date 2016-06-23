@@ -10,10 +10,6 @@ class Parent {
     this.view = view
   }
 
-  get Egg () {
-    return ''
-  }
-
   shouldUpdate () {
     return true
   }
@@ -22,16 +18,12 @@ class Parent {
     this.view(this.data1, this.data2, child)
   }
 
-  // update () {
-  //   this.patch(this.data1, this.data2, child)
-  // }
-
   onChange (e) {
     this.data1.name = e.target.value
     this.patch()
   }
 }
 
-Parent.tagName = 'x-egg'
+Parent.tagName = 'my-parent'
 
 module.exports = superviews(Parent)

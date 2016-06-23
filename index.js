@@ -113,13 +113,8 @@ function getAttrs (name, attribs) {
         properties.push(key)
         properties.push(attrib)
       } else {
-        // if (key.substr(0, 2) === 'on') {
-        //   properties.push(key)
-        //   properties.push(attrib.replace(token, 'function ($event) {\n  $event.preventDefault();\n  var $element = this;\n'))
-        // } else {
         properties.push(key)
         properties.push(attrib.substring(1, attrib.length - 1))
-        // }
       }
     } else if (attrib.indexOf(token) > 0) {
       properties.push(key)
@@ -146,7 +141,7 @@ var handler = {
       indent++
       return
     }
-    if (name === 'script' && !Object.keys(attribs).length) {
+    if (name === 'script' && !attribs['type']) {
       literal = true
       return
     }
