@@ -5,11 +5,6 @@ var elementClose = IncrementalDOM.elementClose
 var patch = require('./patch-outer')
 var slice = Array.prototype.slice
 
-// Fix up the element `value` attribute
-IncrementalDOM.attributes.value = function (el, name, value) {
-  el.value = value
-}
-
 function superviews (Component, view) {
   var fn = function () {
     var name = Component.tagName || Component.name || 'div'
