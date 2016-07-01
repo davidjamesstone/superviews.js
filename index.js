@@ -326,7 +326,7 @@ module.exports = function (tmplstr, name, argstr, mode) {
       result += 'module.exports = ' + fn + '\n'
       break
     case 'amd':
-      result = 'define(["exports", \'incremental-dom\'], function (exports, IncrementalDOM) {\n' +
+      result = 'define([\'exports\', \'incremental-dom\'], function (exports, IncrementalDOM) {\n' +
         'var patch = IncrementalDOM.patch\n' +
         'var elementOpen = IncrementalDOM.elementOpen\n' +
         'var elementClose = IncrementalDOM.elementClose\n' +
