@@ -325,6 +325,18 @@ module.exports = function (tmplstr, name, argstr, mode) {
       result += hoisted + '\n\n'
       result += 'module.exports = ' + fn + '\n'
       break
+    case 'amd':
+      result = 'define(["exports",\'incremental-dom\'], function (exports,IncrementalDOM){\n' +
+        'var patch = IncrementalDOM.patch;\n' +
+        'var elementOpen = IncrementalDOM.elementOpen;\n' +
+        'var elementClose = IncrementalDOM.elementClose;\n' +
+        'var skip = IncrementalDOM.skip;\n' +
+        'var currentElement = IncrementalDOM.currentElement;\n' +
+        'var text = IncrementalDOM.text;\n\n'
+      result += hoisted + '\n\n'
+      result += 'exports.'+name+' = ' + '(function () { ' + '\n return ' + fn + '\n' + '})()' + '\n'
+      result += '});\n'
+      break
     default:
       result = hoisted + '\n\n' + 'return ' + fn
       result = (mode ? 'var ' + mode + ' = ' : ';') + '(function () {' + '\n' + result + '\n' + '})()' + '\n'
