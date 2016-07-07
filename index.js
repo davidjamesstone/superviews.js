@@ -207,8 +207,8 @@ var handler = {
     writeln('elementOpen', name, key, attrs.statics, attrs.properties)
     ++indent
 
-    if (specials.skip) {
-      write('if (' + specials.skip + ') {\n  skip()\n} else {')
+    if ('skip' in specials) {
+      write('if (' + (specials.skip || 'true') + ') {\n  skip()\n} else {')
       endBraces[name + '_skip_' + indent] = '}'
       ++indent
     }

@@ -14,7 +14,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
       todos.pop()
     }
   elementOpen("div", null, null, "class", data.cssClass)
-    elementOpen("input", "4112d027-5d7e-45de-9659-223fa4e5a6fb", hoisted1, "disabled", data.isDisabled)
+    elementOpen("input", "8549d03f-b20d-48e2-95e8-47e6df6456b6", hoisted1, "disabled", data.isDisabled)
     elementClose("input")
     elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     elementClose("a")
@@ -29,7 +29,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
     elementOpen("button", null, null, "onclick", alert(hi))
       text("Say hi")
     elementClose("button")
-    elementOpen("input", "d282769e-9831-42bd-b527-deea8e9df531", hoisted2, "value", data.val, "onchange", onChange)
+    elementOpen("input", "def20678-2c92-4e28-941c-0e070678aeee", hoisted2, "value", data.val, "onchange", onChange)
     elementClose("input")
     if (data.showMe) {
       elementOpen("p")
@@ -74,7 +74,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var item = $value
-          var $key = "97e8ca7e-022b-4c1e-abbe-100286a0dc6a_" + $item
+          var $key = "999ba387-1455-4a2b-a8ff-d3860d3bb73e_" + $item
           elementOpen("li", $key)
             elementOpen("span", null, null, "class",  $item % 2 ? 'odd' : 'even' )
               text("" + ($item) + "")
@@ -90,7 +90,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var item = $value
-          var $key = "6720e865-a9b2-421e-b3f6-ad32ba913125_" + $item
+          var $key = "eade9936-5f9f-470a-ab24-3ee3c5c3e0ce_" + $item
           elementOpen("li", $key)
             elementOpen("span")
               text("" + (item.name) + "")
@@ -104,9 +104,9 @@ return function myWidget (data, todos, onChange, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var key = $value
-          var $key = "e4b73123-443c-490d-92d2-ab140541c988_" + $item
+          var $key = "f2186e4e-046d-4176-8d1b-1d79f6c4a91c_" + $item
           elementOpen("li", $key)
-            elementOpen("span", "f0975216-872d-4c47-8c3e-616612fda377_" + $key, hoisted3)
+            elementOpen("span", "893c304a-225a-4970-bde6-93ab83dad691_" + $key, hoisted3)
               text("" + (key) + " - " + (data.obj[key]) + "")
             elementClose("span")
           elementClose("li")
@@ -118,7 +118,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var product = $value
-          var $key = "8fa1ee06-6721-40a0-bd0b-355f074cac4d_" + product.id
+          var $key = "cb089312-8b0a-49dd-8682-05906b38fd99_" + product.id
           elementOpen("li", $key)
             text(" \
                     " + (product.name) + " \
@@ -133,7 +133,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
         if (__target) {
           ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
             var item = $value
-            var $key = "5b17b834-a296-4871-93ab-d54c8532860a_" + item.id
+            var $key = "ca98e0ff-7162-41fb-8831-2d49edab1c06_" + item.id
             elementOpen("li", $key)
               text(" \
                       " + (item.name) + " \
@@ -143,7 +143,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
         }
       }
       if (!data.items.length) {
-        elementOpen("li", "4fe7e61f-d936-4770-a340-4f9c33b79aaf", hoisted4)
+        elementOpen("li", "7998185d-bed9-4fb4-80f3-2c3117631e38", hoisted4)
           text(" \
                   No items found \
                 ")
