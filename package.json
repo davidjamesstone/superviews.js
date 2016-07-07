@@ -15,7 +15,7 @@
   "bin": {
     "superviews": "./bin/cmd.js"
   },
-  "browser": "client/index.js",
+  "browser": "client/patch.js",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/davidjamesstone/superviews.js.git"
