@@ -34,7 +34,7 @@
     "browserify": "^13.0.1",
     "document-register-element": "^0.5.4",
     "standard": "^6.0.8",
-    "superviewify": "^1.0.0",
+    "superviewify": "^3.0.0",
     "x-tag": "^1.5.11"
   },
   "bugs": {
