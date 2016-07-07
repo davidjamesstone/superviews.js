@@ -36,8 +36,10 @@ define the enclosing function name and arguments in the incremental-dom output (
     <!-- Any javascript can be used -->
     <div title="{JSON.stringify(data)}">Hover for json</div>
 
+    <!-- 'on' event handlers. $event and $element are available to use in the handler. -->
     <button onclick="{alert(hi)}">Say hi</button>
     <input type="text" value="{data.val}" onchange="{data.val = this.value}">
+    <a href="#" onclick="{$event.preventDefault(); model.doSomething();}">Some link</a>
 
     <!-- Use an `if` attribute for conditional rendering -->
     <p if="data.showMe">
