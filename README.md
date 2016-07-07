@@ -30,7 +30,7 @@ an `args` attribute it will be used as the function definition.
 A `name` attribute can also be supplied. These will be used to
 define the enclosing function name and arguments in the incremental-dom output (see below).
 -->
-<template name="myWidget" args="data todos onChange foo bar">
+<template name="myWidget" args="data todos foo bar">
 
   <!--
   `script` tags that have no attributes are treated as literal javascript
@@ -62,8 +62,10 @@ define the enclosing function name and arguments in the incremental-dom output (
     <!-- Any javascript can be used -->
     <div title="{JSON.stringify(data)}">Hover for json</div>
 
+    <!-- 'on' event handlers. $event and $element are available to use in the handler. -->
     <button onclick="{alert(hi)}">Say hi</button>
-    <input type="text" value="{data.val}" onchange="{onChange}">
+    <input type="text" value="{data.val}" onchange="{data.val = this.value}">
+    <a href="#" onclick="{$event.preventDefault(); model.doSomething();}">Some link</a>
 
     <!-- Use an `if` attribute for conditional rendering -->
     <p if="data.showMe">
@@ -157,11 +159,12 @@ Converts the template above to this [incremental-dom](http://google.github.io/in
 ;(function () {
 var hoisted1 = ["type", "text"]
 var hoisted2 = ["type", "text"]
-var hoisted3 = ["title", "hello"]
-var hoisted4 = ["class", "list-header"]
+var hoisted3 = ["href", "#"]
+var hoisted4 = ["title", "hello"]
+var hoisted5 = ["class", "list-header"]
 var __target
 
-return function myWidget (data, todos, onChange, foo, bar) {
+return function myWidget (data, todos, foo, bar) {
   function add (item) {
       todos.push(item)
     }
@@ -170,7 +173,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
       todos.pop()
     }
   elementOpen("div", null, null, "class", data.cssClass)
-    elementOpen("input", "4112d027-5d7e-45de-9659-223fa4e5a6fb", hoisted1, "disabled", data.isDisabled)
+    elementOpen("input", "ba1d808c-0069-43bc-a345-89d8a60fa494", hoisted1, "disabled", data.isDisabled)
     elementClose("input")
     elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     elementClose("a")
@@ -182,11 +185,20 @@ return function myWidget (data, todos, onChange, foo, bar) {
     elementOpen("div", null, null, "title", JSON.stringify(data))
       text("Hover for json")
     elementClose("div")
-    elementOpen("button", null, null, "onclick", alert(hi))
+    elementOpen("button", null, null, "onclick", function ($event) {
+      var $element = this;
+    alert(hi)})
       text("Say hi")
     elementClose("button")
-    elementOpen("input", "d282769e-9831-42bd-b527-deea8e9df531", hoisted2, "value", data.val, "onchange", onChange)
+    elementOpen("input", "0887e662-2503-4669-b314-2d155cc72cad", hoisted2, "value", data.val, "onchange", function ($event) {
+      var $element = this;
+    data.val = this.value})
     elementClose("input")
+    elementOpen("a", "4308eec1-f2dc-4247-a8d6-c07e81db0c3e", hoisted3, "onclick", function ($event) {
+      var $element = this;
+    $event.preventDefault(); model.doSomething();})
+      text("Some link")
+    elementClose("a")
     if (data.showMe) {
       elementOpen("p")
         elementOpen("span", null, null, "class", data.bar + ' other-css')
@@ -230,7 +242,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var item = $value
-          var $key = "97e8ca7e-022b-4c1e-abbe-100286a0dc6a_" + $item
+          var $key = "163c079d-6890-40f1-8983-b4119652d7ca_" + $item
           elementOpen("li", $key)
             elementOpen("span", null, null, "class",  $item % 2 ? 'odd' : 'even' )
               text("" + ($item) + "")
@@ -246,7 +258,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var item = $value
-          var $key = "6720e865-a9b2-421e-b3f6-ad32ba913125_" + $item
+          var $key = "9ee2a95c-ce40-4c43-9e1b-bb1e3771c72f_" + $item
           elementOpen("li", $key)
             elementOpen("span")
               text("" + (item.name) + "")
@@ -260,9 +272,9 @@ return function myWidget (data, todos, onChange, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var key = $value
-          var $key = "e4b73123-443c-490d-92d2-ab140541c988_" + $item
+          var $key = "07608362-dc5c-4fca-9f46-381ffc62a929_" + $item
           elementOpen("li", $key)
-            elementOpen("span", "f0975216-872d-4c47-8c3e-616612fda377_" + $key, hoisted3)
+            elementOpen("span", "4bf05389-7b34-4184-9ae5-2f1371d46d05_" + $key, hoisted4)
               text("" + (key) + " - " + (data.obj[key]) + "")
             elementClose("span")
           elementClose("li")
@@ -274,7 +286,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var product = $value
-          var $key = "8fa1ee06-6721-40a0-bd0b-355f074cac4d_" + product.id
+          var $key = "494094aa-b914-405e-b489-31348c78a2f7_" + product.id
           elementOpen("li", $key)
             text(" \
                     " + (product.name) + " \
@@ -289,7 +301,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
         if (__target) {
           ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
             var item = $value
-            var $key = "5b17b834-a296-4871-93ab-d54c8532860a_" + item.id
+            var $key = "f53fcb3e-8035-4108-91bc-1d7661d41681_" + item.id
             elementOpen("li", $key)
               text(" \
                       " + (item.name) + " \
@@ -299,7 +311,7 @@ return function myWidget (data, todos, onChange, foo, bar) {
         }
       }
       if (!data.items.length) {
-        elementOpen("li", "4fe7e61f-d936-4770-a340-4f9c33b79aaf", hoisted4)
+        elementOpen("li", "39dad44a-39c4-4d2d-bb31-7daf5bef8b73", hoisted5)
           text(" \
                   No items found \
                 ")
