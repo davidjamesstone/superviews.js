@@ -4,7 +4,7 @@ an `args` attribute it will be used as the function definition.
 A `name` attribute can also be supplied. These will be used to
 define the enclosing function name and arguments in the incremental-dom output (see below).
 -->
-<template name="myWidget" args="data todos onChange foo bar">
+<template name="myWidget" args="data todos foo bar">
 
   <!--
   `script` tags that have no attributes are treated as literal javascript
@@ -37,7 +37,7 @@ define the enclosing function name and arguments in the incremental-dom output (
     <div title="{JSON.stringify(data)}">Hover for json</div>
 
     <button onclick="{alert(hi)}">Say hi</button>
-    <input type="text" value="{data.val}" onchange="{onChange}">
+    <input type="text" value="{data.val}" onchange="{data.val = this.value}">
 
     <!-- Use an `if` attribute for conditional rendering -->
     <p if="data.showMe">
