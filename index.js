@@ -339,7 +339,8 @@ module.exports = function (tmplstr, name, argstr, mode) {
         'var currentElement = IncrementalDOM.currentElement\n' +
         'var text = IncrementalDOM.text\n\n'
       result += hoisted + '\n\n'
-      result += 'exports.' + name + ' = ' + '(function () {' + '\n  return ' + fn + '\n' + '})()' + '\n'
+      var camelCased = name.replace(/-([a-z])/g, function (g) { return g[1].toUpperCase(); });
+      result += 'exports["' + camelCased + '"] = ' + '(function () {' + '\n  return ' + fn.replace(name,'') + '\n' + '})()' + '\n'
       result += '})\n'
       break
     default:
