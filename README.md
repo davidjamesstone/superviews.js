@@ -11,7 +11,7 @@ Try it out [live in your browser](http://davidjamesstone.github.io/superviews.js
 `tmplstr` (required) - The template string.  
 `name` - The output function name (will be overridden with a <template> element).  
 `argstr` - The output function arguments (will be overridden with a <template> element).  
-`mode` - The output format. Can be one of ['es6', 'cjs', 'browser'], if any other value is passed the function is exported as a variable with that name. 
+`mode` - The output format. Can be one of ['es6', 'cjs', 'browser', 'amd'], if any other value is passed the function is exported as a variable with that name. 
 
 `superviews(tmplstr, name, argstr, mode)`
 
