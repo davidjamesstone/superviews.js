@@ -334,6 +334,8 @@ Using [browserify](http://browserify.org/)? There's the [superviewify](https://g
 
 To see how to use supermodels.js and superviews.js together, checkout [superglue.js](http://davidjamesstone.github.io/superglue.js)
 
+## [FerrugemJS](https://github.com/ferrugemjs/library) is a library inspired by Aurelia and React using [Incremental DOM](https://github.com/google/incremental-dom) with [superviews.js](https://github.com/davidjamesstone/superviews.js) as a template language.
+
 # License
 
   MIT
