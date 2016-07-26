@@ -113,7 +113,7 @@ define the enclosing function name and arguments in the incremental-dom output (
 
     <!-- Conditional iteration -->
     <ul>
-      <li if="data.items.length" each="item, item.id in data.arr">
+      <li if="data.items.length" each="item, item.id in data.arr.sort(function (a, b) { return a < b })">
         {item.name}
       </li>
       <li if="!data.items.length" class="list-header">

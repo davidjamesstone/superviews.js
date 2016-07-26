@@ -15,7 +15,7 @@ return function myWidget (data, todos, foo, bar) {
       todos.pop()
     }
   elementOpen("div", null, null, "class", data.cssClass)
-    elementOpen("input", "ba1d808c-0069-43bc-a345-89d8a60fa494", hoisted1, "disabled", data.isDisabled)
+    elementOpen("input", "3caca182-0fd8-4571-80db-9f1fc4649b74", hoisted1, "disabled", data.isDisabled)
     elementClose("input")
     elementOpen("a", null, null, "href", "http://www.google.co.uk?q=" + (data.query) + "")
     elementClose("a")
@@ -32,11 +32,11 @@ return function myWidget (data, todos, foo, bar) {
     alert(hi)})
       text("Say hi")
     elementClose("button")
-    elementOpen("input", "0887e662-2503-4669-b314-2d155cc72cad", hoisted2, "value", data.val, "onchange", function ($event) {
+    elementOpen("input", "3ec33dfb-721d-424f-94b9-cbacb448cc72", hoisted2, "value", data.val, "onchange", function ($event) {
       var $element = this;
     data.val = this.value})
     elementClose("input")
-    elementOpen("a", "4308eec1-f2dc-4247-a8d6-c07e81db0c3e", hoisted3, "onclick", function ($event) {
+    elementOpen("a", "855ab9ab-4a46-4d96-a828-fb7229375d00", hoisted3, "onclick", function ($event) {
       var $element = this;
     $event.preventDefault(); model.doSomething();})
       text("Some link")
@@ -84,7 +84,7 @@ return function myWidget (data, todos, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var item = $value
-          var $key = "163c079d-6890-40f1-8983-b4119652d7ca_" + $item
+          var $key = "a5d8be29-d8aa-4c43-9a5d-1a0199be9319_" + $item
           elementOpen("li", $key)
             elementOpen("span", null, null, "class",  $item % 2 ? 'odd' : 'even' )
               text("" + ($item) + "")
@@ -100,7 +100,7 @@ return function myWidget (data, todos, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var item = $value
-          var $key = "9ee2a95c-ce40-4c43-9e1b-bb1e3771c72f_" + $item
+          var $key = "cd922925-d75c-4c81-a4c7-5cc19a23aa94_" + $item
           elementOpen("li", $key)
             elementOpen("span")
               text("" + (item.name) + "")
@@ -114,9 +114,9 @@ return function myWidget (data, todos, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var key = $value
-          var $key = "07608362-dc5c-4fca-9f46-381ffc62a929_" + $item
+          var $key = "0ecfeacf-bc70-42f0-8b74-591897e9c43f_" + $item
           elementOpen("li", $key)
-            elementOpen("span", "4bf05389-7b34-4184-9ae5-2f1371d46d05_" + $key, hoisted4)
+            elementOpen("span", "5b874ee4-3542-41f3-8cad-79728f7dee6e_" + $key, hoisted4)
               text("" + (key) + " - " + (data.obj[key]) + "")
             elementClose("span")
           elementClose("li")
@@ -128,7 +128,7 @@ return function myWidget (data, todos, foo, bar) {
       if (__target) {
         ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
           var product = $value
-          var $key = "494094aa-b914-405e-b489-31348c78a2f7_" + product.id
+          var $key = "9e1145c8-0aba-48f2-aa5e-a50383204b58_" + product.id
           elementOpen("li", $key)
             text(" \
                     " + (product.name) + " \
@@ -139,11 +139,11 @@ return function myWidget (data, todos, foo, bar) {
     elementClose("ul")
     elementOpen("ul")
       if (data.items.length) {
-        __target = data.arr
+        __target = data.arr.sort(function (a, b) { return a < b })
         if (__target) {
           ;(__target.forEach ? __target : Object.keys(__target)).forEach(function($value, $item, $target) {
             var item = $value
-            var $key = "f53fcb3e-8035-4108-91bc-1d7661d41681_" + item.id
+            var $key = "a1117d8a-55b4-4621-a13b-b519e499d735_" + item.id
             elementOpen("li", $key)
               text(" \
                       " + (item.name) + " \
@@ -153,7 +153,7 @@ return function myWidget (data, todos, foo, bar) {
         }
       }
       if (!data.items.length) {
-        elementOpen("li", "39dad44a-39c4-4d2d-bb31-7daf5bef8b73", hoisted5)
+        elementOpen("li", "5e6fd229-68b6-4bc1-b4e5-c89f57a1112f", hoisted5)
           text(" \
                   No items found \
                 ")

@@ -188,7 +188,7 @@ var handler = {
       var idxComma = eachProp.indexOf(',')
       var idxIn = eachProp.indexOf(' in')
 
-      if (~idxComma) {
+      if (~idxComma && idxComma < idxIn) {
         key = strify(uuid.v4() + '_') + ' + ' + eachProp.substring(idxComma + 2, idxIn)
         eachProp = eachProp.substring(0, idxComma) + eachProp.substr(idxIn)
       } else {
