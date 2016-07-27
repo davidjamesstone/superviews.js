@@ -317,7 +317,7 @@ module.exports = function (tmplstr, name, argstr, mode) {
       break
     case 'es6':
       result = 'import {patch, elementOpen, elementClose, text, skip, currentElement} from "incremental-dom"\n\n'
-      result += hoisted + 'export ' + fn + '\n'
+      result += hoisted + '\n\n' + 'export ' + fn + '\n'
       break
     case 'cjs':
       result = 'var IncrementalDOM = require(\'incremental-dom\')\n' +
