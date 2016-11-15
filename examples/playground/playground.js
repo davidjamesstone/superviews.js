@@ -85,7 +85,7 @@ var template = '<div class="{data.cssClass}">\n' +
 '  </ul>\n' +
 '  \n' +
 '  <h2>Events</h2>\n' +
-'  <button onclick="{data.onClick}">Say hi</button>\n' +
+'  <button onclick="{data.handleClick()}">Say hi</button>\n' +
 '    \n' +
 '</div>\n'
 
@@ -102,7 +102,7 @@ function run () {
     window.alert('Failed to compile - ' + e)
   }
 
-  patchData()
+  // patchData()
   patchButton.style.display = ''
 }
 

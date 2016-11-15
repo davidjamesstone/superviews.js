@@ -41,7 +41,7 @@ function strify (str) {
 }
 
 function write (line) {
-  var str = indentString(line, ' ', indent * 2)
+  var str = indentString(line, indent * 2)
   buffer.push(str)
   return line
 }

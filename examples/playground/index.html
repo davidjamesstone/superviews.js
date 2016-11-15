@@ -1,12 +1,13 @@
 <script src="../../node_modules/incremental-dom/dist/incremental-dom.js"></script>
 
 <style>
-  #template { position: absolute; top: 0; right: 50%; bottom: 50%; left: 0; }
-  #data { position: absolute; top: 0; right: 0; bottom: 50%; left: 50%; }
-  #compiled { position: absolute; top: 50%; right: 50%; bottom: 0; left: 0; }
-  #result { position: absolute; top: 50%; right: 0; bottom: 0; left: 50%; overflow: auto; }
-  #run { position: absolute; left: 0; padding: 8px; bottom: 50%; z-index: 1000; color: white; background-color: green; border: none; }
-  #patch { position: absolute; padding: 8px; bottom: 50%; right: 0; z-index: 1000; color: white; background-color: orange; border: none; }
+  body { background-color: #ddd; }
+  #template { position: absolute; top: 0; right: 51%; bottom: 51%; left: 0; }
+  #data { position: absolute; top: 0; right: 0; bottom: 51%; left: 51%; }
+  #compiled { position: absolute; top: 51%; right: 51%; bottom: 0; left: 0; }
+  #result { position: absolute; top: 51%; right: 0; bottom: 0; left: 51%; overflow: auto; background-color: #fff; }
+  #run { position: absolute; left: 0; padding: 8px; bottom: 48%; z-index: 1000; color: white; background-color: green; border: none; }
+  #patch { position: absolute; padding: 8px; bottom: 48%; right: 0; z-index: 1000; color: white; background-color: orange; border: none; }
 </style>
 <div id="template"></div>
 <div id="data">return {
@@ -22,13 +23,13 @@
     obj: { x: 1, y: 2, z: 3 },
     arr: ['foo', 'bar', 'baz'],
     map: new Map([[{ id: 101 }, 'a'], [{ id: 102 }, 'b'], [{ id: 103 }, 'c']]),
-    onClick: function () {
+    handleClick: function () {
       alert('hey')
     }
   }
 </div>
-<button id="run">Run</button>
-<button id="patch" style="display: none;">Patch</button>
+<button id="run">Compile &darr;</button>
+<button id="patch" style="display: none;">Patch &darr;</button>
 <pre><code id="compiled"></code></pre>
 <div id="result"></div>
 <script src="./playground.bundle.js"></script>
