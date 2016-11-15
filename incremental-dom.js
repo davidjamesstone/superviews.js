@@ -44,9 +44,12 @@
   var hasOwnProperty = Object.prototype.hasOwnProperty;
 
   /**
-   * A cached reference to the create function.
+   * A constructor function that will create blank objects.
+   * @constructor
    */
-  var create = Object.create;
+  function Blank() {}
+
+  Blank.prototype = Object.create(null);
 
   /**
    * Used to prevent property collisions between our "map" and its prototype.
@@ -63,7 +66,7 @@
    * @return {!Object}
    */
   var createMap = function () {
-    return create(null);
+    return new Blank();
   };
 
   /**
@@ -94,6 +97,12 @@
     this.newAttrs = createMap();
 
     /**
+     * Whether or not the statics have been applied for the node yet.
+     * {boolean}
+     */
+    this.staticsApplied = false;
+
+    /**
      * The key used to identify this node, used to preserve DOM nodes when they
      * move within their parent.
      * @const
@@ -102,15 +111,21 @@
 
     /**
      * Keeps track of children within this node by their key.
-     * {?Object<string, !Element>}
+     * {!Object<string, !Element>}
      */
-    this.keyMap = null;
+    this.keyMap = createMap();
 
     /**
      * Whether or not the keyMap is currently valid.
-     * {boolean}
+     * @type {boolean}
      */
     this.keyMapValid = true;
+
+    /**
+     * Whether or the associated node is, or contains, a focused Element.
+     * @type {boolean}
+     */
+    this.focused = false;
 
     /**
      * The node name for this node.
@@ -141,169 +156,55 @@
   /**
    * Retrieves the NodeData object for a Node, creating it if necessary.
    *
-   * @param {Node} node The node to retrieve the data for.
+   * @param {?Node} node The Node to retrieve the data for.
    * @return {!NodeData} The NodeData for this Node.
    */
   var getData = function (node) {
-    var data = node['__incrementalDOMData'];
-
-    if (!data) {
-      var nodeName = node.nodeName.toLowerCase();
-      var key = null;
-
-      if (node instanceof Element) {
-        key = node.getAttribute('key');
-      }
-
-      data = initData(node, nodeName, key);
-    }
-
-    return data;
+    importNode(node);
+    return node['__incrementalDOMData'];
   };
 
   /**
-   * Copyright 2015 The Incremental DOM Authors. All Rights Reserved.
+   * Imports node and its subtree, initializing caches.
    *
-   * Licensed under the Apache License, Version 2.0 (the "License");
-   * you may not use this file except in compliance with the License.
-   * You may obtain a copy of the License at
-   *
-   *      http://www.apache.org/licenses/LICENSE-2.0
-   *
-   * Unless required by applicable law or agreed to in writing, software
-   * distributed under the License is distributed on an "AS-IS" BASIS,
-   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   * See the License for the specific language governing permissions and
-   * limitations under the License.
+   * @param {?Node} node The Node to import.
    */
-
-  /** @const */
-  var symbols = {
-    default: '__default',
-
-    placeholder: '__placeholder'
-  };
-
-  /**
-   * @param {string} name
-   * @return {string|undefined} The namespace to use for the attribute.
-   */
-  var getNamespace = function (name) {
-    if (name.lastIndexOf('xml:', 0) === 0) {
-      return 'http://www.w3.org/XML/1998/namespace';
-    }
-
-    if (name.lastIndexOf('xlink:', 0) === 0) {
-      return 'http://www.w3.org/1999/xlink';
-    }
-  };
-
-  /**
-   * Applies an attribute or property to a given Element. If the value is null
-   * or undefined, it is removed from the Element. Otherwise, the value is set
-   * as an attribute.
-   * @param {!Element} el
-   * @param {string} name The attribute's name.
-   * @param {?(boolean|number|string)=} value The attribute's value.
-   */
-  var applyAttr = function (el, name, value) {
-    if (value == null) {
-      el.removeAttribute(name);
-    } else {
-      var attrNS = getNamespace(name);
-      if (attrNS) {
-        el.setAttributeNS(attrNS, name, value);
-      } else {
-        el.setAttribute(name, value);
-      }
-    }
-  };
-
-  /**
-   * Applies a property to a given Element.
-   * @param {!Element} el
-   * @param {string} name The property's name.
-   * @param {*} value The property's value.
-   */
-  var applyProp = function (el, name, value) {
-    el[name] = value;
-  };
-
-  /**
-   * Applies a style to an Element. No vendor prefix expansion is done for
-   * property names/values.
-   * @param {!Element} el
-   * @param {string} name The attribute's name.
-   * @param {*} style The style to set. Either a string of css or an object
-   *     containing property-value pairs.
-   */
-  var applyStyle = function (el, name, style) {
-    if (typeof style === 'string') {
-      el.style.cssText = style;
-    } else {
-      el.style.cssText = '';
-      var elStyle = el.style;
-      var obj = /** @type {!Object<string,string>} */style;
-
-      for (var prop in obj) {
-        if (has(obj, prop)) {
-          elStyle[prop] = obj[prop];
-        }
-      }
-    }
-  };
-
-  /**
-   * Updates a single attribute on an Element.
-   * @param {!Element} el
-   * @param {string} name The attribute's name.
-   * @param {*} value The attribute's value. If the value is an object or
-   *     function it is set on the Element, otherwise, it is set as an HTML
-   *     attribute.
-   */
-  var applyAttributeTyped = function (el, name, value) {
-    var type = typeof value;
-
-    if (type === 'object' || type === 'function') {
-      applyProp(el, name, value);
-    } else {
-      applyAttr(el, name, /** @type {?(boolean|number|string)} */value);
-    }
-  };
-
-  /**
-   * Calls the appropriate attribute mutator for this attribute.
-   * @param {!Element} el
-   * @param {string} name The attribute's name.
-   * @param {*} value The attribute's value.
-   */
-  var updateAttribute = function (el, name, value) {
-    var data = getData(el);
-    var attrs = data.attrs;
-
-    if (attrs[name] === value) {
+  var importNode = function (node) {
+    if (node['__incrementalDOMData']) {
       return;
     }
 
-    var mutator = attributes[name] || attributes[symbols.default];
-    mutator(el, name, value);
+    var isElement = node instanceof Element;
+    var nodeName = isElement ? node.localName : node.nodeName;
+    var key = isElement ? node.getAttribute('key') : null;
+    var data = initData(node, nodeName, key);
 
-    attrs[name] = value;
+    if (key) {
+      getData(node.parentNode).keyMap[key] = node;
+    }
+
+    if (isElement) {
+      var attributes = node.attributes;
+      var attrs = data.attrs;
+      var newAttrs = data.newAttrs;
+      var attrsArr = data.attrsArr;
+
+      for (var i = 0; i < attributes.length; i += 1) {
+        var attr = attributes[i];
+        var name = attr.name;
+        var value = attr.value;
+
+        attrs[name] = value;
+        newAttrs[name] = undefined;
+        attrsArr.push(name);
+        attrsArr.push(value);
+      }
+    }
+
+    for (var child = node.firstChild; child; child = child.nextSibling) {
+      importNode(child);
+    }
   };
-
-  /**
-   * A publicly mutable object to provide custom mutators for attributes.
-   * @const {!Object<string, function(!Element, string, *)>}
-   */
-  var attributes = createMap();
-
-  // Special generic mutator that's called for any attribute that does not
-  // have a specific mutator.
-  attributes[symbols.default] = applyAttributeTyped;
-
-  attributes[symbols.placeholder] = function () {};
-
-  attributes['style'] = applyStyle;
 
   /**
    * Gets the namespace to create an element (of a given tag) in.
@@ -329,11 +230,9 @@
    * @param {?Node} parent
    * @param {string} tag The tag for the Element.
    * @param {?string=} key A key to identify the Element.
-   * @param {?Array<*>=} statics An array of attribute name/value pairs of the
-   *     static attributes for the Element.
    * @return {!Element}
    */
-  var createElement = function (doc, parent, tag, key, statics) {
+  var createElement = function (doc, parent, tag, key) {
     var namespace = getNamespaceForTag(tag, parent);
     var el = undefined;
 
@@ -344,12 +243,6 @@
     }
 
     initData(el, tag, key);
-
-    if (statics) {
-      for (var i = 0; i < statics.length; i += 2) {
-        updateAttribute(el, /** @type {!string}*/statics[i], statics[i + 1]);
-      }
-    }
 
     return el;
   };
@@ -363,67 +256,6 @@
     var node = doc.createTextNode('');
     initData(node, '#text', null);
     return node;
-  };
-
-  /**
-   * Creates a mapping that can be used to look up children using a key.
-   * @param {?Node} el
-   * @return {!Object<string, !Element>} A mapping of keys to the children of the
-   *     Element.
-   */
-  var createKeyMap = function (el) {
-    var map = createMap();
-    var child = el.firstElementChild;
-
-    while (child) {
-      var key = getData(child).key;
-
-      if (key) {
-        map[key] = child;
-      }
-
-      child = child.nextElementSibling;
-    }
-
-    return map;
-  };
-
-  /**
-   * Retrieves the mapping of key to child node for a given Element, creating it
-   * if necessary.
-   * @param {?Node} el
-   * @return {!Object<string, !Node>} A mapping of keys to child Elements
-   */
-  var getKeyMap = function (el) {
-    var data = getData(el);
-
-    if (!data.keyMap) {
-      data.keyMap = createKeyMap(el);
-    }
-
-    return data.keyMap;
-  };
-
-  /**
-   * Retrieves a child from the parent with the given key.
-   * @param {?Node} parent
-   * @param {?string=} key
-   * @return {?Node} The child corresponding to the key.
-   */
-  var getChild = function (parent, key) {
-    return key ? getKeyMap(parent)[key] : null;
-  };
-
-  /**
-   * Registers an element as being a child. The parent will keep track of the
-   * child using the key. The child can be retrieved using the same key using
-   * getKeyMap. The provided key should be unique within the parent Element.
-   * @param {?Node} parent The parent of child.
-   * @param {string} key A key to identify the child with.
-   * @param {!Node} child The child to register.
-   */
-  var registerChild = function (parent, key, child) {
-    getKeyMap(parent)[key] = child;
   };
 
   /**
@@ -508,14 +340,107 @@
   };
 
   /**
-  * Makes sure that keyed Element matches the tag name provided.
-  * @param {!string} nodeName The nodeName of the node that is being matched.
-  * @param {string=} tag The tag name of the Element.
-  * @param {?string=} key The key of the Element.
-  */
-  var assertKeyedTagMatches = function (nodeName, tag, key) {
-    if (nodeName !== tag) {
-      throw new Error('Was expecting node with key "' + key + '" to be a ' + tag + ', not a ' + nodeName + '.');
+   * Copyright 2016 The Incremental DOM Authors. All Rights Reserved.
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *      http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS-IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+
+  /**
+   * @param {!Node} node
+   * @return {boolean} True if the node the root of a document, false otherwise.
+   */
+  var isDocumentRoot = function (node) {
+    // For ShadowRoots, check if they are a DocumentFragment instead of if they
+    // are a ShadowRoot so that this can work in 'use strict' if ShadowRoots are
+    // not supported.
+    return node instanceof Document || node instanceof DocumentFragment;
+  };
+
+  /**
+   * @param {!Node} node The node to start at, inclusive.
+   * @param {?Node} root The root ancestor to get until, exclusive.
+   * @return {!Array<!Node>} The ancestry of DOM nodes.
+   */
+  var getAncestry = function (node, root) {
+    var ancestry = [];
+    var cur = node;
+
+    while (cur !== root) {
+      ancestry.push(cur);
+      cur = cur.parentNode;
+    }
+
+    return ancestry;
+  };
+
+  /**
+   * @param {!Node} node
+   * @return {!Node} The root node of the DOM tree that contains node.
+   */
+  var getRoot = function (node) {
+    var cur = node;
+    var prev = cur;
+
+    while (cur) {
+      prev = cur;
+      cur = cur.parentNode;
+    }
+
+    return prev;
+  };
+
+  /**
+   * @param {!Node} node The node to get the activeElement for.
+   * @return {?Element} The activeElement in the Document or ShadowRoot
+   *     corresponding to node, if present.
+   */
+  var getActiveElement = function (node) {
+    var root = getRoot(node);
+    return isDocumentRoot(root) ? root.activeElement : null;
+  };
+
+  /**
+   * Gets the path of nodes that contain the focused node in the same document as
+   * a reference node, up until the root.
+   * @param {!Node} node The reference node to get the activeElement for.
+   * @param {?Node} root The root to get the focused path until.
+   * @return {!Array<Node>}
+   */
+  var getFocusedPath = function (node, root) {
+    var activeElement = getActiveElement(node);
+
+    if (!activeElement || !node.contains(activeElement)) {
+      return [];
+    }
+
+    return getAncestry(activeElement, root);
+  };
+
+  /**
+   * Like insertBefore, but instead instead of moving the desired node, instead
+   * moves all the other nodes after.
+   * @param {?Node} parentNode
+   * @param {!Node} node
+   * @param {?Node} referenceNode
+   */
+  var moveBefore = function (parentNode, node, referenceNode) {
+    var insertReferenceNode = node.nextSibling;
+    var cur = referenceNode;
+
+    while (cur !== node) {
+      var next = cur.nextSibling;
+      parentNode.insertBefore(cur, insertReferenceNode);
+      cur = next;
     }
   };
 
@@ -528,17 +453,24 @@
   /** @type {?Node} */
   var currentParent = null;
 
-  /** @type {?Element|?DocumentFragment} */
-  var root = null;
-
   /** @type {?Document} */
   var doc = null;
 
   /**
+   * @param {!Array<Node>} focusPath The nodes to mark.
+   * @param {boolean} focused Whether or not they are focused.
+   */
+  var markFocused = function (focusPath, focused) {
+    for (var i = 0; i < focusPath.length; i += 1) {
+      getData(focusPath[i]).focused = focused;
+    }
+  };
+
+  /**
    * Returns a patcher function that sets up and restores a patch context,
    * running the run function with the provided data.
-   * @param {function((!Element|!DocumentFragment),!function(T),T=)} run
-   * @return {function((!Element|!DocumentFragment),!function(T),T=)}
+   * @param {function((!Element|!DocumentFragment),!function(T),T=): ?Node} run
+   * @return {function((!Element|!DocumentFragment),!function(T),T=): ?Node}
    * @template T
    */
   var patchFactory = function (run) {
@@ -549,11 +481,11 @@
      * @param {(!Element|!DocumentFragment)} node
      * @param {!function(T)} fn
      * @param {T=} data
+     * @return {?Node} node
      * @template T
      */
     var f = function (node, fn, data) {
       var prevContext = context;
-      var prevRoot = root;
       var prevDoc = doc;
       var prevCurrentNode = currentNode;
       var prevCurrentParent = currentParent;
@@ -561,23 +493,26 @@
       var previousInSkip = false;
 
       context = new Context();
-      root = node;
       doc = node.ownerDocument;
       currentParent = node.parentNode;
 
       if ('production' !== 'production') {}
 
-      run(node, fn, data);
+      var focusPath = getFocusedPath(node, currentParent);
+      markFocused(focusPath, true);
+      var retVal = run(node, fn, data);
+      markFocused(focusPath, false);
 
       if ('production' !== 'production') {}
 
       context.notifyChanges();
 
       context = prevContext;
-      root = prevRoot;
       doc = prevDoc;
       currentNode = prevCurrentNode;
       currentParent = prevCurrentParent;
+
+      return retVal;
     };
     return f;
   };
@@ -590,6 +525,7 @@
    * @param {!function(T)} fn A function containing elementOpen/elementClose/etc.
    *     calls that describe the DOM.
    * @param {T=} data An argument passed to fn to represent DOM state.
+   * @return {!Node} The patched node.
    * @template T
    */
   var patchInner = patchFactory(function (node, fn, data) {
@@ -600,6 +536,8 @@
     exitNode();
 
     if ('production' !== 'production') {}
+
+    return node;
   });
 
   /**
@@ -610,26 +548,40 @@
    *     calls that describe the DOM. This should have at most one top level
    *     element call.
    * @param {T=} data An argument passed to fn to represent DOM state.
+   * @return {?Node} The node if it was updated, its replacedment or null if it
+   *     was removed.
    * @template T
    */
   var patchOuter = patchFactory(function (node, fn, data) {
-    currentNode = /** @type {!Element} */{ nextSibling: node };
+    var startNode = /** @type {!Element} */{ nextSibling: node };
+    var expectedNextNode = null;
+    var expectedPrevNode = null;
 
+    if ('production' !== 'production') {}
+
+    currentNode = startNode;
     fn(data);
 
     if ('production' !== 'production') {}
+
+    if (node !== currentNode && node.parentNode) {
+      removeChild(currentParent, node, getData(currentParent).keyMap);
+    }
+
+    return startNode === currentNode ? null : currentNode;
   });
 
   /**
    * Checks whether or not the current node matches the specified nodeName and
    * key.
    *
+   * @param {!Node} matchNode A node to match the data to.
    * @param {?string} nodeName The nodeName for this node.
    * @param {?string=} key An optional key that identifies a node.
    * @return {boolean} True if the node matches, false otherwise.
    */
-  var matches = function (nodeName, key) {
-    var data = getData(currentNode);
+  var matches = function (matchNode, nodeName, key) {
+    var data = getData(matchNode);
 
     // Key check is done using double equals as we want to treat a null key the
     // same as undefined. This should be okay as the only values allowed are
@@ -643,21 +595,28 @@
    * @param {string} nodeName For an Element, this should be a valid tag string.
    *     For a Text, this should be #text.
    * @param {?string=} key The key used to identify this element.
-   * @param {?Array<*>=} statics For an Element, this should be an array of
-   *     name-value pairs.
    */
-  var alignWithDOM = function (nodeName, key, statics) {
-    if (currentNode && matches(nodeName, key)) {
+  var alignWithDOM = function (nodeName, key) {
+    if (currentNode && matches(currentNode, nodeName, key)) {
       return;
     }
 
+    var parentData = getData(currentParent);
+    var currentNodeData = currentNode && getData(currentNode);
+    var keyMap = parentData.keyMap;
     var node = undefined;
 
     // Check to see if the node has moved within the parent.
     if (key) {
-      node = getChild(currentParent, key);
-      if (node && 'production' !== 'production') {
-        assertKeyedTagMatches(getData(node).nodeName, nodeName, key);
+      var keyNode = keyMap[key];
+      if (keyNode) {
+        if (matches(keyNode, nodeName, key)) {
+          node = keyNode;
+        } else if (keyNode === currentNode) {
+          context.markDeleted(keyNode);
+        } else {
+          removeChild(currentParent, keyNode, keyMap);
+        }
       }
     }
 
@@ -666,28 +625,48 @@
       if (nodeName === '#text') {
         node = createText(doc);
       } else {
-        node = createElement(doc, currentParent, nodeName, key, statics);
+        node = createElement(doc, currentParent, nodeName, key);
       }
 
       if (key) {
-        registerChild(currentParent, key, node);
+        keyMap[key] = node;
       }
 
       context.markCreated(node);
     }
 
-    // If the node has a key, remove it from the DOM to prevent a large number
-    // of re-orders in the case that it moved far or was completely removed.
-    // Since we hold on to a reference through the keyMap, we can always add it
-    // back.
-    if (currentNode && getData(currentNode).key) {
+    // Re-order the node into the right position, preserving focus if either
+    // node or currentNode are focused by making sure that they are not detached
+    // from the DOM.
+    if (getData(node).focused) {
+      // Move everything else before the node.
+      moveBefore(currentParent, node, currentNode);
+    } else if (currentNodeData && currentNodeData.key && !currentNodeData.focused) {
+      // Remove the currentNode, which can always be added back since we hold a
+      // reference through the keyMap. This prevents a large number of moves when
+      // a keyed item is removed or moved backwards in the DOM.
       currentParent.replaceChild(node, currentNode);
-      getData(currentParent).keyMapValid = false;
+      parentData.keyMapValid = false;
     } else {
       currentParent.insertBefore(node, currentNode);
     }
 
     currentNode = node;
+  };
+
+  /**
+   * @param {?Node} node
+   * @param {?Node} child
+   * @param {?Object<string, !Element>} keyMap
+   */
+  var removeChild = function (node, child, keyMap) {
+    node.removeChild(child);
+    context.markDeleted( /** @type {!Node}*/child);
+
+    var key = getData(child).key;
+    if (key) {
+      delete keyMap[key];
+    }
   };
 
   /**
@@ -706,19 +685,8 @@
       return;
     }
 
-    if (data.attrs[symbols.placeholder] && node !== root) {
-      if ('production' !== 'production') {}
-      return;
-    }
-
     while (child !== currentNode) {
-      node.removeChild(child);
-      context.markDeleted( /** @type {!Node}*/child);
-
-      key = getData(child).key;
-      if (key) {
-        delete keyMap[key];
-      }
+      removeChild(node, child, keyMap);
       child = node.lastChild;
     }
 
@@ -745,14 +713,21 @@
   };
 
   /**
+   * @return {?Node} The next Node to be patched.
+   */
+  var getNextNode = function () {
+    if (currentNode) {
+      return currentNode.nextSibling;
+    } else {
+      return currentParent.firstChild;
+    }
+  };
+
+  /**
    * Changes to the next sibling of the current node.
    */
   var nextNode = function () {
-    if (currentNode) {
-      currentNode = currentNode.nextSibling;
-    } else {
-      currentNode = currentParent.firstChild;
-    }
+    currentNode = getNextNode();
   };
 
   /**
@@ -773,14 +748,11 @@
    * @param {?string=} key The key used to identify this element. This can be an
    *     empty string, but performance may be better if a unique value is used
    *     when iterating over an array of items.
-   * @param {?Array<*>=} statics An array of attribute name/value pairs of the
-   *     static attributes for the Element. These will only be set once when the
-   *     Element is created.
    * @return {!Element} The corresponding Element.
    */
-  var coreElementOpen = function (tag, key, statics) {
+  var coreElementOpen = function (tag, key) {
     nextNode();
-    alignWithDOM(tag, key, statics);
+    alignWithDOM(tag, key);
     enterNode();
     return (/** @type {!Element} */currentParent
     );
@@ -808,7 +780,7 @@
    */
   var coreText = function () {
     nextNode();
-    alignWithDOM('#text', null, null);
+    alignWithDOM('#text', null);
     return (/** @type {!Text} */currentNode
     );
   };
@@ -824,6 +796,14 @@
   };
 
   /**
+   * @return {Node} The Node that will be evaluated for the next instruction.
+   */
+  var currentPointer = function () {
+    if ('production' !== 'production') {}
+    return getNextNode();
+  };
+
+  /**
    * Skips the children in a subtree, allowing an Element to be closed without
    * clearing out the children.
    */
@@ -831,6 +811,167 @@
     if ('production' !== 'production') {}
     currentNode = currentParent.lastChild;
   };
+
+  /**
+   * Skips the next Node to be patched, moving the pointer forward to the next
+   * sibling of the current pointer.
+   */
+  var skipNode = nextNode;
+
+  /**
+   * Copyright 2015 The Incremental DOM Authors. All Rights Reserved.
+   *
+   * Licensed under the Apache License, Version 2.0 (the "License");
+   * you may not use this file except in compliance with the License.
+   * You may obtain a copy of the License at
+   *
+   *      http://www.apache.org/licenses/LICENSE-2.0
+   *
+   * Unless required by applicable law or agreed to in writing, software
+   * distributed under the License is distributed on an "AS-IS" BASIS,
+   * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   * See the License for the specific language governing permissions and
+   * limitations under the License.
+   */
+
+  /** @const */
+  var symbols = {
+    default: '__default'
+  };
+
+  /**
+   * @param {string} name
+   * @return {string|undefined} The namespace to use for the attribute.
+   */
+  var getNamespace = function (name) {
+    if (name.lastIndexOf('xml:', 0) === 0) {
+      return 'http://www.w3.org/XML/1998/namespace';
+    }
+
+    if (name.lastIndexOf('xlink:', 0) === 0) {
+      return 'http://www.w3.org/1999/xlink';
+    }
+  };
+
+  /**
+   * Applies an attribute or property to a given Element. If the value is null
+   * or undefined, it is removed from the Element. Otherwise, the value is set
+   * as an attribute.
+   * @param {!Element} el
+   * @param {string} name The attribute's name.
+   * @param {?(boolean|number|string)=} value The attribute's value.
+   */
+  var applyAttr = function (el, name, value) {
+    if (value == null) {
+      el.removeAttribute(name);
+    } else {
+      var attrNS = getNamespace(name);
+      if (attrNS) {
+        el.setAttributeNS(attrNS, name, value);
+      } else {
+        el.setAttribute(name, value);
+      }
+    }
+  };
+
+  /**
+   * Applies a property to a given Element.
+   * @param {!Element} el
+   * @param {string} name The property's name.
+   * @param {*} value The property's value.
+   */
+  var applyProp = function (el, name, value) {
+    el[name] = value;
+  };
+
+  /**
+   * Applies a value to a style declaration. Supports CSS custom properties by
+   * setting properties containing a dash using CSSStyleDeclaration.setProperty.
+   * @param {CSSStyleDeclaration} style
+   * @param {!string} prop
+   * @param {*} value
+   */
+  var setStyleValue = function (style, prop, value) {
+    if (prop.indexOf('-') >= 0) {
+      style.setProperty(prop, /** @type {string} */value);
+    } else {
+      style[prop] = value;
+    }
+  };
+
+  /**
+   * Applies a style to an Element. No vendor prefix expansion is done for
+   * property names/values.
+   * @param {!Element} el
+   * @param {string} name The attribute's name.
+   * @param {*} style The style to set. Either a string of css or an object
+   *     containing property-value pairs.
+   */
+  var applyStyle = function (el, name, style) {
+    if (typeof style === 'string') {
+      el.style.cssText = style;
+    } else {
+      el.style.cssText = '';
+      var elStyle = el.style;
+      var obj = /** @type {!Object<string,string>} */style;
+
+      for (var prop in obj) {
+        if (has(obj, prop)) {
+          setStyleValue(elStyle, prop, obj[prop]);
+        }
+      }
+    }
+  };
+
+  /**
+   * Updates a single attribute on an Element.
+   * @param {!Element} el
+   * @param {string} name The attribute's name.
+   * @param {*} value The attribute's value. If the value is an object or
+   *     function it is set on the Element, otherwise, it is set as an HTML
+   *     attribute.
+   */
+  var applyAttributeTyped = function (el, name, value) {
+    var type = typeof value;
+
+    if (type === 'object' || type === 'function') {
+      applyProp(el, name, value);
+    } else {
+      applyAttr(el, name, /** @type {?(boolean|number|string)} */value);
+    }
+  };
+
+  /**
+   * Calls the appropriate attribute mutator for this attribute.
+   * @param {!Element} el
+   * @param {string} name The attribute's name.
+   * @param {*} value The attribute's value.
+   */
+  var updateAttribute = function (el, name, value) {
+    var data = getData(el);
+    var attrs = data.attrs;
+
+    if (attrs[name] === value) {
+      return;
+    }
+
+    var mutator = attributes[name] || attributes[symbols.default];
+    mutator(el, name, value);
+
+    attrs[name] = value;
+  };
+
+  /**
+   * A publicly mutable object to provide custom mutators for attributes.
+   * @const {!Object<string, function(!Element, string, *)>}
+   */
+  var attributes = createMap();
+
+  // Special generic mutator that's called for any attribute that does not
+  // have a specific mutator.
+  attributes[symbols.default] = applyAttributeTyped;
+
+  attributes['style'] = applyStyle;
 
   /**
    * The offset in the virtual element declaration where the attributes are
@@ -854,15 +995,29 @@
    * @param {?Array<*>=} statics An array of attribute name/value pairs of the
    *     static attributes for the Element. These will only be set once when the
    *     Element is created.
-   * @param {...*} const_args Attribute name/value pairs of the dynamic attributes
+   * @param {...*} var_args, Attribute name/value pairs of the dynamic attributes
    *     for the Element.
    * @return {!Element} The corresponding Element.
    */
-  var elementOpen = function (tag, key, statics, const_args) {
+  var elementOpen = function (tag, key, statics, var_args) {
     if ('production' !== 'production') {}
 
-    var node = coreElementOpen(tag, key, statics);
+    var node = coreElementOpen(tag, key);
     var data = getData(node);
+
+    if (!data.staticsApplied) {
+      if (statics) {
+        for (var _i = 0; _i < statics.length; _i += 2) {
+          var name = /** @type {string} */statics[_i];
+          var value = statics[_i + 1];
+          updateAttribute(node, name, value);
+        }
+      }
+      // Down the road, we may want to keep track of the statics array to use it
+      // as an additional signal about whether a node matches or not. For now,
+      // just use a marker so that we do not reapply statics.
+      data.staticsApplied = true;
+    }
 
     /*
      * Checks to see if one or more attributes have changed for a given Element.
@@ -872,37 +1027,47 @@
      */
     var attrsArr = data.attrsArr;
     var newAttrs = data.newAttrs;
-    var attrsChanged = false;
+    var isNew = !attrsArr.length;
     var i = ATTRIBUTES_OFFSET;
     var j = 0;
 
-    for (; i < arguments.length; i += 1, j += 1) {
-      if (attrsArr[j] !== arguments[i]) {
-        attrsChanged = true;
+    for (; i < arguments.length; i += 2, j += 2) {
+      var _attr = arguments[i];
+      if (isNew) {
+        attrsArr[j] = _attr;
+        newAttrs[_attr] = undefined;
+      } else if (attrsArr[j] !== _attr) {
         break;
       }
+
+      var value = arguments[i + 1];
+      if (isNew || attrsArr[j + 1] !== value) {
+        attrsArr[j + 1] = value;
+        updateAttribute(node, _attr, value);
+      }
     }
 
-    for (; i < arguments.length; i += 1, j += 1) {
-      attrsArr[j] = arguments[i];
-    }
-
-    if (j < attrsArr.length) {
-      attrsChanged = true;
-      attrsArr.length = j;
-    }
-
-    /*
-     * Actually perform the attribute update.
-     */
-    if (attrsChanged) {
-      for (i = ATTRIBUTES_OFFSET; i < arguments.length; i += 2) {
-        newAttrs[arguments[i]] = arguments[i + 1];
+    if (i < arguments.length || j < attrsArr.length) {
+      for (; i < arguments.length; i += 1, j += 1) {
+        attrsArr[j] = arguments[i];
       }
 
-      for (var _attr in newAttrs) {
-        updateAttribute(node, _attr, newAttrs[_attr]);
-        newAttrs[_attr] = undefined;
+      if (j < attrsArr.length) {
+        attrsArr.length = j;
+      }
+
+      /*
+       * Actually perform the attribute update.
+       */
+      for (i = 0; i < attrsArr.length; i += 2) {
+        var name = /** @type {string} */attrsArr[i];
+        var value = attrsArr[i + 1];
+        newAttrs[name] = value;
+      }
+
+      for (var _attr2 in newAttrs) {
+        updateAttribute(node, _attr2, newAttrs[_attr2]);
+        newAttrs[_attr2] = undefined;
       }
     }
 
@@ -941,7 +1106,8 @@
   var attr = function (name, value) {
     if ('production' !== 'production') {}
 
-    argsBuilder.push(name, value);
+    argsBuilder.push(name);
+    argsBuilder.push(value);
   };
 
   /**
@@ -982,37 +1148,12 @@
    * @param {?Array<*>=} statics An array of attribute name/value pairs of the
    *     static attributes for the Element. These will only be set once when the
    *     Element is created.
-   * @param {...*} const_args Attribute name/value pairs of the dynamic attributes
+   * @param {...*} var_args Attribute name/value pairs of the dynamic attributes
    *     for the Element.
    * @return {!Element} The corresponding Element.
    */
-  var elementVoid = function (tag, key, statics, const_args) {
+  var elementVoid = function (tag, key, statics, var_args) {
     elementOpen.apply(null, arguments);
-    return elementClose(tag);
-  };
-
-  /**
-   * Declares a virtual Element at the current location in the document that is a
-   * placeholder element. Children of this Element can be manually managed and
-   * will not be cleared by the library.
-   *
-   * A key must be specified to make sure that this node is correctly preserved
-   * across all conditionals.
-   *
-   * @param {string} tag The element's tag.
-   * @param {string} key The key used to identify this element.
-   * @param {?Array<*>=} statics An array of attribute name/value pairs of the
-   *     static attributes for the Element. These will only be set once when the
-   *     Element is created.
-   * @param {...*} const_args Attribute name/value pairs of the dynamic attributes
-   *     for the Element.
-   * @return {!Element} The corresponding Element.
-   */
-  var elementPlaceholder = function (tag, key, statics, const_args) {
-    if ('production' !== 'production') {}
-
-    elementOpen.apply(null, arguments);
-    skip();
     return elementClose(tag);
   };
 
@@ -1020,12 +1161,12 @@
    * Declares a virtual Text at this point in the document.
    *
    * @param {string|number|boolean} value The value of the Text.
-   * @param {...(function((string|number|boolean)):string)} const_args
+   * @param {...(function((string|number|boolean)):string)} var_args
    *     Functions to format the value which are called only when the value has
    *     changed.
    * @return {!Text} The corresponding text node.
    */
-  var text = function (value, const_args) {
+  var text = function (value, var_args) {
     if ('production' !== 'production') {}
 
     var node = coreText();
@@ -1054,13 +1195,14 @@
   exports.patchInner = patchInner;
   exports.patchOuter = patchOuter;
   exports.currentElement = currentElement;
+  exports.currentPointer = currentPointer;
   exports.skip = skip;
+  exports.skipNode = skipNode;
   exports.elementVoid = elementVoid;
   exports.elementOpenStart = elementOpenStart;
   exports.elementOpenEnd = elementOpenEnd;
   exports.elementOpen = elementOpen;
   exports.elementClose = elementClose;
-  exports.elementPlaceholder = elementPlaceholder;
   exports.text = text;
   exports.attr = attr;
   exports.symbols = symbols;
@@ -1068,6 +1210,7 @@
   exports.applyAttr = applyAttr;
   exports.applyProp = applyProp;
   exports.notifications = notifications;
+  exports.importNode = importNode;
 
 }));
 
