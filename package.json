@@ -3,19 +3,17 @@
   "version": "3.0.1",
   "description": "Template engine compiler targeting incremental-dom by Google",
   "main": "index.js",
-  "scripts": {
-    "lint": "standard index.js bin/cmd.js",
-    "build:playground": "browserify -d examples/playground/playground.js > examples/playground/playground.bundle.js",
-    "build:components": "browserify examples/components/index.js -t superviewify -d -o examples/components/components.bundle.js",
-    "build:custom-elements": "browserify examples/custom-elements/index.js -t superviewify -d -o examples/custom-elements/custom-elements.bundle.js",
-    "build:x-tag": "browserify examples/x-tag/index.js -t superviewify -d -o examples/x-tag/x-tag.bundle.js",
-    "build:basic": "cat examples/basic/test.html | ./bin/cmd.js --mode=browser --name=egg --argstr=foo > examples/basic/test.js",
-    "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
-  },
+  "browser": "client/index.js",
   "bin": {
     "superviews": "./bin/cmd.js"
   },
-  "browser": "client/patch.js",
+  "scripts": {
+    "lint": "standard index.js bin/cmd.js",
+    "build:playground": "browserify -d examples/playground/playground.js > examples/playground/playground.bundle.js",
+    "build:customelements": "browserify test/customelements/index.js -t [superviewify --args 'state el'] -d -o test/customelements/bundle.js",
+    "build:examples": "browserify examples/client/x-widget/index.js -t [superviewify --args el] -d -o examples/client/x-widget/bundle.js",
+    "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/davidjamesstone/superviews.js.git"
@@ -23,19 +21,24 @@
   "author": "djs",
   "license": "ISC",
   "dependencies": {
+    "document-register-element": "1.3.0",
+    "dom-delegate": "2.0.3",
+    "freezer-js": "0.11.2",
+    "gator": "1.2.4",
     "htmlparser2": "3.9.2",
     "incremental-dom": "0.5.1",
     "indent-string": "3.0.0",
+    "is-my-json-valid": "2.15.0",
     "minimist": "1.2.0",
     "uuid": "2.0.3"
   },
   "devDependencies": {
     "brace": "0.9.0",
     "browserify": "13.1.1",
-    "document-register-element": "1.3.0",
     "standard": "8.5.0",
     "superviewify": "3.0.0",
-    "x-tag": "1.5.11"
+    "uglifyify": "3.0.4",
+    "uglifyjs": "2.4.10"
   },
   "bugs": {
     "url": "https://github.com/davidjamesstone/superviews.js/issues"
