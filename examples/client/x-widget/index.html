@@ -1,0 +1,25 @@
+<div>
+  <script>
+    const result = this.validate()
+  </script>
+  <if condition="result.ok">
+    <b>hi</b> {this.attr1}
+    <button onclick="{el.removeH1()}">Remove Handlers</button>
+    <dl>
+      <dt>State</dt>
+      <dt>{JSON.stringify(this.state.toJS(), null, 2)}</dt>
+      Change the state in the browser...
+      <div>var el = document.querySelector('x-widget');</div>
+      <div>el.state.set('a' , 42)</div>
+      <div>el.state.set('b' , 'foo')</div>
+      <div>el.state.set('c' , ['bar', 'baz'])</div>
+    </dl>
+  <else>
+    <div style="background: red; padding: 10px;">
+      <pre>{JSON.stringify(result.errors, null, 2)}</pre>
+    </div>
+    Fix the errors in the console...
+    <div>var el = document.querySelector('x-widget')</div>
+    <div>el.int = '2'</div>
+  </if>
+</div>

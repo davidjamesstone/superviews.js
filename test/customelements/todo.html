@@ -1,0 +1,5 @@
+<input type="text" value="{state.todo.text}"
+  onchange="{state.todo.set('text', this.value)}">
+<input type="checkbox" checked="{state.todo.isCompleted}"
+  onchange="{state.todo.set('isCompleted', this.checked)}">
+<span>{state.todo.text}</span>

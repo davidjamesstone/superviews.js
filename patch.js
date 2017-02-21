@@ -1,4 +1,4 @@
-var IncrementalDOM = require('incremental-dom')
+var IncrementalDOM = require('./incremental-dom')
 var patch = IncrementalDOM.patch
 var slice = Array.prototype.slice
 
