@@ -265,5 +265,3 @@ module.exports = superviews
 // TODO:
 // SKIP
 // Extend other HTML elements - "is"
-// No more checked={isChecked ? 'checked': null} => checked={isChecked} for boolean attributes
-// Scope/this/data/model (spread?) between the view and customelement. Also event handlers need should not have to be redefined each patch
