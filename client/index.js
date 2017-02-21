@@ -121,16 +121,15 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     /**
      * Event Delegation
      */
-    if (options.enableEventDelegation !== false) {
-      // Hold a map of bound handers to the original handler
-      const handlers = new Map()
 
-      // Initialise the delegator
-      const del = delegator(this)
+    // Hold a map of bound handers to the original handler
+    const handlers = new Map()
 
-      cache.delegate = del
-      cache.handlers = handlers
-    }
+    // Initialise the delegator
+    const del = delegator(this)
+
+    cache.delegate = del
+    cache.handlers = handlers
 
     this.__superviews = cache
   }

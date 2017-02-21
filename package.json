@@ -24,7 +24,6 @@
     "document-register-element": "1.3.0",
     "dom-delegate": "2.0.3",
     "freezer-js": "0.11.2",
-    "gator": "1.2.4",
     "htmlparser2": "3.9.2",
     "incremental-dom": "0.5.1",
     "indent-string": "3.0.0",
@@ -36,9 +35,7 @@
     "brace": "0.9.0",
     "browserify": "13.1.1",
     "standard": "8.5.0",
-    "superviewify": "3.0.0",
-    "uglifyify": "3.0.4",
-    "uglifyjs": "2.4.10"
+    "superviewify": "3.0.0"
   },
   "bugs": {
     "url": "https://github.com/davidjamesstone/superviews.js/issues"
