@@ -22,7 +22,7 @@ class Controller {
 
 class Widget extends superviews(options) {
   constructor () {
-    super({a: 1})
+    super({ a: 1 })
     const controller = new Controller()
     this
       .on('click', controller.onClick)

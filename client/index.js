@@ -130,12 +130,19 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
 
     cache.delegate = del
     cache.handlers = handlers
+    cache.events = options.events
 
     this.__superviews = cache
   }
 
   static get observedAttributes () {
-    return options.attributes
+    const properties = options.schema && options.schema.properties
+
+    if (properties) {
+      return Object.keys(properties)
+        .filter(key => isSimple(properties[key]))
+        .map(key => key.toLowerCase())
+    }
   }
 
   renderCallback () {
@@ -212,7 +219,7 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     // Only emit registered events
     const events = this.__superviews.events
 
-    if (!(name in events)) {
+    if (!events || !(name in events)) {
       return
     }
 
