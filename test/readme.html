@@ -1,0 +1,125 @@
+<!--
+If the outermost element is a `template` element and contains
+an `args` attribute it will be used as the function definition.
+A `name` attribute can also be supplied. These will be used to
+define the enclosing function name and arguments in the incremental-dom output (see below).
+-->
+<template name="myWidget" args="data todos foo bar">
+
+  <!--
+  `script` tags that have no attributes are treated as literal javascript
+  and will be simply inlined into the incremental-dom output.
+  -->
+  <script>
+  function add (item) {
+    todos.push(item)
+  }
+
+  function remove () {
+    todos.pop()
+  }
+  </script>
+
+  <!-- Attribute values can be set using javascript between curly braces {} -->
+  <div class="{data.cssClass}">
+
+    <!-- Attributes are omitted if their expression is null or undefined. Useful for `checked`, `disabled` -->
+    <input type="text" disabled="{data.isDisabled}">
+
+    <!-- Interpolation in attributes -->
+    <a href="http://www.google.co.uk?q={data.query}"></a>
+
+    <!-- Text Interpolation -->
+    My name is {data.name} my age is {data.age}
+    I live at {data.address}
+
+    <!-- Any javascript can be used -->
+    <div title="{JSON.stringify(data)}">Hover for json</div>
+
+    <!-- 'on' event handlers. $event and $element are available to use in the handler. -->
+    <button onclick="{alert(hi)}">Say hi</button>
+    <input type="text" value="{data.val}" onchange="{data.val = this.value}">
+    <a href="#" onclick="{$event.preventDefault(); model.doSomething();}">Some link</a>
+
+    <!-- Use an `if` attribute for conditional rendering -->
+    <p if="data.showMe">
+      <span class="{data.bar + ' other-css'}">description</span>
+    </p>
+
+    <!-- An `if` tag can also be used for conditional
+    rendering by adding a `condition` attribute. -->
+    <if condition="data.showMe">
+      I'm in an `if` block.
+    </if>
+
+    <!-- `elseif` and `else` tags can also be used -->
+    <if condition="data.foo === 1">
+      <span>1</span>
+    <elseif condition="data.foo === 2">
+      <span>2</span>
+    <else>
+      Default
+    </if>
+
+    <!-- Use a `skip` attribute for conditional patching of children -->
+    <aside>
+      <div skip="data.skipMe">
+        <span id="{data.id}">
+        </span>
+      </div>
+    </aside>
+
+    <!-- The `style` attribute is special and can be set with an object. -->
+    <span style="{ color: data.foo, backgroundColor: data.bar }">My style changes</span>
+
+    <!-- The `each` attribute can be used to repeat over items.
+    This includes iterating over keys on an Object or any object that has a
+    forEach function e.g. an Array, Map, Set.
+    Three variables are available for each iteration: $value, $item and $target.-->
+    <ul>
+      <li each="item in data.items">
+        <span class="{ $item % 2 ? 'odd' : 'even' }">{$item}</span>
+        <input value="{item.name}">
+      </li>
+    </ul>
+
+    <!-- Looping over arrays -->
+    <ul>
+      <li each="item in data.arr">
+        <span>{item.name}</span>
+      </li>
+    </ul>
+
+    <!-- Looping over object keys -->
+    <ul>
+      <li each="key in data.obj">
+        <span title="hello">{key} - {data.obj[key]}</span>
+      </li>
+    </ul>
+
+    <!-- The `each` attribute also supports defining a `key` to use.
+    For Arrays and Objects this is done automatically for you.
+    
+    If you are iterating a Map, this should be set to identify each item in the list. 
+    This allow the diff patch in to keep track of each item in the list.
+    See http://google.github.io/incremental-dom/#conditional-rendering/array-of-items.
+    The key used here is `product.id`.
+     -->
+    <ul>
+      <li each="product, product.id in data.products">
+        {product.name}
+      </li>
+    </ul>
+
+    <!-- Conditional iteration -->
+    <ul>
+      <li if="data.items.length" each="item, item.id in data.arr.sort(function (a, b) { return a < b })">
+        {item.name}
+      </li>
+      <li if="!data.items.length" class="list-header">
+        No items found
+      </li>
+    </ul>
+  </div>
+
+</template>

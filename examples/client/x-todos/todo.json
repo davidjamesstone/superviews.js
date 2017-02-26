@@ -1,0 +1,9 @@
+{
+  "type": "object",
+  "properties": {
+    "id": { "type": "integer" },
+    "text": { "type": "string" },
+    "isCompleted": { "type": "boolean", "default": false }
+  },
+  "required": ["id", "text"]
+}

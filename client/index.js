@@ -1,4 +1,4 @@
-const Store = require('../store')
+// const Store = require('../store')
 const delegator = require('../delegator')
 const validator = require('../validator')
 
@@ -35,11 +35,11 @@ function isSimple (item) {
 }
 
 const superviews = (options, Base = window.HTMLElement) => class Superviews extends Base {
-  constructor (initialState = {}) {
+  constructor () {
     super()
 
     const cache = {
-      initialState: initialState,
+      // initialState: initialState,
       options: options
     }
 
@@ -61,14 +61,14 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     /**
      * State
      */
-    const store = new Store(initialState)
+    // const store = new Store(initialState)
 
-    store.on('update', function (currentState, prevState) {
-      render()
-    })
+    // store.on('update', function (currentState, prevState) {
+    //   render()
+    // })
 
-    cache.store = store
-    cache.initialFrozenState = store.get()
+    // cache.store = store
+    // cache.initialFrozenState = store.get()
 
     /**
      * Input props/attrs & validation
@@ -108,8 +108,9 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
               return typeof val === 'undefined' ? dflt : val
             },
             set (value) {
+              const old = val
               val = convertValue(value, item.type)
-              render()
+              this.propertyChangedCallback(key, old, val)
             }
           })
         }
@@ -149,14 +150,19 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     console.log('Not implemented!')
   }
 
+  propertyChangedCallback (name, oldValue, newValue) {
+    console.log('Property changed', name, oldValue, newValue)
+    this.render()
+  }
+
   attributeChangedCallback (name, oldValue, newValue) {
     // Render on any change to observed attributes
     this.render()
   }
 
-  get state () {
-    return this.__superviews.store.get()
-  }
+  // get state () {
+  //   return this.__superviews.store.get()
+  // }
 
   render (immediatley) {
     if (immediatley) {
@@ -264,10 +270,37 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
       return result
     }
   }
+
+  static get schema () {
+    return options.schema
+  }
 }
 
 module.exports = superviews
 
 // TODO:
 // SKIP
-// Extend other HTML elements - "is"
+// Extend other HTML elements - "is"// TODO:
+// SKIP
+// EXTEND HTML
+// No more checked={isChecked ? 'checked': null} => checked={isChecked} for boolean attributes
+// Scope/this/data/model (spread?) between the view and customelement.
+// Also event handlers need should not have to be redefined each patch
+//   - In fact, dom level 1 events will *always* be redefined with superviews handler wrapper. Fix this.
+// state from props. need to know when a property changes (to possibly update state). or mark properties e.g.
+// opts = {
+//   schema: {
+//     properties: {
+//       todo: {
+//         text: { type: 'string' },
+//         isCompleted: { type: 'boolean' }
+//       }
+//     },
+//     required: ['id', 'text']
+//   },
+      // now mark certain properties as stores that when set, will be frozen
+      // Maybe freeze everything?
+//   stores: ['todo', ...]
+// }
+// Alternatively, have a onPropertyChanged callback.
+// Need a strategy for internal state or props

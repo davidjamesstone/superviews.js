@@ -1,0 +1,39 @@
+<script>
+  const result = this.validate()
+</script>
+<if condition="!result.ok">
+  <div style="background: red; padding: 10px;">
+    <pre>{JSON.stringify(result.errors, null, 2)}</pre>
+  </div>
+<else>
+  <script>
+    let todos = state.todos
+  </script>
+  <if condition="Array.isArray(todos) && todos.length">
+    <script>
+      let completed = this.getCompleted()
+    </script>
+    <section>
+      <x-todo skip each="todo, todo.id in todos" todo="{todo}"></x-todo>
+      <footer>
+        <dl>
+          <dt>Total</dt>
+          <dd>{todos.length}</dd>
+          <dt>Total completed</dt>
+          <dd>{completed.length}</dd>
+          <dt>Rendered</dt>
+          <dd>{new Date()}</dd>
+        </dl>
+        <button onclick="{todos[0].set('isCompleted', !todos[0].isCompleted)}">Toggle completed of Item 1</button>
+        <button onclick="{todos[0].set('text', 'foo')}">Set Item 1 name to 'foo'</button>
+        <button disabled="{completed.length ? undefined : 'disabled'}" onclick="{el.clear()}">Clear completed</button>
+      </footer>
+    </section>
+  <else>
+    No Todos Found
+  </if>
+  <form onsubmit="{el.addTodo($event)}">
+    <input type="text" value="{state.newTodoText}" onkeyup="{state.set('newTodoText', this.value.trim())}">
+    <button disabled="{state.newTodoText ? undefined : 'disabled'}">Add Todo</button>
+  </form>
+</if>

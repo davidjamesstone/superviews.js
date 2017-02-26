@@ -3,7 +3,9 @@ const IncrementalDOM = require('incremental-dom')
 // SKIP
 // EXTEND HTML
 // No more checked={isChecked ? 'checked': null} => checked={isChecked} for boolean attributes
-// Scope/this/data/model (spread?) between the view and customelement. Also event handlers need should not have to be redefined each patch
+// Scope/this/data/model (spread?) between the view and customelement.
+// Also event handlers need should not have to be redefined each patch
+//   - In fact, dom level 1 events will *always* be redefined with superviews handler wrapper. Fix this.
 
 IncrementalDOM.attributes.checked = function (el, name, value) {
   el.checked = !!value

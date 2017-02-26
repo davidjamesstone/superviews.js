@@ -1,0 +1,21 @@
+<script>
+  const result = this.validate()
+</script>
+<if condition="!result.ok">
+  <div style="background: red; padding: 10px;">
+    <pre>{JSON.stringify(result.errors, null, 2)}</pre>
+  </div>
+<else>
+  <div>
+    <if condition="el.mode === 'edit'">
+      <input if="" type="text" value="{el.todo.text}"
+      onchange="{el.todo.set('text', this.value)}">
+    <input type="checkbox" checked="{el.todo.isCompleted}"
+      onchange="{el.todo.set('isCompleted', this.checked)}">
+    <button class="update">Update</button>
+    <else>
+      <span if="!el.mode" style="text-decoration: { el.todo.isCompleted ? 'line-through' : 'none'}">{el.todo.text}</span>
+      <a class="edit" href="#">Edit</a>
+    </if>
+  </div>
+</if>
