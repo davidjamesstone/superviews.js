@@ -29,7 +29,7 @@ This can then be used in HTML like so:
 
 `superviews.js` provides a thin wrapper around this pattern that includes events, event delegation and property and attribute validation.
 
-The idea is that by describing what your components inputs (property/attributes) and outputs (events) are, you document the component and can also use this information to validate the state of the component.
+The idea is that by describing what your components inputs (property/attributes) and outputs (events) are, you document the component and can also use the information to validate the state of the component.
 
 JSON Schema is used to describe the properties and attributes.
 
@@ -42,11 +42,14 @@ All the examples are CJS/browserify.
 Say you want to build a Todo List Web Component.
 
 It's to have a `theme` that can be either `light` or `dark` but defaults to `dark`.
-It also needs to be supplied a list of items called `todos`. Both these inputs are required. The list of `todo` items should be an array of objects with a required integer `id`, required `text` string and a boolean flag to indicate if the task `isCompleted`.
+It also needs to be supplied a list of items called `todos`. 
+Both these inputs are required.
+
+The list of `todo` items should be an array of objects with a required integer `id`, required `text` string and a boolean flag to indicate if the task `isCompleted`.
 
 A third optional input is a `title` for the todo list and has a max length of 10. 
 
-The Todos component should emit 3 events - `change`, `add` and `remove`.
+The Todos component can emit 3 events - `change`, `add` and `remove`.
 
 Using `superviews.js`, it looks like this:
 
@@ -110,7 +113,7 @@ class Todos extends superviews(options) {
 window.customElements.define('x-todos', Todos)
 ```
 
-This could then be used like:
+This can then be used in HTML like this:
 
 ```html
 <x-todos theme="light" title="My Todos">
@@ -253,4 +256,4 @@ You can use it via `superviews.js` if you like:
 require('superviews.js/dre')
 ```
 
-For more info see the [examples](../examples) folder or open [todos](../examples/client/x-todos/index.html) or [widget](../examples/client/x-widget/test.html)
+For more info see the [examples](../examples) folder or open [todos](../examples/client/x-todos/test.html) or [widget](../examples/client/x-widget/test.html)

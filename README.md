@@ -1,16 +1,18 @@
 # superviews.js
 
-Template engine for google [incremental-dom](http://google.github.io/incremental-dom)
+On the server `superviews.js` is used as a template engine for google's [incremental-dom](http://google.github.io/incremental-dom).
 
-Try it out [live in your browser](http://davidjamesstone.github.io/superviews.js/playground/index.html)</a>
+It can also now be used [in the browser](#client) to help build web applications based on [Custom Elements V1](https://www.w3.org/TR/custom-elements/)
+
+Try it out [live in your browser](http://davidjamesstone.github.io/superviews.js/playground/index.html)
 
 `npm install superviews.js --save`
 
 ## API
 
 `tmplstr` (required) - The template string.  
-`name` - The output function name (will be overridden with a <template> element).  
-`argstr` - The output function arguments (will be overridden with a <template> element).  
+`name` - The output function name (will be overridden with a `<template>` element).  
+`argstr` - The output function arguments (will be overridden with a `<template>` element).  
 `mode` - The output format. Can be one of ['es6', 'cjs', 'browser', 'amd'], if any other value is passed the function is exported as a variable with that name. 
 
 `superviews(tmplstr, name, argstr, mode)`
@@ -18,6 +20,12 @@ Try it out [live in your browser](http://davidjamesstone.github.io/superviews.js
 ## CLI
 
 `cat examples/test.html | superviews --mode=es6 --name=foo --argstr=bar > examples/test.js`
+
+## Client
+
+NEW! superviews can now be [used in the browser](docs/client.md).
+
+Use it as a clientside library with a set of helpful classes and methods for building web applications based on the Web Components spec, specifically [Custom Elements V1](https://www.w3.org/TR/custom-elements/).
 
 ## Example
 

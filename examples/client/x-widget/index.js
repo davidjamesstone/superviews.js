@@ -5,47 +5,81 @@ const patch = require('../../../incremental-dom').patch
 const Store = require('../../../store')
 const view = require('./index.html')
 const schema = require('./schema')
+const Symbols = {
+  CONTROLLER: Symbol('controller')
+}
+const ageSchema = {
+  type: 'integer',
+  min: 0,
+  max: 130
+}
 
 const options = {
   schema: schema,
   events: {
-    change: 'change'
+    changeage: ageSchema,
+    message: {
+      properties: {
+        name: { type: 'string' },
+        timestamp: { type: 'date' }
+      },
+      required: ['name', 'timestamp']
+    }
   }
 }
 
+// Sometimes a simple `controller` class can be a useful way
+// of keeping internal code separate from the component class
 class Controller {
-  // constructor () {}
+  constructor (el) {
+    this.el = el
+    this.minAge = ageSchema.min
+    this.maxAge = ageSchema.max
+  }
+
   onClick (e) {
     e.stopImmediatePropagation()
-    window.alert('1')
+    console.log('Bonjour')
+  }
+
+  removeAllHandlers (e) {
+    this.el.off()
   }
 }
 
 class Widget extends superviews(options) {
   constructor () {
-    super({ a: 1 })
-    const controller = new Controller()
+    super()
+    const controller = new Controller(this)
+
     this
       .on('click', controller.onClick)
-      .on('click', 'b', function (e) {
-        console.log('hey')
+      .on('click', 'b', (e) => { console.log('hey') })
+      .on('change', 'input[name=age]', (e) => {
+        const age = +e.target.value
+        this.state.set('age', age)
+        this.emit('changeage', age)
       })
 
     const store = new Store({
-      newTodoText: ''
+      age: 42
     })
 
     store.on('update', (currentState, prevState) => {
       this.render()
     })
 
+    // for the purposes of this example
+    // `state` is exposed here to allow
+    // it to be modified in the browsers console
+    // - you generally wont want to do this though
     Object.defineProperty(this, 'state', {
       get: function () {
         return store.get()
       }
     })
 
-    this.controller = controller
+    this[Symbols.CONTROLLER] = controller
   }
 
   connectedCallback () {
@@ -54,12 +88,8 @@ class Widget extends superviews(options) {
 
   renderCallback () {
     patch(this, () => {
-      view.call(this, this, this.state)
+      view.call(this, this, this.state, this[Symbols.CONTROLLER])
     })
-  }
-
-  removeH1 () {
-    this.off()
   }
 }
 

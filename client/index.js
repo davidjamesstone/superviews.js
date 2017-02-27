@@ -39,7 +39,6 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     super()
 
     const cache = {
-      // initialState: initialState,
       options: options
     }
 
@@ -59,30 +58,19 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     cache.render = render
 
     /**
-     * State
-     */
-    // const store = new Store(initialState)
-
-    // store.on('update', function (currentState, prevState) {
-    //   render()
-    // })
-
-    // cache.store = store
-    // cache.initialFrozenState = store.get()
-
-    /**
      * Input props/attrs & validation
      */
     const schema = options.schema
-    if (schema) {
+    if (schema && schema.properties) {
       const validate = validator(schema, validatorOptions)
       const props = schema.properties
-      // const attrs = options.attributes
       const keys = Object.keys(props)
 
+      // For every key in the root schemas properties
+      // set up an attribute or property on the element
       keys.forEach((key) => {
-        let item = props[key]
-        let isAttr = isSimple(item)
+        const item = props[key]
+        const isAttr = isSimple(item)
         let dflt
 
         if ('default' in item) {
@@ -90,6 +78,7 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
         }
 
         if (isAttr) {
+          // Store primitive types as attributes and cast on `get`
           Object.defineProperty(this, key, {
             get () {
               return this.hasAttribute(key)
@@ -101,6 +90,7 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
             }
           })
         } else {
+          // Store objects/arrays types as attributes and cast on `get`
           let val
 
           Object.defineProperty(this, key, {
@@ -122,17 +112,11 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     /**
      * Event Delegation
      */
-
-    // Hold a map of bound handers to the original handler
-    // const handlers = new Map()
-
-    // Initialise the delegator
     const del = delegator(this)
     this.on = del.on.bind(del)
     this.off = del.off.bind(del)
     cache.delegate = del
 
-    // cache.handlers = handlers
     cache.events = options.events
 
     this.__superviews = cache
@@ -153,18 +137,20 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
   }
 
   propertyChangedCallback (name, oldValue, newValue) {
-    // Render on any change to observed property
+    // Render on any change to observed properties
+    // This can be overriden in a subclass.
+    // To call this from the subclass use
+    // super.propertyChangedCallback(name, oldValue, newValue)
     this.render()
   }
 
   attributeChangedCallback (name, oldValue, newValue) {
     // Render on any change to observed attributes
+    // This can be overriden in a subclass.
+    // To call this from the subclass use
+    // super.propertyChangedCallback(name, oldValue, newValue)
     this.render()
   }
-
-  // get state () {
-  //   return this.__superviews.store.get()
-  // }
 
   render (immediatley) {
     if (immediatley) {
@@ -173,55 +159,6 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
       this.__superviews.render()
     }
   }
-
-  // on (eventType, selector, handler, useCapture) {
-  //   const del = this.__superviews.delegate
-  //   const handlers = this.__superviews.handlers
-
-  //   // handler can be passed as
-  //   // the second or third argument
-  //   let bound
-  //   if (typeof selector === 'function') {
-  //     bound = selector.bind(this)
-  //     handlers.set(selector, bound)
-  //     selector = bound
-  //   } else {
-  //     bound = handler.bind(this)
-  //     handlers.set(handler, bound)
-  //     handler = bound
-  //   }
-
-  //   del.on(eventType, selector, handler, useCapture)
-
-  //   return this
-  // }
-
-  // off (eventType, selector, handler, useCapture) {
-  //   const del = this.__superviews.delegate
-  //   const handlers = this.__superviews.handlers
-
-  //   if (arguments.length === 0) {
-  //     // Remove all
-  //     handlers.clear()
-  //   } else {
-  //     // handler can be passed as
-  //     // the second or third argument
-  //     let bound
-  //     if (typeof selector === 'function') {
-  //       bound = handlers.get(selector)
-  //       handlers.delete(selector)
-  //       selector = bound
-  //     } else {
-  //       bound = handlers.get(handler)
-  //       handlers.delete(handler)
-  //       handler = bound
-  //     }
-  //   }
-
-  //   del.off(eventType, selector, handler, useCapture)
-
-  //   return this
-  // }
 
   emit (name, detail) {
     // Only emit registered events
@@ -236,9 +173,10 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
       detail: detail
     })
 
-    // Call the DOM Level 1 handler if one exists
-    if (this['on' + name]) {
-      this['on' + name](event)
+    // Call the DOM Level 1 handler if it exists
+    const eventName = 'on' + name
+    if (this[eventName]) {
+      this[eventName](event)
     }
 
     // Dispatch the event
@@ -275,6 +213,10 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
 
   static get schema () {
     return options.schema
+  }
+
+  static get events () {
+    return options.events
   }
 }
 

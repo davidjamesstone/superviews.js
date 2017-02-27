@@ -4,22 +4,24 @@
   </script>
   <if condition="result.ok">
     <b>hi</b> {this.attr1}
-    <button onclick="{el.removeH1()}">Remove Handlers</button>
+    <button onclick="{ctrl.removeAllHandlers()}">Remove Handlers</button>
     <dl>
       <dt>State</dt>
-      <dt>{JSON.stringify(state.toJS(), null, 2)}</dt>
-      Change the state in the browser...
-      <div>var el = document.querySelector('x-widget');</div>
-      <div>el.state.set('a' , 42)</div>
-      <div>el.state.set('b' , 'foo')</div>
-      <div>el.state.set('c' , ['bar', 'baz'])</div>
+      <dd><input type="range" name="age" value="{state.age}" min="{ctrl.minAge}" max="{ctrl.maxAge}"></dd>
+      <dd>{JSON.stringify(state.toJS(), null, 2)}</dd>
     </dl>
+    Change the state in the browser...
+    <div>var el = document.querySelector('x-widget');</div>
+    <div>el.state.set('a' , 42)</div>
+    <div>el.state.set('b' , 'foo')</div>
+    <div>el.state.set('c' , ['bar', 'baz'])</div>
   <else>
     <div style="background: red; padding: 10px;">
       <pre>{JSON.stringify(result.errors, null, 2)}</pre>
     </div>
-    Fix the errors in the console...
+    Fix the errors in the console first. E.g.
     <div>var el = document.querySelector('x-widget')</div>
     <div>el.int = '2'</div>
+    <div>el.prop1 = []</div>
   </if>
 </div>

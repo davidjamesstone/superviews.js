@@ -4,7 +4,7 @@
     "attr1": { "type": "string", "default": "something" },
     "numAttr": { "type": "number", "default": 1 },
     "int": { "type": "integer" },
-    "prop1": { "type": "object" },
+    "prop1": { "type": "array" },
     "optional": { "type": "string" }
   },
   "required": [ "attr1", "numAttr", "int", "prop1" ]
