@@ -11,7 +11,7 @@
     "lint": "standard index.js bin/cmd.js",
     "build:playground": "browserify -d examples/playground/playground.js > examples/playground/playground.bundle.js",
     "build:customelements": "browserify examples/client/x-todos/index.js -t [superviewify --args 'el state'] -d -o examples/client/x-todos/bundle.js",
-    "build:examples": "browserify examples/client/x-widget/index.js -t [superviewify --args el] -d -o examples/client/x-widget/bundle.js",
+    "build:examples": "browserify examples/client/x-widget/index.js -t [superviewify --args 'el state'] -d -o examples/client/x-widget/bundle.js",
     "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
   },
   "repository": {

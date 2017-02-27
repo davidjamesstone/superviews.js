@@ -1,6 +1,6 @@
 const superviews = require('../../../client')
 const view = require('./todo.html')
-const patch = require('../../../patch')
+const patch = require('../../../incremental-dom').patch
 const schema = require('./todo.json')
 
 const options = {
@@ -19,18 +19,18 @@ class Todo extends superviews(options) {
   constructor () {
     super()
     this
-      // .on('change', 'input[type=text]', function (e) {
+      // .on('change', 'input[type=text]', (e) => {
       //   this.todo.text = e.target.value.trim()
       //   this.render(true)
       // })
-      // .on('change', 'input[type=checkbox]', function (e) {
+      // .on('change', 'input[type=checkbox]', (e) => {
       //   this.todo.isCompleted = e.target.checked
       //   this.render(true)
       // })
-      .on('click', 'a.edit', function (e) {
+      .on('click', 'a.edit', (e) => {
         this.mode = 'edit'
       })
-      .on('click', 'button.update', function (e) {
+      .on('click', 'button.update', (e) => {
         this.mode = ''
       })
   }

@@ -24,8 +24,6 @@
           <dt>Rendered</dt>
           <dd>{new Date()}</dd>
         </dl>
-        <button onclick="{todos[0].set('isCompleted', !todos[0].isCompleted)}">Toggle completed of Item 1</button>
-        <button onclick="{todos[0].set('text', 'foo')}">Set Item 1 name to 'foo'</button>
         <button disabled="{completed.length ? undefined : 'disabled'}" onclick="{el.clear()}">Clear completed</button>
       </footer>
     </section>
@@ -36,4 +34,6 @@
     <input type="text" value="{state.newTodoText}" onkeyup="{state.set('newTodoText', this.value.trim())}">
     <button disabled="{state.newTodoText ? undefined : 'disabled'}">Add Todo</button>
   </form>
+  <button onclick="{todos[0].set('isCompleted', !todos[0].isCompleted)}">Toggle completed of Item 1</button>
+  <button onclick="{todos[0].set('text', 'foo')}">Set Item 1 name to 'foo'</button>
 </if>

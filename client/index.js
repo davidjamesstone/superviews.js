@@ -124,13 +124,15 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
      */
 
     // Hold a map of bound handers to the original handler
-    const handlers = new Map()
+    // const handlers = new Map()
 
     // Initialise the delegator
     const del = delegator(this)
-
+    this.on = del.on.bind(del)
+    this.off = del.off.bind(del)
     cache.delegate = del
-    cache.handlers = handlers
+
+    // cache.handlers = handlers
     cache.events = options.events
 
     this.__superviews = cache
@@ -151,7 +153,7 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
   }
 
   propertyChangedCallback (name, oldValue, newValue) {
-    console.log('Property changed', name, oldValue, newValue)
+    // Render on any change to observed property
     this.render()
   }
 
@@ -172,54 +174,54 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     }
   }
 
-  on (eventType, selector, handler, useCapture) {
-    const del = this.__superviews.delegate
-    const handlers = this.__superviews.handlers
+  // on (eventType, selector, handler, useCapture) {
+  //   const del = this.__superviews.delegate
+  //   const handlers = this.__superviews.handlers
 
-    // handler can be passed as
-    // the second or third argument
-    let bound
-    if (typeof selector === 'function') {
-      bound = selector.bind(this)
-      handlers.set(selector, bound)
-      selector = bound
-    } else {
-      bound = handler.bind(this)
-      handlers.set(handler, bound)
-      handler = bound
-    }
+  //   // handler can be passed as
+  //   // the second or third argument
+  //   let bound
+  //   if (typeof selector === 'function') {
+  //     bound = selector.bind(this)
+  //     handlers.set(selector, bound)
+  //     selector = bound
+  //   } else {
+  //     bound = handler.bind(this)
+  //     handlers.set(handler, bound)
+  //     handler = bound
+  //   }
 
-    del.on(eventType, selector, handler, useCapture)
+  //   del.on(eventType, selector, handler, useCapture)
 
-    return this
-  }
+  //   return this
+  // }
 
-  off (eventType, selector, handler, useCapture) {
-    const del = this.__superviews.delegate
-    const handlers = this.__superviews.handlers
+  // off (eventType, selector, handler, useCapture) {
+  //   const del = this.__superviews.delegate
+  //   const handlers = this.__superviews.handlers
 
-    if (arguments.length === 0) {
-      // Remove all
-      handlers.clear()
-    } else {
-      // handler can be passed as
-      // the second or third argument
-      let bound
-      if (typeof selector === 'function') {
-        bound = handlers.get(selector)
-        handlers.delete(selector)
-        selector = bound
-      } else {
-        bound = handlers.get(handler)
-        handlers.delete(handler)
-        handler = bound
-      }
-    }
+  //   if (arguments.length === 0) {
+  //     // Remove all
+  //     handlers.clear()
+  //   } else {
+  //     // handler can be passed as
+  //     // the second or third argument
+  //     let bound
+  //     if (typeof selector === 'function') {
+  //       bound = handlers.get(selector)
+  //       handlers.delete(selector)
+  //       selector = bound
+  //     } else {
+  //       bound = handlers.get(handler)
+  //       handlers.delete(handler)
+  //       handler = bound
+  //     }
+  //   }
 
-    del.off(eventType, selector, handler, useCapture)
+  //   del.off(eventType, selector, handler, useCapture)
 
-    return this
-  }
+  //   return this
+  // }
 
   emit (name, detail) {
     // Only emit registered events

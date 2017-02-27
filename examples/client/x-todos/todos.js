@@ -1,5 +1,5 @@
 const superviews = require('../../../client')
-const patch = require('../../../patch')
+const patch = require('../../../incremental-dom').patch
 const Store = require('../../../store')
 const view = require('./todos.html')
 const Todo = require('./todo')

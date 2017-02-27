@@ -1,7 +1,8 @@
 require('../../../dre')
 
 const superviews = require('../../../client')
-const patch = require('../../../patch')
+const patch = require('../../../incremental-dom').patch
+const Store = require('../../../store')
 const view = require('./index.html')
 const schema = require('./schema')
 
@@ -29,6 +30,21 @@ class Widget extends superviews(options) {
       .on('click', 'b', function (e) {
         console.log('hey')
       })
+
+    const store = new Store({
+      newTodoText: ''
+    })
+
+    store.on('update', (currentState, prevState) => {
+      this.render()
+    })
+
+    Object.defineProperty(this, 'state', {
+      get: function () {
+        return store.get()
+      }
+    })
+
     this.controller = controller
   }
 
@@ -38,7 +54,7 @@ class Widget extends superviews(options) {
 
   renderCallback () {
     patch(this, () => {
-      view.call(this, this)
+      view.call(this, this, this.state)
     })
   }
 

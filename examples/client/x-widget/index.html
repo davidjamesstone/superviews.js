@@ -7,7 +7,7 @@
     <button onclick="{el.removeH1()}">Remove Handlers</button>
     <dl>
       <dt>State</dt>
-      <dt>{JSON.stringify(this.state.toJS(), null, 2)}</dt>
+      <dt>{JSON.stringify(state.toJS(), null, 2)}</dt>
       Change the state in the browser...
       <div>var el = document.querySelector('x-widget');</div>
       <div>el.state.set('a' , 42)</div>
