@@ -167,11 +167,17 @@ myList.addEventListener('add', function (e) {})
 myList.addEventListener('remove', function (e) {})
 ```
 
-DOM Level 1 events are also supported
+DOM Level 0 events are supported
 
 ```html
-<x-todos theme="light" title="My Todos" onremove="...">
+<x-todos theme="light" title="My Todos" onremove="{myHandler()}">
 </x-todos>
+```
+
+as are DOM Level 1:
+
+```js
+myList.onremove = function (e) {}
 ```
 
 `emit(name, detail)` is used to emit an event. 
