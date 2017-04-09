@@ -5,7 +5,8 @@ const validator = require('../validator')
 const validatorOptions = {
   greedy: true,
   formats: {
-    uuid: /^(?:urn:uuid:)?[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i
+    uuid: /^(?:urn:uuid:)?[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i,
+    objectid: /^[a-f\d]{24}$/i
   }
 }
 
@@ -62,7 +63,8 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
      */
     const schema = options.schema
     if (schema && schema.properties) {
-      const validate = validator(schema, validatorOptions)
+      const opts = options.validatorOptions || validatorOptions
+      const validate = validator(schema, opts)
       const props = schema.properties
       const keys = Object.keys(props)
 
