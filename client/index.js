@@ -160,7 +160,7 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     }
   }
 
-  emit (name, detail) {
+  emit (name, customEventInit) {
     // Only emit registered events
     const events = this.__superviews.events
 
@@ -169,9 +169,7 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
     }
 
     // Create custom event
-    const event = new window.CustomEvent(name, {
-      detail: detail
-    })
+    const event = new window.CustomEvent(name, customEventInit)
 
     // Call the DOM Level 1 handler if it exists
     const eventName = 'on' + name
