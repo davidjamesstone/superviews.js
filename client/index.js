@@ -32,7 +32,7 @@ const convertValue = function (value, type) {
 }
 
 function isSimple (item) {
-  return item.type !== 'object' && item.type !== 'array'
+  return item.type === 'number' || item.type === 'string' || item.type === 'boolean'
 }
 
 const superviews = (options, Base = window.HTMLElement) => class Superviews extends Base {
@@ -100,9 +100,13 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
               return typeof val === 'undefined' ? dflt : val
             },
             set (value) {
-              const old = val
-              val = convertValue(value, item.type)
-              this.propertyChangedCallback(key, old, val)
+              const oldval = val
+              const newval = convertValue(value, item.type)
+
+              if (newval !== oldval) {
+                val = newval
+                this.propertyChangedCallback(key, oldval, newval)
+              }
             }
           })
         }
