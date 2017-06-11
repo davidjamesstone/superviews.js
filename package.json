@@ -12,7 +12,9 @@
     "build:playground": "browserify -d examples/playground/playground.js > examples/playground/playground.bundle.js",
     "build:customelements": "browserify examples/client/x-todos/index.js -t [superviewify --args 'el state'] -d -o examples/client/x-todos/bundle.js",
     "build:examples": "browserify examples/client/x-widget/index.js -t [superviewify --args 'el state ctrl'] -d -o examples/client/x-widget/bundle.js",
-    "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js"
+    "build:readme": "cat test/readme.html | ./bin/cmd.js > test/readme.js",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "repository": {
     "type": "git",
@@ -34,6 +36,7 @@
   "devDependencies": {
     "brace": "0.9.0",
     "browserify": "13.1.1",
+    "jest": "^20.0.4",
     "standard": "8.5.0",
     "superviewify": "3.0.0"
   },
