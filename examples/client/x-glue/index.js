@@ -2,10 +2,8 @@ require('../../../dre')
 
 const superviews = require('../../../client')
 const patch = require('../../../incremental-dom').patch
-// const validator = require('../../../validator')
-// const Store = require('../../../store')
+const prop = require('supermodels.js/lib/prop')()
 const view = require('./index.html')
-const schema = require('./schema')
 const Symbols = {
   CONTROLLER: Symbol('controller')
 }
@@ -15,16 +13,8 @@ const ageSchema = {
   max: 130
 }
 
-const validatorOptions = {
-  greedy: true,
-  formats: {
-    uuid: /^(?:urn:uuid:)?[0-9a-f]{8}-(?:[0-9a-f]{4}-){3}[0-9a-f]{12}$/i,
-    objectid: /^[a-f\d]{24}$/i
-  }
-}
-
 const options = {
-  schema: schema,
+  schema: 'schema',
   events: {
     changeage: ageSchema,
     message: {
@@ -37,7 +27,42 @@ const options = {
   }
 }
 
-const validate = validator(schema, validatorOptions)
+// Let's register 4 simple validators. Registering validators
+// makes them part of the fluent interface when using `prop`.
+prop.prototype.attribute = function (value) {
+  this.__attribute = !!value
+  return this
+}
+
+
+prop.register('required', function () {
+  return function (val, name) {
+    if (!val) {
+      return name + ' is required'
+    }
+  }
+})
+
+prop.register('min', function (min) {
+  return function (val, name) {
+    if (val < min) {
+      return name + ' is less than ' + min
+    }
+  }
+})
+
+prop.register('max', function (max) {
+  return function (val, name) {
+    if (val > max) {
+      return name + ' is greater than ' + max
+    }
+  }
+})
+
+var props = {
+  str: prop(String).attribute(true),
+  num: prop(Number).attribute(true).min(2).max(10).required()
+}
 
 // Sometimes a simple `controller` class can be a useful way
 // of keeping internal code separate from the component class
@@ -79,6 +104,9 @@ class Widget extends superviews(options) {
   init () {
     const controller = new Controller(this)
 
+    this.str = prop(String).required()
+    this.num = prop(Number).required()
+
     this
       .on('click', controller.onClick)
       .on('click', 'b', (e) => { console.log('hey') })
@@ -111,6 +139,14 @@ class Widget extends superviews(options) {
     // })
 
     this[Symbols.CONTROLLER] = controller
+  }
+
+  get str1 () {
+    return
+  }
+
+  set str1 (value) {
+
   }
 
   connectedCallback () {

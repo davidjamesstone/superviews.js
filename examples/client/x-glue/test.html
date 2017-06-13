@@ -1,0 +1,8 @@
+<script src="bundle.js"></script>
+<x-widget></x-widget>
+<script>
+  const widget = document.querySelector('x-widget')
+  widget.addEventListener('changeage', function (e) {
+    window.alert('New age is ' + e.detail)
+  })
+</script>

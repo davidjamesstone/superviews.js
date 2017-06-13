@@ -1,6 +1,5 @@
 // const Store = require('../store')
 const delegator = require('../delegator')
-const Model = require('jpi-models')
 // const validator = require('../validator')
 
 // const validatorOptions = {
@@ -66,12 +65,6 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
      */
     const schema = options.schema
     if (schema && schema.properties) {
-      const model = Model(schema)
-
-      model.on('update', function (e) {
-        console.log(e.event, e.path)
-      })
-
       // const opts = options.validatorOptions || validatorOptions
       // const validate = validator(schema, opts)
       const props = schema.properties
@@ -129,7 +122,6 @@ const superviews = (options, Base = window.HTMLElement) => class Superviews exte
      */
     const del = delegator(this)
     _.on = del.on.bind(del)
-        // .filter(key => isSimple(properties[key]))
     _.off = del.off.bind(del)
     cache.delegate = del
 
