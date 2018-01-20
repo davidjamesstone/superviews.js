@@ -315,7 +315,7 @@ module.exports = function (tmplstr, name, argstr, mode) {
       result = hoisted + '\n\n' + 'return ' + fn
       result = 'window.' + name + ' = (function () {' + '\n' + result + '\n' + '})()' + '\n'
       break
-    case 'es6':
+    case 'esm':
       result = 'import {patch, elementOpen, elementClose, text, skip, currentElement} from "incremental-dom"\n\n'
       result += hoisted + '\n\n' + 'export default ' + fn + '\n'
       break
