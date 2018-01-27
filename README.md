@@ -8,6 +8,8 @@ Try it out [live in your browser](http://davidjamesstone.github.io/superviews.js
 
 `npm install superviews.js --save`
 
+NEW! Using [hyperapp](https://github.com/hyperapp/hyperapp)? Try [hyperviews](https://github.com/davidjamesstone/hyperviews). The same declarative template language as `superviews.js` but for `hyperapp`.
+
 ## API
 
 `tmplstr` (required) - The template string.  
