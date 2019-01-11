@@ -1,3 +1,5 @@
+NEW! Try [hyperviews](https://github.com/davidjamesstone/hyperviews). The same declarative template language as `superviews.js` but for any `h(tag, props, children)` compliant framework like `React`, `hyperapp`, `preact`....
+
 # superviews.js
 
 On the server `superviews.js` is used as a template engine for google's [incremental-dom](http://google.github.io/incremental-dom).
@@ -7,8 +9,6 @@ It can also now be used [in the browser](#client) to help build web applications
 Try it out [live in your browser](http://davidjamesstone.github.io/superviews.js/playground/index.html)
 
 `npm install superviews.js --save`
-
-NEW! Using [hyperapp](https://github.com/hyperapp/hyperapp)? Try [hyperviews](https://github.com/davidjamesstone/hyperviews). The same declarative template language as `superviews.js` but for `hyperapp`.
 
 ## API
 
