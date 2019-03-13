@@ -1,6 +1,6 @@
 {
   "name": "superviews.js",
-  "version": "3.0.4",
+  "version": "3.1.0",
   "description": "Template engine compiler targeting incremental-dom by Google",
   "main": "index.js",
   "browser": "client/index.js",
@@ -22,22 +22,21 @@
   "author": "djs",
   "license": "ISC",
   "dependencies": {
-    "document-register-element": "1.5.0",
+    "document-register-element": "1.8.1",
     "dom-delegate": "2.0.3",
-    "freezer-js": "0.11.2",
+    "freezer-js": "0.14.0",
     "htmlparser2": "3.9.2",
     "incremental-dom": "0.5.1",
-    "indent-string": "3.0.0",
-    "is-my-json-valid": "2.15.0",
+    "indent-string": "3.2.0",
+    "is-my-json-valid": "2.17.2",
     "jpi-models": "0.0.1",
     "minimist": "1.2.0",
-    "uuid": "2.0.3"
+    "uuid": "3.2.1"
   },
   "devDependencies": {
-    "brace": "0.9.0",
-    "browserify": "13.1.1",
-    "standard": "8.5.0",
-    "supermodels.js": "0.2.1",
+    "brace": "0.11.1",
+    "browserify": "16.1.1",
+    "standard": "11.0.1",
     "superviewify": "3.0.0"
   },
   "bugs": {
