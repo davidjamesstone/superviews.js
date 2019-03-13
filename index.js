@@ -96,7 +96,7 @@ function interpolate (text) {
   return strify(text)
 }
 
-function getAttrs (name, attribs) {
+function getAttrs (name, attribs, nostatics) {
   var specials = {}
   var statics = []
   var properties = []
@@ -125,8 +125,13 @@ function getAttrs (name, attribs) {
       properties.push(key)
       properties.push(interpolate(attrib))
     } else {
-      statics.push(key)
-      statics.push(attrib)
+      if (nostatics) {
+        properties.push(key)
+        properties.push(strify(attrib))
+      } else {
+        statics.push(key)
+        statics.push(attrib)
+      }
     }
   }
   return {
@@ -168,13 +173,17 @@ var handler = {
       return
     }
 
-    var key
-    if (attribs['key']) {
-      key = strify(attribs['key'])
+    var key = attribs['key'], nostatics
+    if (typeof key !== 'undefined') {
+      if (key === '') {
+        nostatics = true
+      } else {
+        key = strify(key)
+      }
       delete attribs['key']
     }
 
-    var attrs = getAttrs(name, attribs)
+    var attrs = getAttrs(name, attribs, nostatics)
     var specials = attrs.specials
 
     if (specials.if) {
