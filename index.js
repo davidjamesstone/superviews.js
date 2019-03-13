@@ -93,6 +93,7 @@ function interpolate (text) {
   text = text.replace(/\{/g, '" + (')
   text = text.replace(/\}/g, ') + "')
   text = text.replace(/\n/g, ' \\\n')
+  text = text.replace(/\r/g, '')
   return strify(text)
 }
 
